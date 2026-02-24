@@ -22,6 +22,22 @@ public class GoldSystem : MonoBehaviour
         }
     }
 
+    private void OnEnable()
+    {
+        EnemyHealth.OnEnemyDie += GoldRewardAdd;
+    }
+
+    private void OnDisable()
+    {
+        EnemyHealth.OnEnemyDie -= GoldRewardAdd;
+    }
+
+    private void GoldRewardAdd(EnemyHealth.EnemyReward reward)
+    {
+        goldAmount += reward.Gold;
+        OnGoldChange?.Invoke();
+    }
+
     private void GoldAdd(int amount)
     {
         goldAmount = goldAmount + amount;

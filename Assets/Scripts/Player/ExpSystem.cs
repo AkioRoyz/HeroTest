@@ -1,5 +1,6 @@
 using System;
 using Unity.VisualScripting;
+using UnityEditor.Localization.Plugins.XLIFF.V12;
 using UnityEngine;
 
 public class ExpSystem : MonoBehaviour
@@ -27,12 +28,30 @@ public class ExpSystem : MonoBehaviour
         }
     }
 
+    private void OnEnable()
+    {
+        EnemyHealth.OnEnemyDie += AddRewardXP;
+    }
+
+    private void OnDisable()
+    {
+        EnemyHealth.OnEnemyDie -= AddRewardXP;
+    }
+
+    private void AddRewardXP(EnemyHealth.EnemyReward reward)
+    {
+        AddXPInternal(reward.Exp);
+    }
+
     private void AddXP(int amount)
     {
+        AddXPInternal(amount);
+    }
+
+    private void AddXPInternal(int amount)
+    {
         if (currentLvl == maxLvl)
-        {
             return;
-        }
 
         currentXP += amount;
 
@@ -49,7 +68,6 @@ public class ExpSystem : MonoBehaviour
         }
 
         OnXpAdd?.Invoke(currentXP);
-
     }
 
     private void LvlUp()
