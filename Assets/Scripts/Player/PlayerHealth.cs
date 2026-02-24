@@ -33,7 +33,7 @@ public class PlayerHealth : MonoBehaviour
 
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.X))
+        if (Input.GetKeyDown(KeyCode.X)) //ТЕСТОВЫЙ КОД УДАЛИТЬ ПОСЛЕ
         {
             TestDamage(10);
         }

@@ -11,12 +11,12 @@ public class GoldSystem : MonoBehaviour
 
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.V))
+        if (Input.GetKeyDown(KeyCode.V)) //ТЕСТОВЫЙ КОД УДАЛИТЬ ПОСЛЕ
         {
             GoldAdd(10);
         }
 
-        else if (Input.GetKeyDown(KeyCode.B))
+        else if (Input.GetKeyDown(KeyCode.B)) //ТЕСТОВЫЙ КОД УДАЛИТЬ ПОСЛЕ
         {
             GoldSpend(5);
         }

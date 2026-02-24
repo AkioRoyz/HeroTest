@@ -30,7 +30,7 @@ public class PlayerMana : MonoBehaviour
 
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.C))
+        if (Input.GetKeyDown(KeyCode.C)) //ТЕСТОВЫЙ КОД УДАЛИТЬ ПОСЛЕ
         {
             TestManaStore(10);
         }
