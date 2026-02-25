@@ -6,7 +6,6 @@ public class EnemyHealth : MonoBehaviour
     [SerializeField] private int maxHealth;
     [SerializeField] private int currentHealth;
 
-    public static event Action<EnemyReward> OnEnemyDie;
     public event Action OnEnemyHealthChange;
 
     [SerializeField] private int deathGold = 5;
@@ -28,17 +27,6 @@ public class EnemyHealth : MonoBehaviour
         }
     }
 
-    public struct EnemyReward
-    {
-        public int Exp;
-        public int Gold;
-
-        public EnemyReward(int exp, int gold)
-        {
-            Exp = exp; Gold = gold;
-        }
-    }
-
     private void TakeDamage(int amount)
     {
         currentHealth -= amount;
@@ -51,7 +39,9 @@ public class EnemyHealth : MonoBehaviour
 
     private void Die()
     {
-        OnEnemyDie?.Invoke(new EnemyReward(deathEXP, deathGold));
+        RewardData reward = new RewardData(deathEXP, deathGold);
+        RewardSystem.Instance.GiveReward(reward);
+
         Destroy(gameObject);
     }
 }

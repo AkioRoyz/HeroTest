@@ -24,15 +24,15 @@ public class GoldSystem : MonoBehaviour
 
     private void OnEnable()
     {
-        EnemyHealth.OnEnemyDie += GoldRewardAdd;
+        RewardSystem.OnRewardGiven += GoldRewardAdd;
     }
 
     private void OnDisable()
     {
-        EnemyHealth.OnEnemyDie -= GoldRewardAdd;
+        RewardSystem.OnRewardGiven -= GoldRewardAdd;
     }
 
-    private void GoldRewardAdd(EnemyHealth.EnemyReward reward)
+    private void GoldRewardAdd(RewardData reward)
     {
         goldAmount += reward.Gold;
         OnGoldChange?.Invoke();
@@ -46,6 +46,11 @@ public class GoldSystem : MonoBehaviour
 
     private void GoldSpend(int amount)
     {
+        if (goldAmount < amount)
+        {
+            return;
+        }
+        
         goldAmount = goldAmount - amount;
         OnGoldChange?.Invoke();
     }

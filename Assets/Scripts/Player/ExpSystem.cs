@@ -1,6 +1,4 @@
 using System;
-using Unity.VisualScripting;
-using UnityEditor.Localization.Plugins.XLIFF.V12;
 using UnityEngine;
 
 public class ExpSystem : MonoBehaviour
@@ -30,15 +28,15 @@ public class ExpSystem : MonoBehaviour
 
     private void OnEnable()
     {
-        EnemyHealth.OnEnemyDie += AddRewardXP;
+        RewardSystem.OnRewardGiven += AddRewardXP;
     }
 
     private void OnDisable()
     {
-        EnemyHealth.OnEnemyDie -= AddRewardXP;
+        RewardSystem.OnRewardGiven -= AddRewardXP;
     }
 
-    private void AddRewardXP(EnemyHealth.EnemyReward reward)
+    private void AddRewardXP(RewardData reward)
     {
         AddXPInternal(reward.Exp);
     }
