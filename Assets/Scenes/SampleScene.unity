@@ -221,7 +221,7 @@ GameObject:
   m_Component:
   - component: {fileID: 84421657}
   - component: {fileID: 84421658}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Hitbox2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -589,7 +589,7 @@ GameObject:
   m_Component:
   - component: {fileID: 168864645}
   - component: {fileID: 168864646}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: StatsSystem
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -694,6 +694,7 @@ GameObject:
   m_Component:
   - component: {fileID: 301331074}
   - component: {fileID: 301331075}
+  - component: {fileID: 301331076}
   m_Layer: 0
   m_Name: SpriteRadius
   m_TagString: Untagged
@@ -751,8 +752,23 @@ CapsuleCollider2D:
   m_CompositeOperation: 0
   m_CompositeOrder: 0
   m_Offset: {x: 0, y: 0}
-  m_Size: {x: 6, y: 6}
+  m_Size: {x: 15, y: 15}
   m_Direction: 0
+--- !u!114 &301331076
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 301331073}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cabd2c113948f0f46b25226a11d32c86, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TriggerImageZone
+  imageObject: {fileID: 511412422}
+  floatAmplitude: 0.1
+  floatSpeed: 7
 --- !u!1 &320855588
 GameObject:
   m_ObjectHideFlags: 0
@@ -763,7 +779,7 @@ GameObject:
   m_Component:
   - component: {fileID: 320855589}
   - component: {fileID: 320855590}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Hitbox1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1158,7 +1174,7 @@ GameObject:
   - component: {fileID: 465841262}
   - component: {fileID: 465841263}
   - component: {fileID: 465841264}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: HealthManaSystem
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1328,14 +1344,14 @@ RectTransform:
   m_GameObject: {fileID: 511412422}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.5, y: 0.5, z: 1}
+  m_LocalScale: {x: 0.7, y: 0.5, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 669764575}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 1, y: 1}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &511412424
@@ -1345,7 +1361,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 511412422}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
@@ -1627,7 +1643,7 @@ SpriteRenderer:
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
-  m_SpriteSortPoint: 0
+  m_SpriteSortPoint: 1
 --- !u!70 &612918754
 CapsuleCollider2D:
   m_ObjectHideFlags: 0
@@ -1658,12 +1674,12 @@ CapsuleCollider2D:
   m_CallbackLayers:
     serializedVersion: 2
     m_Bits: 4294967295
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0, y: 0}
-  m_Size: {x: 3, y: 3}
+  m_Offset: {x: 0.12443121, y: 0.5154936}
+  m_Size: {x: 1.4002022, y: 1.3291014}
   m_Direction: 1
 --- !u!4 &612918755
 Transform:
@@ -1862,7 +1878,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0.11, y: 1.73}
   m_SizeDelta: {x: 1, y: 1}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &669764576
@@ -2590,7 +2606,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 985158305}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: AttackHitboxes
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2764,7 +2780,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1111255564}
   - component: {fileID: 1111255565}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Hitbox3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2970,7 +2986,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1179012318}
   - component: {fileID: 1179012319}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: GoldSystem
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3346,7 +3362,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1438095862}
   - component: {fileID: 1438095863}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Moving
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3473,7 +3489,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1509178322}
   - component: {fileID: 1509178323}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: AttackSystem
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3518,7 +3534,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1608696421}
   - component: {fileID: 1608696422}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: ExpSystem
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4170,7 +4186,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2027347478}
   - component: {fileID: 2027347479}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: PlayerAnimator
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4222,7 +4238,7 @@ GameObject:
   - component: {fileID: 2084367338}
   - component: {fileID: 2084367337}
   - component: {fileID: 2084367341}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Player
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4351,7 +4367,7 @@ SpriteRenderer:
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
-  m_SpriteSortPoint: 0
+  m_SpriteSortPoint: 1
 --- !u!4 &2084367340
 Transform:
   m_ObjectHideFlags: 0
