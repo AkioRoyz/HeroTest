@@ -16,7 +16,6 @@ public class RewardSystem : MonoBehaviour
         }
 
         Instance = this;
-        DontDestroyOnLoad(gameObject);
     }
 
     public void GiveReward(RewardData reward)

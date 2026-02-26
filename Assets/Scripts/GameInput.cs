@@ -6,6 +6,7 @@ public class GameInput : MonoBehaviour
 {
     [SerializeField] private InputSystem_Actions inputActions;
     public event Action OnAttack;
+    public event Action OnUse;
     public Vector2 moveVector {  get; private set; }
 
     private void Awake()
@@ -23,15 +24,22 @@ public class GameInput : MonoBehaviour
     private void OnEnable()
     {
         inputActions.Player.Attack.performed += AttackAction;
+        inputActions.Player.Use.performed += UsePlayer;
     }
 
     private void OnDisable()
     {
         inputActions.Player.Attack.performed -= AttackAction;
+        inputActions.Player.Use.performed -= UsePlayer;
     }
 
     private void AttackAction(InputAction.CallbackContext context)
     {
         OnAttack?.Invoke();
+    }
+
+    private void UsePlayer(InputAction.CallbackContext context)
+    {
+        OnUse?.Invoke(); 
     }
 }
