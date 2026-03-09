@@ -697,7 +697,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 23f84fe7b1c41564ea55ee08b4bd177b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AttackTrigger
-  statsSystem: {fileID: 0}
+  statsSystem: {fileID: 168864646}
 --- !u!1 &369282293
 GameObject:
   m_ObjectHideFlags: 0
@@ -2586,7 +2586,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 23f84fe7b1c41564ea55ee08b4bd177b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AttackTrigger
-  statsSystem: {fileID: 0}
+  statsSystem: {fileID: 168864646}
 --- !u!70 &1185112376
 CapsuleCollider2D:
   m_ObjectHideFlags: 0
@@ -2945,7 +2945,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 23f84fe7b1c41564ea55ee08b4bd177b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AttackTrigger
-  statsSystem: {fileID: 0}
+  statsSystem: {fileID: 168864646}
 --- !u!70 &1388644536
 CapsuleCollider2D:
   m_ObjectHideFlags: 0
@@ -4148,7 +4148,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 23f84fe7b1c41564ea55ee08b4bd177b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AttackTrigger
-  statsSystem: {fileID: 0}
+  statsSystem: {fileID: 168864646}
 --- !u!70 &2108467140
 CapsuleCollider2D:
   m_ObjectHideFlags: 0
