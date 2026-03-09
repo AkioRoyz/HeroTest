@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 4947759787855160113}
   - component: {fileID: 3470772755826945408}
   - component: {fileID: 4378379876194518478}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: EnemyHpUI
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -128,7 +128,7 @@ GameObject:
   - component: {fileID: 1335974271168239471}
   - component: {fileID: 5960491518837602221}
   - component: {fileID: 1435933822975863561}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: EnemyHpImage
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -205,7 +205,7 @@ GameObject:
   - component: {fileID: 6855143312126357167}
   - component: {fileID: 3483118938503191533}
   - component: {fileID: 1324237381396901076}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: EnemyTest
   m_TagString: Untagged
   m_Icon: {fileID: 0}

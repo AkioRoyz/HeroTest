@@ -27,7 +27,7 @@ public class EnemyHealth : MonoBehaviour
         }
     }
 
-    private void TakeDamage(int amount)
+    public void TakeDamage(int amount)
     {
         currentHealth -= amount;
         OnEnemyHealthChange?.Invoke();
