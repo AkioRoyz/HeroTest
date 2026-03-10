@@ -626,7 +626,7 @@ GameObject:
   - component: {fileID: 320855589}
   - component: {fileID: 320855590}
   - component: {fileID: 320855591}
-  m_Layer: 3
+  m_Layer: 7
   m_Name: HitboxRight
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2194,7 +2194,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 985158305}
-  m_Layer: 3
+  m_Layer: 7
   m_Name: AttackHitboxes
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2552,7 +2552,7 @@ GameObject:
   - component: {fileID: 1185112374}
   - component: {fileID: 1185112376}
   - component: {fileID: 1185112375}
-  m_Layer: 3
+  m_Layer: 7
   m_Name: HitboxLeft
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2911,7 +2911,7 @@ GameObject:
   - component: {fileID: 1388644534}
   - component: {fileID: 1388644536}
   - component: {fileID: 1388644535}
-  m_Layer: 3
+  m_Layer: 7
   m_Name: HitboxDown
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3175,7 +3175,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1509178322}
   - component: {fileID: 1509178323}
-  m_Layer: 3
+  m_Layer: 7
   m_Name: AttackSystem
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4114,7 +4114,7 @@ GameObject:
   - component: {fileID: 2108467138}
   - component: {fileID: 2108467140}
   - component: {fileID: 2108467139}
-  m_Layer: 3
+  m_Layer: 7
   m_Name: HitboxUp
   m_TagString: Untagged
   m_Icon: {fileID: 0}
