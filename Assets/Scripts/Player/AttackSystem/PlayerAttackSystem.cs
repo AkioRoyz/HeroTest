@@ -9,10 +9,10 @@ public class PlayerAttackSystem : MonoBehaviour
     public event Action OnAttackCombo;
 
     [SerializeField] private GameInput gameInput;
+    [SerializeField] private SpriteRenderer spriteRenderer;
+    [SerializeField] private PlayerAnimation playerAnimation;
 
     [Header("Attack Triggers")]
-    [SerializeField] private Transform attackUp;
-    [SerializeField] private Transform attackDown;
     [SerializeField] private Transform attackLeft;
     [SerializeField] private Transform attackRight;
 
@@ -20,8 +20,6 @@ public class PlayerAttackSystem : MonoBehaviour
 
     private void Awake()
     {
-        DisableCollider(attackUp);
-        DisableCollider(attackDown);
         DisableCollider(attackLeft);
         DisableCollider(attackRight);
     }
@@ -63,13 +61,12 @@ public class PlayerAttackSystem : MonoBehaviour
     {
         Transform trigger = null;
 
-        if (Mathf.Abs(lastMoveDirection.x) > Mathf.Abs(lastMoveDirection.y))
-            trigger = lastMoveDirection.x > 0 ? attackRight : attackLeft;
+        if (spriteRenderer.flipX)
+            trigger = attackLeft;
         else
-            trigger = lastMoveDirection.y > 0 ? attackUp : attackDown;
+            trigger = attackRight;
 
-        if (trigger != null)
-            StartCoroutine(AttackRoutine(trigger));
+        StartCoroutine(AttackRoutine(trigger));
     }
 
     private IEnumerator AttackRoutine(Transform trigger)

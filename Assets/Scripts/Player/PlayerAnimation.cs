@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 public class PlayerAnimation : MonoBehaviour
@@ -55,4 +56,5 @@ public class PlayerAnimation : MonoBehaviour
         animator.SetTrigger("Attack");
         animator.SetInteger("AttackCombo", playerAttackSystem.AttackCombo);
     }
+
 }
