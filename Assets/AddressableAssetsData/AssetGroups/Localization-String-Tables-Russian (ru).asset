@@ -21,6 +21,19 @@ MonoBehaviour:
     m_SerializedLabels:
     - Locale-ru
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 220006f87e1910646b1625f6accfef88
+    m_Address: DialogueTest_ru
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-ru
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 2abb895e1bd9fa1458225d19539642c9
+    m_Address: NPC_names_ru
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-ru
+    - Preload
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: aa05133c1cf3c554fb3ee796e6e998c3
     m_Address: UI_inGame_ru
     m_ReadOnly: 1

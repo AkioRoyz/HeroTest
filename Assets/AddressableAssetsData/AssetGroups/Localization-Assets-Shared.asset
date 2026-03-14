@@ -15,6 +15,11 @@ MonoBehaviour:
   m_GroupName: Localization-Assets-Shared
   m_GUID: db1eeaa667c31e642b94b6f3eb569e96
   m_SerializeEntries:
+  - m_GUID: 0ec52728d526c9d47a5b00a29d2e20ca
+    m_Address: Assets/Local/DialogueTest Shared Data.asset
+    m_ReadOnly: 1
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 46cbda229c5b51941bacd148e0324d68
     m_Address: Assets/Local/StartMenu Shared Data.asset
     m_ReadOnly: 1
@@ -22,6 +27,11 @@ MonoBehaviour:
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 9578439943a85384c85d4f92c0157d2a
     m_Address: Assets/Local/UI_text Shared Data.asset
+    m_ReadOnly: 1
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: ca28e4ac4ef5a4445876d732675da9d8
+    m_Address: Assets/Local/NPC_names Shared Data.asset
     m_ReadOnly: 1
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
