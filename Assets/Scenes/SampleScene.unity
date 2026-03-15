@@ -865,7 +865,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &379326589
 RectTransform:
   m_ObjectHideFlags: 0
@@ -977,6 +977,7 @@ MonoBehaviour:
   portraitImage: {fileID: 715468300}
   choicesContainer: {fileID: 1608070165}
   choiceButtonPrefab: {fileID: 3185202497337132094, guid: 7e761066bdb35584b8a023375f1ee5e2, type: 3}
+  eventSystem: {fileID: 1109868478}
 --- !u!1 &462228356
 GameObject:
   m_ObjectHideFlags: 0
@@ -2239,6 +2240,7 @@ Transform:
   - {fileID: 1983169525}
   - {fileID: 811662988}
   - {fileID: 380982800}
+  - {fileID: 1109868477}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &877348942
@@ -2775,6 +2777,50 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1027966389}
   m_CullTransparentMesh: 1
+--- !u!1 &1109868476
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1109868477}
+  - component: {fileID: 1109868478}
+  m_Layer: 0
+  m_Name: DialogueEventSystem
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1109868477
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1109868476}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 877348941}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1109868478
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1109868476}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d3e6cf037d6286a408c299f113de59ec, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DialogueEventSystem
 --- !u!1 &1141544574
 GameObject:
   m_ObjectHideFlags: 0

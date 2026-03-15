@@ -26,6 +26,9 @@ public class DialogueManager : MonoBehaviour
     // Префаб кнопки ответа
     [SerializeField] private GameObject choiceButtonPrefab;
 
+    //Подключение к квестам
+    [SerializeField] private DialogueEventSystem eventSystem;
+
 
     // ===== ТЕКУЩЕЕ СОСТОЯНИЕ ДИАЛОГА =====
 
@@ -167,6 +170,12 @@ public class DialogueManager : MonoBehaviour
 
     void OnChoiceSelected(DialogueChoice choice)
     {
+        // Запускаем событие диалога
+        if (choice.eventType != DialogueEventType.None)
+        {
+            eventSystem.TriggerEvent(choice.eventType, choice.eventID);
+        }
+
         // Если есть следующий узел — переходим к нему
         if (choice.nextNode != null)
         {

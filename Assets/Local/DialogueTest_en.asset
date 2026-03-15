@@ -30,6 +30,14 @@ MonoBehaviour:
     m_Localized: End
     m_Metadata:
       m_Items: []
+  - m_Id: 374196620046336
+    m_Localized: I want take test quest
+    m_Metadata:
+      m_Items: []
+  - m_Id: 374449553354752
+    m_Localized: Im finished
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

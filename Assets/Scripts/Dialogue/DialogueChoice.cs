@@ -10,6 +10,9 @@ public class DialogueChoice
     // Следующий узел диалога
     public DialogueNode nextNode;
 
-    // ID события диалога (если нужно)
+    // Тип события
+    public DialogueEventType eventType;
+
+    // ID события (например ID квеста)
     public string eventID;
 }

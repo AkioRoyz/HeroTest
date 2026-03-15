@@ -27,6 +27,14 @@ MonoBehaviour:
     m_Key: dialogueTest.end
     m_Metadata:
       m_Items: []
+  - m_Id: 374196620046336
+    m_Key: dialogueTest.quest1start
+    m_Metadata:
+      m_Items: []
+  - m_Id: 374449553354752
+    m_Key: dialogueTest.quest1end
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:
