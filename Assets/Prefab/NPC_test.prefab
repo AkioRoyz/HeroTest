@@ -112,7 +112,6 @@ GameObject:
   m_Component:
   - component: {fileID: 5028454102970830304}
   - component: {fileID: 7637124704139471257}
-  - component: {fileID: 548651311827533800}
   - component: {fileID: 1388321820062831864}
   m_Layer: 0
   m_Name: NPC_test
@@ -196,31 +195,6 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 1
---- !u!114 &548651311827533800
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5812781625022893479}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 312fb4dad1c79d94eb92ac158e23b47d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::NpcScript
-  npcName:
-    m_TableReference:
-      m_TableCollectionName: GUID:ca28e4ac4ef5a4445876d732675da9d8
-    m_TableEntryReference:
-      m_KeyId: 54569807872
-      m_Key: 
-    m_FallbackState: 0
-    m_WaitForCompletion: 0
-    m_LocalVariables: []
-  nameText: {fileID: 5040700658737253774}
-  references:
-    version: 2
-    RefIds: []
 --- !u!114 &1388321820062831864
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -234,6 +208,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::NPCDialogue
   dialogue: {fileID: 11400000, guid: f650b2a695fd5b14caa8b5004d0092b5, type: 2}
+  npcName:
+    m_TableReference:
+      m_TableCollectionName: GUID:ca28e4ac4ef5a4445876d732675da9d8
+    m_TableEntryReference:
+      m_KeyId: 54569807872
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
+  nameText: {fileID: 5040700658737253774}
+  references:
+    version: 2
+    RefIds: []
 --- !u!1 &6060062918784665658
 GameObject:
   m_ObjectHideFlags: 0

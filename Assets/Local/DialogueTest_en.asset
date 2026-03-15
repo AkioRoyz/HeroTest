@@ -26,6 +26,10 @@ MonoBehaviour:
     m_Localized: Hello!
     m_Metadata:
       m_Items: []
+  - m_Id: 87306511659008
+    m_Localized: End
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

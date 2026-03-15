@@ -23,6 +23,10 @@ MonoBehaviour:
     m_Key: dialogueTest.answer1
     m_Metadata:
       m_Items: []
+  - m_Id: 87306511659008
+    m_Key: dialogueTest.end
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

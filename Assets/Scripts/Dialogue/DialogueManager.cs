@@ -9,6 +9,8 @@ public class DialogueManager : MonoBehaviour
 
     [Header("UI References")]
 
+    [SerializeField] private GameObject dialoguePanel;
+
     // Текст имени NPC
     [SerializeField] private TMP_Text npcNameText;
 
@@ -30,14 +32,29 @@ public class DialogueManager : MonoBehaviour
     // Текущий узел диалога
     private DialogueNode currentNode;
 
+    // Текущий локализованный текст (чтобы можно было отписаться)
+    private UnityEngine.Localization.LocalizedString currentDialogueLocalized;
 
+    private UnityEngine.Localization.LocalizedString currentNpcName;
+
+    private void Start()
+    {
+        dialoguePanel.SetActive(false);
+    }
 
     // =========================================================
     // ЗАПУСК ДИАЛОГА
     // =========================================================
 
-    public void StartDialogue(Dialogue dialogue)
+    public void StartDialogue(Dialogue dialogue, UnityEngine.Localization.LocalizedString npcName)
     {
+        dialoguePanel.SetActive(true);
+
+        currentNpcName = npcName;
+
+        currentNpcName.StringChanged += UpdateNpcName;
+        currentNpcName.RefreshString();
+
         // Берём первый узел диалога
         currentNode = dialogue.startNode;
 
@@ -45,7 +62,10 @@ public class DialogueManager : MonoBehaviour
         ShowNode(currentNode);
     }
 
-
+    void UpdateNpcName(string value)
+    {
+        npcNameText.text = value;
+    }
 
     // =========================================================
     // ПОКАЗ УЗЛА ДИАЛОГА
@@ -53,14 +73,31 @@ public class DialogueManager : MonoBehaviour
 
     void ShowNode(DialogueNode node)
     {
-        // Обновляем имя NPC
-        npcNameText.text = node.speakerName;
-
         // Обновляем портрет
         portraitImage.sprite = node.portrait;
 
         // Получаем локализованный текст
-        node.dialogueText.StringChanged += UpdateDialogueText;
+        // Отписываемся от предыдущего текста
+        if (currentDialogueLocalized != null)
+        {
+            currentDialogueLocalized.StringChanged -= UpdateDialogueText;
+        }
+
+        // Сохраняем новый локализованный текст
+        currentDialogueLocalized = node.dialogueText;
+
+        // Подписываемся на обновление
+        currentDialogueLocalized.StringChanged += UpdateDialogueText;
+
+        // Принудительно обновляем текст
+        currentDialogueLocalized.RefreshString();
+
+        // Если нет вариантов ответа — заканчиваем диалог
+        if (node.choices == null || node.choices.Count == 0)
+        {
+            EndDialogue();
+            return;
+        }
 
         // Создаём варианты ответов
         CreateChoices(node.choices);
@@ -107,8 +144,11 @@ public class DialogueManager : MonoBehaviour
             // Подписываемся на локализацию текста
             choice.choiceText.StringChanged += (value) =>
             {
-                buttonText.text = value;
+                if (buttonText != null)
+                    buttonText.text = value;
             };
+
+            choice.choiceText.RefreshString();
 
 
             // Добавляем действие при нажатии
@@ -147,7 +187,31 @@ public class DialogueManager : MonoBehaviour
 
     void EndDialogue()
     {
-        // Пока просто выводим сообщение
+        // Отписываемся от локализации
+        if (currentDialogueLocalized != null)
+        {
+            currentDialogueLocalized.StringChanged -= UpdateDialogueText;
+            currentDialogueLocalized = null;
+        }
+
+        // Очищаем кнопки
+        foreach (Transform child in choicesContainer)
+        {
+            Destroy(child.gameObject);
+        }
+
+        // Очищаем текст
+        dialogueText.text = "";
+        npcNameText.text = "";
+
+        dialoguePanel.SetActive(false);
+
+        if (currentNpcName != null)
+        {
+            currentNpcName.StringChanged -= UpdateNpcName;
+            currentNpcName = null;
+        }
+
         Debug.Log("Dialogue Ended");
     }
 }

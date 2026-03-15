@@ -1,12 +1,23 @@
+using TMPro;
 using UnityEngine;
+using UnityEngine.Localization;
 
 public class NPCDialogue : MonoBehaviour
 {
     // ƒиалог, который будет запускать NPC
     [SerializeField] private Dialogue dialogue;
 
+    [SerializeField] private LocalizedString npcName;
+    [SerializeField] private TMP_Text nameText;
+
     // —сылка на DialogueManager
     private DialogueManager dialogueManager;
+
+    private void Awake()
+    {
+        npcName.StringChanged += UpdateName;
+        npcName.RefreshString();
+    }
 
     private void Start()
     {
@@ -23,11 +34,21 @@ public class NPCDialogue : MonoBehaviour
         }
     }
 
+    private void UpdateName(string value)
+    {
+        nameText.text = value;
+    }
+
+    private void OnDisable()
+    {
+        npcName.StringChanged -= UpdateName;
+    }
+
     void StartDialogue()
     {
         if (dialogueManager != null)
         {
-            dialogueManager.StartDialogue(dialogue);
+            dialogueManager.StartDialogue(dialogue, npcName);
         }
     }
 }
