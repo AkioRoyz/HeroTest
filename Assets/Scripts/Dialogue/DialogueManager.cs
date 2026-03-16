@@ -26,8 +26,11 @@ public class DialogueManager : MonoBehaviour
     // Префаб кнопки ответа
     [SerializeField] private GameObject choiceButtonPrefab;
 
-    //Подключение к квестам
+    // Подключение к квестам
     [SerializeField] private DialogueEventSystem eventSystem;
+
+    // Система проверки условий
+    [SerializeField] private DialogueConditionSystem conditionSystem;
 
 
     // ===== ТЕКУЩЕЕ СОСТОЯНИЕ ДИАЛОГА =====
@@ -77,7 +80,14 @@ public class DialogueManager : MonoBehaviour
     void ShowNode(DialogueNode node)
     {
         // Обновляем портрет
-        portraitImage.sprite = node.portrait;
+        if (node.speakerType == DialogueSpeakerType.NPC)
+        {
+            portraitImage.sprite = node.portrait;
+        }
+        else
+        {
+            portraitImage.sprite = node.portrait;
+        }
 
         // Получаем локализованный текст
         // Отписываемся от предыдущего текста
@@ -134,6 +144,9 @@ public class DialogueManager : MonoBehaviour
         // Создаём новые
         foreach (DialogueChoice choice in choices)
         {
+            if (!conditionSystem.CheckCondition(choice.conditionType, choice.conditionID))
+                continue;
+
             // Создаём кнопку
             GameObject buttonObj = Instantiate(choiceButtonPrefab, choicesContainer);
 

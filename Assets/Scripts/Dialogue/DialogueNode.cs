@@ -5,6 +5,9 @@ using UnityEngine.Localization;
 [System.Serializable]
 public class DialogueNode
 {
+    // Тип того кто говорит
+    public DialogueSpeakerType speakerType;
+
     // Портрет персонажа
     public Sprite portrait;
 

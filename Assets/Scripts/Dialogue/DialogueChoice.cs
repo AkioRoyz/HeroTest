@@ -15,4 +15,10 @@ public class DialogueChoice
 
     // ID события (например ID квеста)
     public string eventID;
+
+    // Условие показа варианта
+    public DialogueConditionType conditionType;
+
+    // ID условия (например ID квеста)
+    public string conditionID;
 }
