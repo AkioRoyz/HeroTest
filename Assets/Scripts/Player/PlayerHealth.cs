@@ -5,50 +5,86 @@ public class PlayerHealth : MonoBehaviour
 {
     [SerializeField] private int maxHealth;
     [SerializeField] private int currentHealth;
+    [SerializeField] private StatsSystem statsSystem;
 
     public int MaxHealth => maxHealth;
     public int CurrentHealth => currentHealth;
 
-    [SerializeField] StatsSystem statsSystem;
-
     public event Action OnHealthChange;
     public event Action OnTakeDamage;
 
-    void Awake()
+    private void Start()
     {
-        maxHealth = statsSystem.Strength * 10;
-        currentHealth = maxHealth;
+        RefreshHealthFromStats(true);
     }
 
     private void OnEnable()
     {
-        statsSystem.OnStatsUpdate += UpgradeHealth;
+        if (statsSystem != null)
+        {
+            statsSystem.OnStatsUpdate += OnStatsUpdated;
+        }
     }
 
     private void OnDisable()
     {
-        statsSystem.OnStatsUpdate -= UpgradeHealth;
-    }
-
-    void Update()
-    {
-        if (Input.GetKeyDown(KeyCode.X)) //ТЕСТОВЫЙ КОД УДАЛИТЬ ПОСЛЕ
+        if (statsSystem != null)
         {
-            TestDamage(10);
+            statsSystem.OnStatsUpdate -= OnStatsUpdated;
         }
     }
 
-    private void TestDamage(int amount)
+    private void Update()
     {
+        if (Input.GetKeyDown(KeyCode.X)) // ТЕСТОВЫЙ КОД, потом удалить
+        {
+            TakeDamage(10);
+        }
+    }
+
+    public void TakeDamage(int amount)
+    {
+        if (amount <= 0) return;
+
         currentHealth -= amount;
+        currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth);
+
         OnHealthChange?.Invoke();
         OnTakeDamage?.Invoke();
     }
 
-    private void UpgradeHealth()
+    public void Heal(int amount)
     {
+        if (amount <= 0) return;
+
+        currentHealth += amount;
+        currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth);
+
+        OnHealthChange?.Invoke();
+    }
+
+    private void OnStatsUpdated()
+    {
+        RefreshHealthFromStats(false);
+    }
+
+    private void RefreshHealthFromStats(bool firstInit)
+    {
+        int oldMaxHealth = maxHealth;
         maxHealth = statsSystem.Strength * 10;
-        currentHealth = maxHealth;
+
+        if (firstInit || oldMaxHealth <= 0)
+        {
+            currentHealth = maxHealth;
+        }
+        else
+        {
+            // Чтобы при смене статов здоровье не "ломалось"
+            int difference = maxHealth - oldMaxHealth;
+            currentHealth += difference;
+            currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth);
+        }
+
         OnHealthChange?.Invoke();
     }
 }

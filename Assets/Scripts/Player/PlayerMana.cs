@@ -5,47 +5,85 @@ public class PlayerMana : MonoBehaviour
 {
     [SerializeField] private int maxMana;
     [SerializeField] private int currentMana;
+    [SerializeField] private StatsSystem statsSystem;
 
     public int MaxMana => maxMana;
     public int CurrentMana => currentMana;
 
-    [SerializeField] StatsSystem statsSystem;
     public event Action OnManaChange;
 
-    void Awake()
+    private void Start()
     {
-        maxMana = statsSystem.Mana * 10;
-        currentMana = maxMana;
+        RefreshManaFromStats(true);
     }
 
     private void OnEnable()
     {
-        statsSystem.OnStatsUpdate += UpgradeMana;
+        if (statsSystem != null)
+        {
+            statsSystem.OnStatsUpdate += OnStatsUpdated;
+        }
     }
 
     private void OnDisable()
     {
-        statsSystem.OnStatsUpdate -= UpgradeMana;
-    }
-
-    void Update()
-    {
-        if (Input.GetKeyDown(KeyCode.C)) //ТЕСТОВЫЙ КОД УДАЛИТЬ ПОСЛЕ
+        if (statsSystem != null)
         {
-            TestManaStore(10);
+            statsSystem.OnStatsUpdate -= OnStatsUpdated;
         }
     }
 
-    private void TestManaStore(int amount)
+    private void Update()
     {
+        if (Input.GetKeyDown(KeyCode.C)) // ТЕСТОВЫЙ КОД, потом удалить
+        {
+            SpendMana(10);
+        }
+    }
+
+    public bool SpendMana(int amount)
+    {
+        if (amount <= 0) return true;
+        if (currentMana < amount) return false;
+
         currentMana -= amount;
+        currentMana = Mathf.Clamp(currentMana, 0, maxMana);
+
+        OnManaChange?.Invoke();
+        return true;
+    }
+
+    public void RestoreMana(int amount)
+    {
+        if (amount <= 0) return;
+
+        currentMana += amount;
+        currentMana = Mathf.Clamp(currentMana, 0, maxMana);
+
         OnManaChange?.Invoke();
     }
 
-    private void UpgradeMana()
+    private void OnStatsUpdated()
     {
+        RefreshManaFromStats(false);
+    }
+
+    private void RefreshManaFromStats(bool firstInit)
+    {
+        int oldMaxMana = maxMana;
         maxMana = statsSystem.Mana * 10;
-        currentMana = maxMana;
+
+        if (firstInit || oldMaxMana <= 0)
+        {
+            currentMana = maxMana;
+        }
+        else
+        {
+            int difference = maxMana - oldMaxMana;
+            currentMana += difference;
+            currentMana = Mathf.Clamp(currentMana, 0, maxMana);
+        }
+
         OnManaChange?.Invoke();
     }
 }

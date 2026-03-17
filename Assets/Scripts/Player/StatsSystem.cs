@@ -3,36 +3,94 @@ using UnityEngine;
 
 public class StatsSystem : MonoBehaviour
 {
-    [SerializeField] private int strength = 15;
-    [SerializeField] private int mana = 7;
-    [SerializeField] private int defence = 5;
-    private int strengthStep = 5;
-    private int manaStep = 4;
-    private int defenceStep = 3;
+    [Header("Base Stats")]
+    [SerializeField] private int baseStrength = 15;
+    [SerializeField] private int baseMana = 7;
+    [SerializeField] private int baseDefence = 5;
+
+    [Header("Per Level Bonus")]
+    [SerializeField] private int strengthStep = 5;
+    [SerializeField] private int manaStep = 4;
+    [SerializeField] private int defenceStep = 3;
+
+    [Header("References")]
+    [SerializeField] private ExpSystem expSystem;
+
+    private int bonusStrength;
+    private int bonusMana;
+    private int bonusDefence;
+
+    private int currentStrength;
+    private int currentMana;
+    private int currentDefence;
 
     public event Action OnStatsUpdate;
 
-    public int Strength => strength;
-    public int Mana => mana;
-    public int Defence => defence;
+    public int Strength => currentStrength;
+    public int Mana => currentMana;
+    public int Defence => currentDefence;
 
-    [SerializeField] ExpSystem expSystem;
+    private void Awake()
+    {
+        RecalculateStats();
+    }
 
     private void OnEnable()
     {
-        expSystem.OnLevelChange += StatsUpdate;
+        if (expSystem != null)
+        {
+            expSystem.OnLevelChange += OnLevelChanged;
+        }
     }
 
     private void OnDisable()
     {
-        expSystem.OnLevelChange -= StatsUpdate;
+        if (expSystem != null)
+        {
+            expSystem.OnLevelChange -= OnLevelChanged;
+        }
     }
 
-    private void StatsUpdate(int currentLvl)
+    private void OnLevelChanged(int level)
     {
-        strength = strength + strengthStep * (currentLvl - 1);
-        mana = mana + manaStep * (currentLvl - 1);
-        defence = defence + defenceStep * (currentLvl - 1);
+        RecalculateStats();
+    }
+
+    public void AddBonusStats(int strength, int mana, int defence)
+    {
+        bonusStrength += strength;
+        bonusMana += mana;
+        bonusDefence += defence;
+
+        RecalculateStats();
+    }
+
+    public void RemoveBonusStats(int strength, int mana, int defence)
+    {
+        bonusStrength -= strength;
+        bonusMana -= mana;
+        bonusDefence -= defence;
+
+        RecalculateStats();
+    }
+
+    private void RecalculateStats()
+    {
+        int currentLevel = 1;
+
+        if (expSystem != null)
+        {
+            currentLevel = expSystem.CurrentLvl;
+        }
+
+        currentStrength = baseStrength + strengthStep * (currentLevel - 1) + bonusStrength;
+        currentMana = baseMana + manaStep * (currentLevel - 1) + bonusMana;
+        currentDefence = baseDefence + defenceStep * (currentLevel - 1) + bonusDefence;
+
+        currentStrength = Mathf.Max(1, currentStrength);
+        currentMana = Mathf.Max(1, currentMana);
+        currentDefence = Mathf.Max(0, currentDefence);
+
         OnStatsUpdate?.Invoke();
     }
 }

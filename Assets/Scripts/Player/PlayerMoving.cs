@@ -3,53 +3,84 @@ using UnityEngine;
 
 public class PlayerMoving : MonoBehaviour
 {
-    [SerializeField] GameInput gameInput;
-    [SerializeField] Rigidbody2D rb;
-    [SerializeField] private float speed = 5f;
-    [SerializeField] PlayerHealth playerHealth;
+    [SerializeField] private GameInput gameInput;
+    [SerializeField] private Rigidbody2D rb;
+    [SerializeField] private float baseSpeed = 5f;
+    [SerializeField] private PlayerHealth playerHealth;
 
-    private float currentSpeed;
+    private float bonusSpeed;
+    private bool isMovementBlocked;
     private Coroutine blockCoroutine;
-
-    private void Awake()
-    {
-        currentSpeed = speed;
-    }
 
     private void OnEnable()
     {
-        playerHealth.OnTakeDamage += BlockMovement;
+        if (playerHealth != null)
+        {
+            playerHealth.OnTakeDamage += BlockMovement;
+        }
     }
 
     private void OnDisable()
     {
-        playerHealth.OnTakeDamage -= BlockMovement;
+        if (playerHealth != null)
+        {
+            playerHealth.OnTakeDamage -= BlockMovement;
+        }
     }
 
     private void FixedUpdate()
     {
-        Moving();
+        Move();
     }
 
-    private void Moving()
+    private void Move()
     {
-        Vector2 move = gameInput.moveVector;
+        if (isMovementBlocked)
+            return;
+
+        Vector2 move = gameInput.MoveVector;
+        float currentSpeed = Mathf.Max(0f, baseSpeed + bonusSpeed);
+
         rb.MovePosition(rb.position + move * currentSpeed * Time.fixedDeltaTime);
+    }
+
+    public void AddSpeedBonus(float amount)
+    {
+        bonusSpeed += amount;
+    }
+
+    public void RemoveSpeedBonus(float amount)
+    {
+        bonusSpeed -= amount;
+    }
+
+    public void AddTemporarySpeedBonus(float amount, float duration)
+    {
+        StartCoroutine(TemporarySpeedBonusRoutine(amount, duration));
+    }
+
+    private IEnumerator TemporarySpeedBonusRoutine(float amount, float duration)
+    {
+        AddSpeedBonus(amount);
+        yield return new WaitForSeconds(duration);
+        RemoveSpeedBonus(amount);
     }
 
     private void BlockMovement()
     {
         if (blockCoroutine != null)
+        {
             StopCoroutine(blockCoroutine);
+        }
 
         blockCoroutine = StartCoroutine(BlockMovementCoroutine());
     }
 
     private IEnumerator BlockMovementCoroutine()
     {
-        currentSpeed = 0f;
+        isMovementBlocked = true;
         yield return new WaitForSeconds(0.5f);
-        currentSpeed = speed;
+        isMovementBlocked = false;
         blockCoroutine = null;
     }
 }

@@ -36,7 +36,7 @@ public class PlayerAttackSystem : MonoBehaviour
 
     private void Update()
     {
-        Vector2 move = gameInput.moveVector;
+        Vector2 move = gameInput.MoveVector;
 
         if (move != Vector2.zero)
             lastMoveDirection = move;

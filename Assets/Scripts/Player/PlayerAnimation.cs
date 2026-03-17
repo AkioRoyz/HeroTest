@@ -1,15 +1,12 @@
-using System;
 using UnityEngine;
 
 public class PlayerAnimation : MonoBehaviour
 {
-    [SerializeField] Animator animator;
-    [SerializeField] SpriteRenderer spriteRenderer;
-    [SerializeField] PlayerHealth playerHealth;
-    [SerializeField] GameInput gameInput;
-    [SerializeField] PlayerAttackSystem playerAttackSystem;
-
-    private bool IsRunning;
+    [SerializeField] private Animator animator;
+    [SerializeField] private SpriteRenderer spriteRenderer;
+    [SerializeField] private PlayerHealth playerHealth;
+    [SerializeField] private GameInput gameInput;
+    [SerializeField] private PlayerAttackSystem playerAttackSystem;
 
     private void Update()
     {
@@ -19,23 +16,38 @@ public class PlayerAnimation : MonoBehaviour
 
     private void OnEnable()
     {
-        playerHealth.OnTakeDamage += TakeDamage;
-        playerAttackSystem.OnAttackCombo += AttackAnimation;
+        if (playerHealth != null)
+        {
+            playerHealth.OnTakeDamage += TakeDamage;
+        }
+
+        if (playerAttackSystem != null)
+        {
+            playerAttackSystem.OnAttackCombo += AttackAnimation;
+        }
     }
 
     private void OnDisable()
     {
-        playerHealth.OnTakeDamage -= TakeDamage;
-        playerAttackSystem.OnAttackCombo -= AttackAnimation;
+        if (playerHealth != null)
+        {
+            playerHealth.OnTakeDamage -= TakeDamage;
+        }
+
+        if (playerAttackSystem != null)
+        {
+            playerAttackSystem.OnAttackCombo -= AttackAnimation;
+        }
     }
 
     private void TakeDamage()
     {
         animator.SetTrigger("Hit");
     }
+
     private void FlipSprite()
     {
-        Vector2 move = gameInput.moveVector;
+        Vector2 move = gameInput.MoveVector;
 
         if (move.x > 0.01f)
             spriteRenderer.flipX = false;
@@ -45,8 +57,7 @@ public class PlayerAnimation : MonoBehaviour
 
     private void RunningAnimation()
     {
-        Vector2 move = gameInput.moveVector;
-
+        Vector2 move = gameInput.MoveVector;
         bool isRunning = move.magnitude > 0.01f;
         animator.SetBool("IsRunning", isRunning);
     }
@@ -56,5 +67,4 @@ public class PlayerAnimation : MonoBehaviour
         animator.SetTrigger("Attack");
         animator.SetInteger("AttackCombo", playerAttackSystem.AttackCombo);
     }
-
 }

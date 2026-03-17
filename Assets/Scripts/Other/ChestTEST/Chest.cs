@@ -9,9 +9,13 @@ public class Chest : MonoBehaviour
 
     [SerializeField] private int chestEXP = 10;
     [SerializeField] private int chestGold = 10;
+
+    [Header("Item Rewards")]
+    [SerializeField] private RewardItemData[] itemRewards;
+
     [SerializeField] private Animator chestAnimator;
-    [SerializeField] GameInput gameInput;
-    [SerializeField] GameObject triggerImageZone;
+    [SerializeField] private GameInput gameInput;
+    [SerializeField] private GameObject triggerImageZone;
 
     private void Awake()
     {
@@ -51,11 +55,15 @@ public class Chest : MonoBehaviour
             return;
         }
 
-
-        RewardData reward = new RewardData(chestEXP, chestGold);
+        RewardData reward = new RewardData(chestEXP, chestGold, itemRewards);
         RewardSystem.Instance.GiveReward(reward);
+
         IsOpened = true;
         chestAnimator.SetBool("IsOpened", true);
-        triggerImageZone.SetActive(false);
+
+        if (triggerImageZone != null)
+        {
+            triggerImageZone.SetActive(false);
+        }
     }
 }

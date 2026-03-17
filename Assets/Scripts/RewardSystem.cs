@@ -22,4 +22,19 @@ public class RewardSystem : MonoBehaviour
     {
         OnRewardGiven?.Invoke(reward);
     }
+
+    // Удобный перегруженный метод:
+    // можно выдать только опыт/золото без предметов
+    public void GiveReward(int exp, int gold)
+    {
+        RewardData reward = new RewardData(exp, gold);
+        GiveReward(reward);
+    }
+
+    // Можно выдать опыт/золото + предметы
+    public void GiveReward(int exp, int gold, RewardItemData[] items)
+    {
+        RewardData reward = new RewardData(exp, gold, items);
+        GiveReward(reward);
+    }
 }
