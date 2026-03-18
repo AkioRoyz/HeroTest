@@ -79,6 +79,10 @@ MonoBehaviour:
     m_Key: ItemKey.hunter_boots_desc
     m_Metadata:
       m_Items: []
+  - m_Id: 270486267047936
+    m_Key: ItemKey.empty
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

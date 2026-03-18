@@ -82,6 +82,10 @@ MonoBehaviour:
     m_Localized: Defence +2
     m_Metadata:
       m_Items: []
+  - m_Id: 270486267047936
+    m_Localized: Empty items
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

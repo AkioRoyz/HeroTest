@@ -32,7 +32,6 @@ MonoBehaviour:
     m_ReadOnly: 1
     m_SerializedLabels:
     - Locale-en
-    - Preload
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 7888e8e73b0a03c4cad817476ba4f141
     m_Address: NPC_names_en
@@ -43,6 +42,12 @@ MonoBehaviour:
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 8bcb065ee9108cd41afe93600bf275f7
     m_Address: Items_en
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-en
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: e8ebb2a191218dd4fbe420b9812df949
+    m_Address: UI_Stats_en
     m_ReadOnly: 1
     m_SerializedLabels:
     - Locale-en

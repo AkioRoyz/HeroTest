@@ -5,6 +5,7 @@ public class StatsMenuController : MonoBehaviour
     [SerializeField] private GameInput gameInput;
     [SerializeField] private GameObject menuRoot;
     [SerializeField] private EquipmentMenuUI equipmentMenuUI;
+    [SerializeField] private StatsControlsHintUI statsControlsHintUI;
 
     private bool isOpened;
 
@@ -57,6 +58,11 @@ public class StatsMenuController : MonoBehaviour
         if (equipmentMenuUI != null)
         {
             equipmentMenuUI.OpenMenu();
+        }
+
+        if (statsControlsHintUI != null)
+        {
+            statsControlsHintUI.Refresh();
         }
     }
 

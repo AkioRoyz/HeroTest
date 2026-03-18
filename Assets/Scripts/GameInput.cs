@@ -11,6 +11,12 @@ public class GameInput : MonoBehaviour
         Menu
     }
 
+    public enum DeviceGroupType
+    {
+        KeyboardMouse,
+        Gamepad
+    }
+
     private InputSystem_Actions inputActions;
 
     public event Action OnAttack;
@@ -25,11 +31,21 @@ public class GameInput : MonoBehaviour
 
     public event Action OnMenuUp;
     public event Action OnMenuDown;
+    public event Action OnMenuLeft;
+    public event Action OnMenuRight;
     public event Action OnMenuSelect;
+    public event Action OnMenuUnequip;
     public event Action OnMenuClose;
+
+    // Новое событие: изменилось последнее активное устройство
+    public event Action OnActiveDeviceGroupChanged;
 
     public Vector2 MoveVector { get; private set; }
     public InputMode CurrentMode { get; private set; }
+
+    // Текущая группа устройства для UI-подсказок
+    public DeviceGroupType CurrentDeviceGroup { get; private set; } = DeviceGroupType.KeyboardMouse;
+    public string CurrentDeviceLayoutName { get; private set; } = "Keyboard";
 
     private void Awake()
     {
@@ -56,6 +72,26 @@ public class GameInput : MonoBehaviour
         }
     }
 
+    public string GetCurrentBindingGroupName()
+    {
+        return CurrentDeviceGroup == DeviceGroupType.Gamepad ? "Gamepad" : "KeyboardMouse";
+    }
+
+    public string GetCurrentDeviceLayoutName()
+    {
+        return CurrentDeviceLayoutName;
+    }
+
+    public InputAction GetMenuAction_Select()
+    {
+        return inputActions.Menu.SelectChoise;
+    }
+
+    public InputAction GetMenuAction_Unequip()
+    {
+        return inputActions.Menu.UnequipItem;
+    }
+
     private void SubscribeToInput()
     {
         // Player
@@ -78,7 +114,10 @@ public class GameInput : MonoBehaviour
         // Menu
         inputActions.Menu.UpSelect.performed += OnMenuUpPerformed;
         inputActions.Menu.DownSelect.performed += OnMenuDownPerformed;
+        inputActions.Menu.LeftSelect.performed += OnMenuLeftPerformed;
+        inputActions.Menu.RightSelect.performed += OnMenuRightPerformed;
         inputActions.Menu.SelectChoise.performed += OnMenuSelectPerformed;
+        inputActions.Menu.UnequipItem.performed += OnMenuUnequipPerformed;
         inputActions.Menu.CloseUI.performed += OnMenuClosePerformed;
     }
 
@@ -104,7 +143,10 @@ public class GameInput : MonoBehaviour
         // Menu
         inputActions.Menu.UpSelect.performed -= OnMenuUpPerformed;
         inputActions.Menu.DownSelect.performed -= OnMenuDownPerformed;
+        inputActions.Menu.LeftSelect.performed -= OnMenuLeftPerformed;
+        inputActions.Menu.RightSelect.performed -= OnMenuRightPerformed;
         inputActions.Menu.SelectChoise.performed -= OnMenuSelectPerformed;
+        inputActions.Menu.UnequipItem.performed -= OnMenuUnequipPerformed;
         inputActions.Menu.CloseUI.performed -= OnMenuClosePerformed;
     }
 
@@ -137,53 +179,92 @@ public class GameInput : MonoBehaviour
         CurrentMode = InputMode.Menu;
     }
 
+    private void UpdateDeviceGroup(InputAction.CallbackContext context)
+    {
+        if (context.control == null || context.control.device == null)
+            return;
+
+        var device = context.control.device;
+        DeviceGroupType newGroup;
+
+        if (device is Keyboard || device is Mouse)
+        {
+            newGroup = DeviceGroupType.KeyboardMouse;
+        }
+        else
+        {
+            newGroup = DeviceGroupType.Gamepad;
+        }
+
+        bool groupChanged = newGroup != CurrentDeviceGroup;
+        bool layoutChanged = CurrentDeviceLayoutName != device.layout;
+
+        CurrentDeviceGroup = newGroup;
+        CurrentDeviceLayoutName = device.layout;
+
+        if (groupChanged || layoutChanged)
+        {
+            OnActiveDeviceGroupChanged?.Invoke();
+        }
+
+        Debug.Log($"Active input device: {device.displayName}, layout: {device.layout}, group: {CurrentDeviceGroup}");
+    }
+
     // -------------------- Player --------------------
 
     private void OnAttackPerformed(InputAction.CallbackContext context)
     {
         if (CurrentMode != InputMode.Player) return;
+        UpdateDeviceGroup(context);
         OnAttack?.Invoke();
     }
 
     private void OnUsePerformed(InputAction.CallbackContext context)
     {
         if (CurrentMode != InputMode.Player) return;
+        UpdateDeviceGroup(context);
         OnUse?.Invoke();
     }
 
     private void OnStatsPerformed(InputAction.CallbackContext context)
     {
         if (CurrentMode != InputMode.Player && CurrentMode != InputMode.Menu) return;
+        UpdateDeviceGroup(context);
         OnStats?.Invoke();
     }
 
     private void OnItem1Performed(InputAction.CallbackContext context)
     {
         if (CurrentMode != InputMode.Player) return;
+        UpdateDeviceGroup(context);
         OnQuickSlotPressed?.Invoke(1);
     }
 
     private void OnItem2Performed(InputAction.CallbackContext context)
     {
         if (CurrentMode != InputMode.Player) return;
+        UpdateDeviceGroup(context);
         OnQuickSlotPressed?.Invoke(2);
     }
 
     private void OnItem3Performed(InputAction.CallbackContext context)
     {
         if (CurrentMode != InputMode.Player) return;
+        UpdateDeviceGroup(context);
         OnQuickSlotPressed?.Invoke(3);
     }
 
     private void OnItem4Performed(InputAction.CallbackContext context)
     {
         if (CurrentMode != InputMode.Player) return;
+        UpdateDeviceGroup(context);
         OnQuickSlotPressed?.Invoke(4);
     }
 
     private void OnItem5Performed(InputAction.CallbackContext context)
     {
         if (CurrentMode != InputMode.Player) return;
+        UpdateDeviceGroup(context);
         OnQuickSlotPressed?.Invoke(5);
     }
 
@@ -192,24 +273,28 @@ public class GameInput : MonoBehaviour
     private void OnDialogueUpPerformed(InputAction.CallbackContext context)
     {
         if (CurrentMode != InputMode.Dialogue) return;
+        UpdateDeviceGroup(context);
         OnDialogueUp?.Invoke();
     }
 
     private void OnDialogueDownPerformed(InputAction.CallbackContext context)
     {
         if (CurrentMode != InputMode.Dialogue) return;
+        UpdateDeviceGroup(context);
         OnDialogueDown?.Invoke();
     }
 
     private void OnDialogueSelectPerformed(InputAction.CallbackContext context)
     {
         if (CurrentMode != InputMode.Dialogue) return;
+        UpdateDeviceGroup(context);
         OnDialogueSelect?.Invoke();
     }
 
     private void OnDialogueClosePerformed(InputAction.CallbackContext context)
     {
         if (CurrentMode != InputMode.Dialogue) return;
+        UpdateDeviceGroup(context);
         OnDialogueClose?.Invoke();
     }
 
@@ -218,24 +303,49 @@ public class GameInput : MonoBehaviour
     private void OnMenuUpPerformed(InputAction.CallbackContext context)
     {
         if (CurrentMode != InputMode.Menu) return;
+        UpdateDeviceGroup(context);
         OnMenuUp?.Invoke();
     }
 
     private void OnMenuDownPerformed(InputAction.CallbackContext context)
     {
         if (CurrentMode != InputMode.Menu) return;
+        UpdateDeviceGroup(context);
         OnMenuDown?.Invoke();
+    }
+
+    private void OnMenuLeftPerformed(InputAction.CallbackContext context)
+    {
+        if (CurrentMode != InputMode.Menu) return;
+        UpdateDeviceGroup(context);
+        OnMenuLeft?.Invoke();
+    }
+
+    private void OnMenuRightPerformed(InputAction.CallbackContext context)
+    {
+        if (CurrentMode != InputMode.Menu) return;
+        UpdateDeviceGroup(context);
+        OnMenuRight?.Invoke();
     }
 
     private void OnMenuSelectPerformed(InputAction.CallbackContext context)
     {
         if (CurrentMode != InputMode.Menu) return;
+        UpdateDeviceGroup(context);
         OnMenuSelect?.Invoke();
+    }
+
+    private void OnMenuUnequipPerformed(InputAction.CallbackContext context)
+    {
+        if (CurrentMode != InputMode.Menu) return;
+        UpdateDeviceGroup(context);
+        OnMenuUnequip?.Invoke();
     }
 
     private void OnMenuClosePerformed(InputAction.CallbackContext context)
     {
         if (CurrentMode != InputMode.Menu) return;
+        UpdateDeviceGroup(context);
         OnMenuClose?.Invoke();
     }
 }

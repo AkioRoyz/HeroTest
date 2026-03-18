@@ -14,15 +14,14 @@ public class EquipmentMenuUI : MonoBehaviour
     [SerializeField] private EquipmentSystem equipmentSystem;
     [SerializeField] private InventorySystem inventorySystem;
     [SerializeField] private ItemDescriptionPanelUI descriptionPanel;
+    [SerializeField] private EquipmentInventoryTextListUI inventoryTextListUI;
 
     [Header("Slots UI")]
     [SerializeField] private EquipmentSlotUI[] slotUIs = new EquipmentSlotUI[9];
 
-    [Header("Inventory List UI")]
-    [SerializeField] private Transform inventoryListContainer;
-    [SerializeField] private EquipmentInventoryItemUI inventoryItemPrefab;
+    [Header("Grid Settings")]
+    [SerializeField] private int slotColumnCount = 3;
 
-    private readonly List<EquipmentInventoryItemUI> spawnedInventoryItems = new();
     private readonly List<InventoryEntry> cachedEquipmentEntries = new();
 
     private int selectedSlotIndex;
@@ -42,7 +41,10 @@ public class EquipmentMenuUI : MonoBehaviour
         {
             gameInput.OnMenuUp += HandleMenuUp;
             gameInput.OnMenuDown += HandleMenuDown;
+            gameInput.OnMenuLeft += HandleMenuLeft;
+            gameInput.OnMenuRight += HandleMenuRight;
             gameInput.OnMenuSelect += HandleMenuSelect;
+            gameInput.OnMenuUnequip += HandleMenuUnequip;
         }
 
         if (equipmentSystem != null)
@@ -62,7 +64,10 @@ public class EquipmentMenuUI : MonoBehaviour
         {
             gameInput.OnMenuUp -= HandleMenuUp;
             gameInput.OnMenuDown -= HandleMenuDown;
+            gameInput.OnMenuLeft -= HandleMenuLeft;
+            gameInput.OnMenuRight -= HandleMenuRight;
             gameInput.OnMenuSelect -= HandleMenuSelect;
+            gameInput.OnMenuUnequip -= HandleMenuUnequip;
         }
 
         if (equipmentSystem != null)
@@ -99,14 +104,7 @@ public class EquipmentMenuUI : MonoBehaviour
     {
         if (currentMode == SelectionMode.Slots)
         {
-            selectedSlotIndex--;
-            if (selectedSlotIndex < 0)
-            {
-                selectedSlotIndex = slotUIs.Length - 1;
-            }
-
-            RefreshSlotsUI();
-            UpdateDescriptionFromCurrentSelection();
+            MoveSlotSelection(-slotColumnCount);
         }
         else
         {
@@ -119,7 +117,7 @@ public class EquipmentMenuUI : MonoBehaviour
                 selectedInventoryIndex = cachedEquipmentEntries.Count - 1;
             }
 
-            RefreshInventoryListUI();
+            RefreshInventoryListVisualOnly();
             UpdateDescriptionFromCurrentSelection();
         }
     }
@@ -128,14 +126,7 @@ public class EquipmentMenuUI : MonoBehaviour
     {
         if (currentMode == SelectionMode.Slots)
         {
-            selectedSlotIndex++;
-            if (selectedSlotIndex >= slotUIs.Length)
-            {
-                selectedSlotIndex = 0;
-            }
-
-            RefreshSlotsUI();
-            UpdateDescriptionFromCurrentSelection();
+            MoveSlotSelection(slotColumnCount);
         }
         else
         {
@@ -148,9 +139,51 @@ public class EquipmentMenuUI : MonoBehaviour
                 selectedInventoryIndex = 0;
             }
 
-            RefreshInventoryListUI();
+            RefreshInventoryListVisualOnly();
             UpdateDescriptionFromCurrentSelection();
         }
+    }
+
+    private void HandleMenuLeft()
+    {
+        if (currentMode != SelectionMode.Slots)
+            return;
+
+        int row = selectedSlotIndex / slotColumnCount;
+        int column = selectedSlotIndex % slotColumnCount;
+
+        column--;
+        if (column < 0)
+        {
+            column = slotColumnCount - 1;
+        }
+
+        selectedSlotIndex = row * slotColumnCount + column;
+        selectedSlotIndex = Mathf.Clamp(selectedSlotIndex, 0, slotUIs.Length - 1);
+
+        RefreshSlotsUI();
+        UpdateDescriptionFromCurrentSelection();
+    }
+
+    private void HandleMenuRight()
+    {
+        if (currentMode != SelectionMode.Slots)
+            return;
+
+        int row = selectedSlotIndex / slotColumnCount;
+        int column = selectedSlotIndex % slotColumnCount;
+
+        column++;
+        if (column >= slotColumnCount)
+        {
+            column = 0;
+        }
+
+        selectedSlotIndex = row * slotColumnCount + column;
+        selectedSlotIndex = Mathf.Clamp(selectedSlotIndex, 0, slotUIs.Length - 1);
+
+        RefreshSlotsUI();
+        UpdateDescriptionFromCurrentSelection();
     }
 
     private void HandleMenuSelect()
@@ -158,21 +191,17 @@ public class EquipmentMenuUI : MonoBehaviour
         if (currentMode == SelectionMode.Slots)
         {
             BuildInventoryEquipmentList();
+            RebuildInventoryListUI();
 
             if (cachedEquipmentEntries.Count == 0)
             {
-                // Если предметов нет, можно использовать Select ещё раз для снятия предмета
-                bool unequipped = equipmentSystem.UnequipSlot(selectedSlotIndex);
-                if (unequipped)
-                {
-                    RefreshAll();
-                }
+                RefreshAll();
                 return;
             }
 
-            selectedInventoryIndex = 0;
+            selectedInventoryIndex = Mathf.Clamp(selectedInventoryIndex, 0, cachedEquipmentEntries.Count - 1);
             currentMode = SelectionMode.InventoryList;
-            RefreshInventoryListUI();
+            RefreshInventoryListVisualOnly();
             UpdateDescriptionFromCurrentSelection();
         }
         else
@@ -199,11 +228,38 @@ public class EquipmentMenuUI : MonoBehaviour
         }
     }
 
+    private void HandleMenuUnequip()
+    {
+        if (currentMode != SelectionMode.Slots)
+            return;
+
+        bool unequipped = equipmentSystem.UnequipSlot(selectedSlotIndex);
+        if (unequipped)
+        {
+            RefreshAll();
+        }
+    }
+
+    private void MoveSlotSelection(int delta)
+    {
+        int count = slotUIs.Length;
+        selectedSlotIndex = (selectedSlotIndex + delta) % count;
+
+        if (selectedSlotIndex < 0)
+        {
+            selectedSlotIndex += count;
+        }
+
+        RefreshSlotsUI();
+        UpdateDescriptionFromCurrentSelection();
+    }
+
     private void RefreshAll()
     {
         BuildInventoryEquipmentList();
         RefreshSlotsUI();
-        RefreshInventoryListUI();
+        RebuildInventoryListUI();
+        RefreshInventoryListVisualOnly();
         UpdateDescriptionFromCurrentSelection();
     }
 
@@ -220,15 +276,21 @@ public class EquipmentMenuUI : MonoBehaviour
         }
     }
 
-    private void RefreshInventoryListUI()
+    private void RebuildInventoryListUI()
     {
-        RebuildInventoryListVisuals();
+        if (inventoryTextListUI == null)
+            return;
 
-        for (int i = 0; i < spawnedInventoryItems.Count; i++)
-        {
-            bool selected = currentMode == SelectionMode.InventoryList && i == selectedInventoryIndex;
-            spawnedInventoryItems[i].SetSelected(selected);
-        }
+        inventoryTextListUI.SetData(cachedEquipmentEntries);
+    }
+
+    private void RefreshInventoryListVisualOnly()
+    {
+        if (inventoryTextListUI == null)
+            return;
+
+        bool listIsActive = currentMode == SelectionMode.InventoryList;
+        inventoryTextListUI.SetVisualState(listIsActive, selectedInventoryIndex);
     }
 
     private void BuildInventoryEquipmentList()
@@ -250,33 +312,6 @@ public class EquipmentMenuUI : MonoBehaviour
         if (selectedInventoryIndex >= cachedEquipmentEntries.Count)
         {
             selectedInventoryIndex = Mathf.Max(0, cachedEquipmentEntries.Count - 1);
-        }
-    }
-
-    private void RebuildInventoryListVisuals()
-    {
-        for (int i = 0; i < spawnedInventoryItems.Count; i++)
-        {
-            if (spawnedInventoryItems[i] != null)
-            {
-                Destroy(spawnedInventoryItems[i].gameObject);
-            }
-        }
-
-        spawnedInventoryItems.Clear();
-
-        if (inventoryItemPrefab == null || inventoryListContainer == null)
-            return;
-
-        for (int i = 0; i < cachedEquipmentEntries.Count; i++)
-        {
-            InventoryEntry entry = cachedEquipmentEntries[i];
-
-            EquipmentInventoryItemUI itemUI = Instantiate(inventoryItemPrefab, inventoryListContainer);
-            bool selected = currentMode == SelectionMode.InventoryList && i == selectedInventoryIndex;
-            itemUI.Setup(entry.Item, entry.Amount, selected);
-
-            spawnedInventoryItems.Add(itemUI);
         }
     }
 
@@ -329,7 +364,7 @@ public class EquipmentMenuUI : MonoBehaviour
     {
         currentMode = SelectionMode.Slots;
         RefreshSlotsUI();
-        RefreshInventoryListUI();
+        RefreshInventoryListVisualOnly();
         UpdateDescriptionFromCurrentSelection();
     }
 }
