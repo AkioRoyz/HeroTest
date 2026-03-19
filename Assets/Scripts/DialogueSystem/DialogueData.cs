@@ -10,11 +10,15 @@ public class DialogueData : ScriptableObject
     [Tooltip("≈сли true, этот диалог можно запускать много раз.")]
     [SerializeField] private bool repeatable = true;
 
+    [Header("Conditions")]
+    [SerializeField] private List<DialogueConditionData> conditions = new();
+
     [Header("Nodes")]
     [SerializeField] private List<DialogueNodeData> nodes = new();
 
     public string DialogueId => dialogueId;
     public bool Repeatable => repeatable;
+    public IReadOnlyList<DialogueConditionData> Conditions => conditions;
     public IReadOnlyList<DialogueNodeData> Nodes => nodes;
 
     public DialogueNodeData GetNode(int index)

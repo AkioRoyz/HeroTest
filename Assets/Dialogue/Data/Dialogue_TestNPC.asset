@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Dialogue_TestNPC
   m_EditorClassIdentifier: Assembly-CSharp::DialogueData
   dialogueId: test_npc_01
-  repeatable: 1
+  repeatable: 0
   nodes:
   - nodeType: 0
     isStartNode: 1

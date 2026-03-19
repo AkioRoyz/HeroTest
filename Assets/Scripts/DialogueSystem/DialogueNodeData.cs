@@ -30,6 +30,9 @@ public class DialogueNodeData
     [Header("Choices")]
     [SerializeField] private List<DialogueChoiceData> choices = new();
 
+    [Header("Conditions")]
+    [SerializeField] private List<DialogueConditionData> conditions = new();
+
     public DialogueNodeType NodeType => nodeType;
     public bool IsStartNode => isStartNode;
 
@@ -41,4 +44,5 @@ public class DialogueNodeData
     public int NextNodeIndex => nextNodeIndex;
 
     public IReadOnlyList<DialogueChoiceData> Choices => choices;
+    public IReadOnlyList<DialogueConditionData> Conditions => conditions;
 }

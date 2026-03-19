@@ -39,10 +39,7 @@ public class NpcDialogueInteractable : MonoBehaviour, IDialogueSource
 
     private void Start()
     {
-        if (interactionHintObject != null)
-        {
-            interactionHintObject.SetActive(false);
-        }
+        RefreshHint(false);
     }
 
     private void OnTriggerEnter2D(Collider2D other)
@@ -51,11 +48,7 @@ public class NpcDialogueInteractable : MonoBehaviour, IDialogueSource
             return;
 
         isPlayerInside = true;
-
-        if (interactionHintObject != null)
-        {
-            interactionHintObject.SetActive(true);
-        }
+        RefreshHint(true);
     }
 
     private void OnTriggerExit2D(Collider2D other)
@@ -64,11 +57,7 @@ public class NpcDialogueInteractable : MonoBehaviour, IDialogueSource
             return;
 
         isPlayerInside = false;
-
-        if (interactionHintObject != null)
-        {
-            interactionHintObject.SetActive(false);
-        }
+        RefreshHint(false);
     }
 
     private void HandleUsePressed()
@@ -93,9 +82,17 @@ public class NpcDialogueInteractable : MonoBehaviour, IDialogueSource
 
         bool started = DialogueManager.Instance.StartDialogue(dialogueData, this);
 
-        if (started && interactionHintObject != null)
+        if (started)
         {
-            interactionHintObject.SetActive(false);
+            RefreshHint(false);
+        }
+    }
+
+    private void RefreshHint(bool visible)
+    {
+        if (interactionHintObject != null)
+        {
+            interactionHintObject.SetActive(visible);
         }
     }
 

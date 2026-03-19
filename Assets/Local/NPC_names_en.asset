@@ -34,6 +34,10 @@ MonoBehaviour:
     m_Localized: Red Square
     m_Metadata:
       m_Items: []
+  - m_Id: 1819106707582976
+    m_Localized: Test NPC2
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

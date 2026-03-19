@@ -67,6 +67,30 @@ MonoBehaviour:
     m_Key: dialogueTest.red2_2
     m_Metadata:
       m_Items: []
+  - m_Id: 1773244728029184
+    m_Key: dialogueTest.test2_1
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1773934699425792
+    m_Key: dialogueTest.test2_2
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1774241403711488
+    m_Key: dialogueTest.test2_3
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1775008302837760
+    m_Key: dialogueTest.test2_2_ans1
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1775167849967616
+    m_Key: dialogueTest.test2_2_ans2
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1775282115391488
+    m_Key: dialogueTest.test2_4
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

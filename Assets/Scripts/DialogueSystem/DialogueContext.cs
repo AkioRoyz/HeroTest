@@ -3,13 +3,21 @@ using UnityEngine.Localization;
 
 public class DialogueContext
 {
-    // Кто запустил диалог.
-    // Это может быть NPC, trigger zone или другой объект.
     public IDialogueSource Source { get; private set; }
+    public IDialogueQuestProvider QuestProvider { get; private set; }
 
-    public DialogueContext(IDialogueSource source)
+    private int playerLevel;
+
+    public DialogueContext(IDialogueSource source, int playerLevel, IDialogueQuestProvider questProvider = null)
     {
         Source = source;
+        this.playerLevel = playerLevel;
+        QuestProvider = questProvider;
+    }
+
+    public int GetPlayerLevel()
+    {
+        return playerLevel;
     }
 
     public LocalizedString GetSourceSpeakerName()

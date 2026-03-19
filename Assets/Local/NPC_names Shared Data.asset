@@ -31,6 +31,10 @@ MonoBehaviour:
     m_Key: npcNames.red_square
     m_Metadata:
       m_Items: []
+  - m_Id: 1819106707582976
+    m_Key: npcNames.testNPC2
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:
