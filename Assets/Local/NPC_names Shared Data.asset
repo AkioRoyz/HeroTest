@@ -19,6 +19,18 @@ MonoBehaviour:
     m_Key: npcNames.merchant
     m_Metadata:
       m_Items: []
+  - m_Id: 1758016351055872
+    m_Key: npcNames.testNPC
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1764938710069248
+    m_Key: npcNames.green_square
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1765027390238720
+    m_Key: npcNames.red_square
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

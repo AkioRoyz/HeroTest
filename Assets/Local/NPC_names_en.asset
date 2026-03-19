@@ -22,6 +22,18 @@ MonoBehaviour:
     m_Localized: Merchant
     m_Metadata:
       m_Items: []
+  - m_Id: 1758016351055872
+    m_Localized: Test NPC
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1764938710069248
+    m_Localized: Green Square
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1765027390238720
+    m_Localized: Red Square
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []
