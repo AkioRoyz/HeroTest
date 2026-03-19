@@ -14,6 +14,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::DialogueData
   dialogueId: test_npc_01
   repeatable: 0
+  conditions:
+  - conditionType: 0
+    requiredLevel: 0
+    requiredItem: {fileID: 0}
+    requiredItemAmount: 0
+    onceKey: 
+    questId: 
+    requiredQuestState: 0
   nodes:
   - nodeType: 0
     isStartNode: 1
@@ -39,6 +47,7 @@ MonoBehaviour:
       m_LocalVariables: []
     nextNodeIndex: 1
     choices: []
+    conditions: []
   - nodeType: 1
     isStartNode: 0
     speakerMode: 0
@@ -73,6 +82,7 @@ MonoBehaviour:
         m_WaitForCompletion: 0
         m_LocalVariables: []
       nextNodeIndex: 2
+      conditions: []
     - choiceText:
         m_TableReference:
           m_TableCollectionName: GUID:0ec52728d526c9d47a5b00a29d2e20ca
@@ -83,6 +93,8 @@ MonoBehaviour:
         m_WaitForCompletion: 0
         m_LocalVariables: []
       nextNodeIndex: -1
+      conditions: []
+    conditions: []
   - nodeType: 0
     isStartNode: 0
     speakerMode: 1
@@ -107,6 +119,7 @@ MonoBehaviour:
       m_LocalVariables: []
     nextNodeIndex: -1
     choices: []
+    conditions: []
   references:
     version: 2
     RefIds: []

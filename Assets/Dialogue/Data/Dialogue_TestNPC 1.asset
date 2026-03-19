@@ -129,8 +129,8 @@ MonoBehaviour:
     conditions:
     - conditionType: 2
       requiredLevel: 0
-      requiredItem: {fileID: 11400000, guid: 45fefbbbf4ee08a49a5e4b0c77a0c00d, type: 2}
-      requiredItemAmount: 0
+      requiredItem: {fileID: 11400000, guid: 4362e2801a870d54e9c671c3855ec616, type: 2}
+      requiredItemAmount: 2
       onceKey: 
       questId: 
       requiredQuestState: 0

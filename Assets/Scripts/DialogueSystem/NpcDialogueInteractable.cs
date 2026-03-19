@@ -39,7 +39,17 @@ public class NpcDialogueInteractable : MonoBehaviour, IDialogueSource
 
     private void Start()
     {
-        RefreshHint(false);
+        RefreshHint();
+    }
+
+    private void Update()
+    {
+        // „тобы иконка сразу реагировала, если услови€ изменились,
+        // пока игрок стоит р€дом с NPC.
+        if (isPlayerInside)
+        {
+            RefreshHint();
+        }
     }
 
     private void OnTriggerEnter2D(Collider2D other)
@@ -48,7 +58,7 @@ public class NpcDialogueInteractable : MonoBehaviour, IDialogueSource
             return;
 
         isPlayerInside = true;
-        RefreshHint(true);
+        RefreshHint();
     }
 
     private void OnTriggerExit2D(Collider2D other)
@@ -57,7 +67,7 @@ public class NpcDialogueInteractable : MonoBehaviour, IDialogueSource
             return;
 
         isPlayerInside = false;
-        RefreshHint(false);
+        RefreshHint();
     }
 
     private void HandleUsePressed()
@@ -77,23 +87,32 @@ public class NpcDialogueInteractable : MonoBehaviour, IDialogueSource
             return;
         }
 
-        if (DialogueManager.Instance.IsDialogueActive)
+        if (!DialogueManager.Instance.CanStartDialogue(dialogueData, this))
+        {
+            RefreshHint();
             return;
+        }
 
         bool started = DialogueManager.Instance.StartDialogue(dialogueData, this);
 
         if (started)
         {
-            RefreshHint(false);
+            RefreshHint();
         }
     }
 
-    private void RefreshHint(bool visible)
+    private void RefreshHint()
     {
-        if (interactionHintObject != null)
-        {
-            interactionHintObject.SetActive(visible);
-        }
+        if (interactionHintObject == null)
+            return;
+
+        bool shouldShow =
+            isPlayerInside &&
+            dialogueData != null &&
+            DialogueManager.Instance != null &&
+            DialogueManager.Instance.CanStartDialogue(dialogueData, this);
+
+        interactionHintObject.SetActive(shouldShow);
     }
 
     public LocalizedString GetDialogueSpeakerName()

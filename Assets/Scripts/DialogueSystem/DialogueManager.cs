@@ -14,7 +14,7 @@ public class DialogueManager : MonoBehaviour
     [SerializeField] private MonoBehaviour questProviderBehaviour;
 
     [Header("Player Data")]
-    [Tooltip("Временно: текущий уровень игрока. Позже можно будет брать из реальной stats/level системы.")]
+    [Tooltip("Временно: текущий уровень игрока. Позже заменим на реальную систему уровня.")]
     [SerializeField] private int debugPlayerLevel = 1;
 
     private IDialogueQuestProvider questProvider;
@@ -25,7 +25,7 @@ public class DialogueManager : MonoBehaviour
     private int selectedChoiceIndex = 0;
     private bool isDialogueActive = false;
 
-    // Список реально доступных ответов текущего узла
+    // Реально доступные ответы текущего choice-узла
     private readonly List<DialogueChoiceData> availableChoices = new();
 
     public bool IsDialogueActive => isDialogueActive;
@@ -73,6 +73,30 @@ public class DialogueManager : MonoBehaviour
         }
     }
 
+    // Публичная проверка: можно ли вообще стартовать этот диалог сейчас
+    public bool CanStartDialogue(DialogueData dialogueData, IDialogueSource source = null)
+    {
+        if (dialogueData == null)
+            return false;
+
+        if (isDialogueActive)
+            return false;
+
+        DialogueContext context = BuildContext(source);
+
+        // Проверяем условия всего диалога
+        if (!AreConditionsMet(dialogueData.Conditions, context))
+            return false;
+
+        // Проверяем, есть ли вообще хотя бы один валидный стартовый узел
+        int startNodeIndex = dialogueData.GetStartNodeIndex();
+        if (startNodeIndex < 0)
+            return false;
+
+        int validNodeIndex = FindFirstValidNodeFrom(startNodeIndex, dialogueData, context);
+        return validNodeIndex >= 0;
+    }
+
     public bool StartDialogue(DialogueData dialogueData, IDialogueSource source = null)
     {
         if (dialogueData == null)
@@ -87,24 +111,31 @@ public class DialogueManager : MonoBehaviour
             return false;
         }
 
-        DialogueContext context = new DialogueContext(source, debugPlayerLevel, questProvider);
+        DialogueContext context = BuildContext(source);
 
         if (!AreConditionsMet(dialogueData.Conditions, context))
         {
-            Debug.Log($"Dialogue {dialogueData.name} cannot start because its conditions are not met.");
+            Debug.Log($"Dialogue {dialogueData.name} cannot start because dialogue conditions are not met.");
             return false;
         }
 
-        int startNodeIndex = FindFirstValidNodeFrom(dialogueData.GetStartNodeIndex(), dialogueData, context);
+        int startNodeIndex = dialogueData.GetStartNodeIndex();
         if (startNodeIndex < 0)
         {
-            Debug.LogWarning($"Dialogue {dialogueData.name} has no valid start node.");
+            Debug.LogWarning($"Dialogue {dialogueData.name} has no start node.");
+            return false;
+        }
+
+        int firstValidNodeIndex = FindFirstValidNodeFrom(startNodeIndex, dialogueData, context);
+        if (firstValidNodeIndex < 0)
+        {
+            Debug.LogWarning($"Dialogue {dialogueData.name} has no valid node to start from.");
             return false;
         }
 
         currentDialogue = dialogueData;
         currentContext = context;
-        currentNodeIndex = startNodeIndex;
+        currentNodeIndex = firstValidNodeIndex;
         selectedChoiceIndex = 0;
         isDialogueActive = true;
 
@@ -149,6 +180,11 @@ public class DialogueManager : MonoBehaviour
         }
     }
 
+    private DialogueContext BuildContext(IDialogueSource source)
+    {
+        return new DialogueContext(source, debugPlayerLevel, questProvider);
+    }
+
     private void ShowCurrentNode()
     {
         if (!isDialogueActive || currentDialogue == null)
@@ -157,39 +193,37 @@ public class DialogueManager : MonoBehaviour
             return;
         }
 
-        DialogueNodeData node = currentDialogue.GetNode(currentNodeIndex);
+        DialogueNodeData node = GetCurrentValidNode();
         if (node == null)
         {
-            Debug.LogWarning("Current dialogue node is null. Closing dialogue.");
+            Debug.LogWarning("No valid current dialogue node was found. Closing dialogue.");
             CloseDialogue();
             return;
         }
 
-        if (!AreConditionsMet(node.Conditions, currentContext))
-        {
-            int fallbackNodeIndex = FindNextValidNodeAfter(currentNodeIndex, currentDialogue, currentContext);
-
-            if (fallbackNodeIndex < 0)
-            {
-                Debug.LogWarning("Current node conditions are not met and no fallback node was found. Closing dialogue.");
-                CloseDialogue();
-                return;
-            }
-
-            currentNodeIndex = fallbackNodeIndex;
-            node = currentDialogue.GetNode(currentNodeIndex);
-
-            if (node == null)
-            {
-                CloseDialogue();
-                return;
-            }
-        }
-
         selectedChoiceIndex = 0;
         BuildAvailableChoices(node);
-
         RefreshCurrentNodeUI(node);
+    }
+
+    // Возвращает текущий узел, а если он невалиден — пытается найти следующий валидный
+    private DialogueNodeData GetCurrentValidNode()
+    {
+        if (currentDialogue == null)
+            return null;
+
+        DialogueNodeData currentNode = currentDialogue.GetNode(currentNodeIndex);
+        if (currentNode != null && AreConditionsMet(currentNode.Conditions, currentContext))
+        {
+            return currentNode;
+        }
+
+        int nextValidIndex = FindFirstValidNodeFrom(currentNodeIndex + 1, currentDialogue, currentContext);
+        if (nextValidIndex < 0)
+            return null;
+
+        currentNodeIndex = nextValidIndex;
+        return currentDialogue.GetNode(currentNodeIndex);
     }
 
     private void BuildAvailableChoices(DialogueNodeData node)
@@ -201,7 +235,7 @@ public class DialogueManager : MonoBehaviour
 
         for (int i = 0; i < node.Choices.Count; i++)
         {
-            DialogueChoiceData choice = (DialogueChoiceData)node.Choices[i];
+            DialogueChoiceData choice = node.Choices[i];
 
             if (AreConditionsMet(choice.Conditions, currentContext))
             {
@@ -342,7 +376,7 @@ public class DialogueManager : MonoBehaviour
         if (!isDialogueActive || currentDialogue == null)
             return;
 
-        DialogueNodeData node = currentDialogue.GetNode(currentNodeIndex);
+        DialogueNodeData node = GetCurrentValidNode();
         if (node == null)
         {
             CloseDialogue();
@@ -389,9 +423,16 @@ public class DialogueManager : MonoBehaviour
             return;
         }
 
+        if (currentDialogue == null)
+        {
+            CloseDialogue();
+            return;
+        }
+
         int validNodeIndex = FindFirstValidNodeFrom(nodeIndex, currentDialogue, currentContext);
         if (validNodeIndex < 0)
         {
+            Debug.LogWarning($"Could not find a valid node starting from index {nodeIndex}. Dialogue will be closed.");
             CloseDialogue();
             return;
         }
@@ -406,22 +447,23 @@ public class DialogueManager : MonoBehaviour
         if (dialogueData == null)
             return -1;
 
+        if (startIndex < 0)
+            return -1;
+
         for (int i = startIndex; i < dialogueData.Nodes.Count; i++)
         {
             DialogueNodeData node = dialogueData.GetNode(i);
 
-            if (node != null && AreConditionsMet(node.Conditions, context))
+            if (node == null)
+                continue;
+
+            if (AreConditionsMet(node.Conditions, context))
             {
                 return i;
             }
         }
 
         return -1;
-    }
-
-    private int FindNextValidNodeAfter(int currentIndex, DialogueData dialogueData, DialogueContext context)
-    {
-        return FindFirstValidNodeFrom(currentIndex + 1, dialogueData, context);
     }
 
     private bool AreConditionsMet(IReadOnlyList<DialogueConditionData> conditions, DialogueContext context)
