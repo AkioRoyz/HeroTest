@@ -10,63 +10,37 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: cb00193ea6da65548aa9e8d0cdbe32a4, type: 3}
-  m_Name: Dialogue_TestNPC 1
+  m_Name: Dialogue_TORGOVEC
   m_EditorClassIdentifier: Assembly-CSharp::DialogueData
-  dialogueId: test_npc_02
+  dialogueId: dia_torgovec1
   repeatable: 1
   conditions:
   - conditionType: 1
-    requiredLevel: 3
+    requiredLevel: 5
     requiredItem: {fileID: 0}
     requiredItemAmount: 0
     onceKey: 
     questId: 
     requiredQuestState: 0
   nodes:
-  - nodeType: 0
-    isStartNode: 1
-    speakerMode: 1
-    customSpeakerName:
-      m_TableReference:
-        m_TableCollectionName: GUID:ca28e4ac4ef5a4445876d732675da9d8
-      m_TableEntryReference:
-        m_KeyId: 1819106707582976
-        m_Key: 
-      m_FallbackState: 0
-      m_WaitForCompletion: 0
-      m_LocalVariables: []
-    speakerPortrait: {fileID: -5801234415319979454, guid: b187cc9f2c641894f990c0af60ab8fe1, type: 3}
-    dialogueText:
-      m_TableReference:
-        m_TableCollectionName: GUID:0ec52728d526c9d47a5b00a29d2e20ca
-      m_TableEntryReference:
-        m_KeyId: 1773244728029184
-        m_Key: 
-      m_FallbackState: 0
-      m_WaitForCompletion: 0
-      m_LocalVariables: []
-    nextNodeIndex: 1
-    choices: []
-    conditions: []
-    onEnterActions: []
   - nodeType: 1
-    isStartNode: 0
-    speakerMode: 1
+    isStartNode: 1
+    speakerMode: 0
     customSpeakerName:
       m_TableReference:
-        m_TableCollectionName: GUID:ca28e4ac4ef5a4445876d732675da9d8
+        m_TableCollectionName: 
       m_TableEntryReference:
-        m_KeyId: 1819106707582976
+        m_KeyId: 0
         m_Key: 
       m_FallbackState: 0
       m_WaitForCompletion: 0
       m_LocalVariables: []
-    speakerPortrait: {fileID: -5801234415319979454, guid: b187cc9f2c641894f990c0af60ab8fe1, type: 3}
+    speakerPortrait: {fileID: 0}
     dialogueText:
       m_TableReference:
         m_TableCollectionName: GUID:0ec52728d526c9d47a5b00a29d2e20ca
       m_TableEntryReference:
-        m_KeyId: 1773934699425792
+        m_KeyId: 2029922165796864
         m_Key: 
       m_FallbackState: 0
       m_WaitForCompletion: 0
@@ -77,60 +51,78 @@ MonoBehaviour:
         m_TableReference:
           m_TableCollectionName: GUID:0ec52728d526c9d47a5b00a29d2e20ca
         m_TableEntryReference:
-          m_KeyId: 1775008302837760
+          m_KeyId: 1659958753832960
+          m_Key: 
+        m_FallbackState: 0
+        m_WaitForCompletion: 0
+        m_LocalVariables: []
+      nextNodeIndex: 1
+      conditions: []
+      onSelectActions:
+      - actionType: 3
+        rewardData:
+          Exp: 0
+          Gold: 0
+          Items: []
+        itemToRemove: {fileID: 0}
+        itemRemoveAmount: 0
+        playedKey: pozdravlenie_1
+        questId: 
+        questStateValue: 0
+    conditions:
+    - conditionType: 4
+      requiredLevel: 0
+      requiredItem: {fileID: 0}
+      requiredItemAmount: 0
+      onceKey: pozdravlenie_1
+      questId: 
+      requiredQuestState: 0
+    onEnterActions: []
+  - nodeType: 1
+    isStartNode: 0
+    speakerMode: 0
+    customSpeakerName:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    speakerPortrait: {fileID: 0}
+    dialogueText:
+      m_TableReference:
+        m_TableCollectionName: GUID:0ec52728d526c9d47a5b00a29d2e20ca
+      m_TableEntryReference:
+        m_KeyId: 2030845583765504
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    nextNodeIndex: 0
+    choices:
+    - choiceText:
+        m_TableReference:
+          m_TableCollectionName: GUID:0ec52728d526c9d47a5b00a29d2e20ca
+        m_TableEntryReference:
+          m_KeyId: 2031705185398784
           m_Key: 
         m_FallbackState: 0
         m_WaitForCompletion: 0
         m_LocalVariables: []
       nextNodeIndex: 2
       conditions: []
-      unavailableMode: 0
-      disabledChoiceText:
-        m_TableReference:
-          m_TableCollectionName: 
-        m_TableEntryReference:
-          m_KeyId: 0
-          m_Key: 
-        m_FallbackState: 0
-        m_WaitForCompletion: 0
-        m_LocalVariables: []
-      onSelectActions: []
-    - choiceText:
-        m_TableReference:
-          m_TableCollectionName: GUID:0ec52728d526c9d47a5b00a29d2e20ca
-        m_TableEntryReference:
-          m_KeyId: 1775167849967616
-          m_Key: 
-        m_FallbackState: 0
-        m_WaitForCompletion: 0
-        m_LocalVariables: []
-      nextNodeIndex: 2
-      conditions:
-      - conditionType: 2
-        requiredLevel: 0
-        requiredItem: {fileID: 11400000, guid: 45fefbbbf4ee08a49a5e4b0c77a0c00d, type: 2}
-        requiredItemAmount: 1
-        onceKey: 
-        questId: 
-        requiredQuestState: 0
-      unavailableMode: 1
-      disabledChoiceText:
-        m_TableReference:
-          m_TableCollectionName: GUID:0ec52728d526c9d47a5b00a29d2e20ca
-        m_TableEntryReference:
-          m_KeyId: 2079626589188096
-          m_Key: 
-        m_FallbackState: 0
-        m_WaitForCompletion: 0
-        m_LocalVariables: []
       onSelectActions:
-      - actionType: 2
+      - actionType: 1
         rewardData:
           Exp: 0
           Gold: 0
-          Items: []
-        itemToRemove: {fileID: 11400000, guid: 45fefbbbf4ee08a49a5e4b0c77a0c00d, type: 2}
-        itemRemoveAmount: 1
+          Items:
+          - Item: {fileID: 11400000, guid: 1cc543ca1c32b7e4282124b10a78064d, type: 2}
+            Amount: 1
+        itemToRemove: {fileID: 0}
+        itemRemoveAmount: 0
         playedKey: 
         questId: 
         questStateValue: 0
@@ -138,77 +130,142 @@ MonoBehaviour:
         m_TableReference:
           m_TableCollectionName: GUID:0ec52728d526c9d47a5b00a29d2e20ca
         m_TableEntryReference:
-          m_KeyId: 2081062651768832
+          m_KeyId: 2031759673602048
           m_Key: 
         m_FallbackState: 0
         m_WaitForCompletion: 0
         m_LocalVariables: []
       nextNodeIndex: 2
       conditions: []
-      unavailableMode: 1
-      disabledChoiceText:
+      onSelectActions:
+      - actionType: 1
+        rewardData:
+          Exp: 0
+          Gold: 0
+          Items:
+          - Item: {fileID: 11400000, guid: 45fefbbbf4ee08a49a5e4b0c77a0c00d, type: 2}
+            Amount: 1
+        itemToRemove: {fileID: 0}
+        itemRemoveAmount: 0
+        playedKey: 
+        questId: 
+        questStateValue: 0
+    - choiceText:
         m_TableReference:
           m_TableCollectionName: GUID:0ec52728d526c9d47a5b00a29d2e20ca
         m_TableEntryReference:
-          m_KeyId: 2079626589188096
+          m_KeyId: 2031738098102272
           m_Key: 
         m_FallbackState: 0
         m_WaitForCompletion: 0
         m_LocalVariables: []
+      nextNodeIndex: 2
+      conditions: []
+      onSelectActions:
+      - actionType: 1
+        rewardData:
+          Exp: 0
+          Gold: 0
+          Items:
+          - Item: {fileID: 11400000, guid: ac40b4274a17b7942a370e3cc9e97a3c, type: 2}
+            Amount: 1
+        itemToRemove: {fileID: 0}
+        itemRemoveAmount: 0
+        playedKey: 
+        questId: 
+        questStateValue: 0
+    - choiceText:
+        m_TableReference:
+          m_TableCollectionName: GUID:0ec52728d526c9d47a5b00a29d2e20ca
+        m_TableEntryReference:
+          m_KeyId: 2047727971938304
+          m_Key: 
+        m_FallbackState: 0
+        m_WaitForCompletion: 0
+        m_LocalVariables: []
+      nextNodeIndex: 3
+      conditions: []
+      onSelectActions:
+      - actionType: 1
+        rewardData:
+          Exp: 1000
+          Gold: 1000
+          Items: []
+        itemToRemove: {fileID: 0}
+        itemRemoveAmount: 0
+        playedKey: 
+        questId: 
+        questStateValue: 0
+    conditions: []
+    onEnterActions: []
+  - nodeType: 1
+    isStartNode: 0
+    speakerMode: 0
+    customSpeakerName:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    speakerPortrait: {fileID: 0}
+    dialogueText:
+      m_TableReference:
+        m_TableCollectionName: GUID:0ec52728d526c9d47a5b00a29d2e20ca
+      m_TableEntryReference:
+        m_KeyId: 2038243350360064
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    nextNodeIndex: 0
+    choices:
+    - choiceText:
+        m_TableReference:
+          m_TableCollectionName: GUID:0ec52728d526c9d47a5b00a29d2e20ca
+        m_TableEntryReference:
+          m_KeyId: 2038393644855296
+          m_Key: 
+        m_FallbackState: 0
+        m_WaitForCompletion: 0
+        m_LocalVariables: []
+      nextNodeIndex: 1
+      conditions: []
+      onSelectActions: []
+    - choiceText:
+        m_TableReference:
+          m_TableCollectionName: GUID:0ec52728d526c9d47a5b00a29d2e20ca
+        m_TableEntryReference:
+          m_KeyId: 2037810368163840
+          m_Key: 
+        m_FallbackState: 0
+        m_WaitForCompletion: 0
+        m_LocalVariables: []
+      nextNodeIndex: 3
+      conditions: []
       onSelectActions: []
     conditions: []
     onEnterActions: []
   - nodeType: 0
     isStartNode: 0
-    speakerMode: 1
+    speakerMode: 0
     customSpeakerName:
       m_TableReference:
-        m_TableCollectionName: GUID:ca28e4ac4ef5a4445876d732675da9d8
+        m_TableCollectionName: 
       m_TableEntryReference:
-        m_KeyId: 1819106707582976
+        m_KeyId: 0
         m_Key: 
       m_FallbackState: 0
       m_WaitForCompletion: 0
       m_LocalVariables: []
-    speakerPortrait: {fileID: -5801234415319979454, guid: b187cc9f2c641894f990c0af60ab8fe1, type: 3}
+    speakerPortrait: {fileID: 0}
     dialogueText:
       m_TableReference:
         m_TableCollectionName: GUID:0ec52728d526c9d47a5b00a29d2e20ca
       m_TableEntryReference:
-        m_KeyId: 1774241403711488
-        m_Key: 
-      m_FallbackState: 0
-      m_WaitForCompletion: 0
-      m_LocalVariables: []
-    nextNodeIndex: 3
-    choices: []
-    conditions:
-    - conditionType: 2
-      requiredLevel: 0
-      requiredItem: {fileID: 11400000, guid: ac40b4274a17b7942a370e3cc9e97a3c, type: 2}
-      requiredItemAmount: 1
-      onceKey: 
-      questId: 
-      requiredQuestState: 0
-    onEnterActions: []
-  - nodeType: 0
-    isStartNode: 0
-    speakerMode: 1
-    customSpeakerName:
-      m_TableReference:
-        m_TableCollectionName: GUID:ca28e4ac4ef5a4445876d732675da9d8
-      m_TableEntryReference:
-        m_KeyId: 1819106707582976
-        m_Key: 
-      m_FallbackState: 0
-      m_WaitForCompletion: 0
-      m_LocalVariables: []
-    speakerPortrait: {fileID: -5801234415319979454, guid: b187cc9f2c641894f990c0af60ab8fe1, type: 3}
-    dialogueText:
-      m_TableReference:
-        m_TableCollectionName: GUID:0ec52728d526c9d47a5b00a29d2e20ca
-      m_TableEntryReference:
-        m_KeyId: 1775282115391488
+        m_KeyId: 2037979780296704
         m_Key: 
       m_FallbackState: 0
       m_WaitForCompletion: 0

@@ -91,6 +91,54 @@ MonoBehaviour:
     m_Key: dialogueTest.test2_4
     m_Metadata:
       m_Items: []
+  - m_Id: 2029922165796864
+    m_Key: dialogueTest.TORGOVEC_start
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2030845583765504
+    m_Key: dialogueTest.TORGOVEC_choice_predmet
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2031705185398784
+    m_Key: dialogueTest.TORGOVEC_choice_predmetHeal
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2031738098102272
+    m_Key: dialogueTest.TORGOVEC_choice_predmetSapogi
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2031759673602048
+    m_Key: dialogueTest.TORGOVEC_choice_predmetKolco
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2037810368163840
+    m_Key: dialogueTest.TORGOVEC_choice_no
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2037979780296704
+    m_Key: dialogueTest.TORGOVEC_end
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2038243350360064
+    m_Key: dialogueTest.TORGOVEC_eshe
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2038393644855296
+    m_Key: dialogueTest.TORGOVEC_eshe2
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2047727971938304
+    m_Key: dialogueTest.TORGOVEC_choice_goldandexp
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2079626589188096
+    m_Key: dialogueTest.disable_answer
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2081062651768832
+    m_Key: dialogueTest.ovosh
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

@@ -5,6 +5,19 @@ using UnityEngine.UI;
 
 public class DialogueUI : MonoBehaviour
 {
+    [System.Serializable]
+    public class ChoiceViewData
+    {
+        public string Text;
+        public bool IsSelectable;
+
+        public ChoiceViewData(string text, bool isSelectable)
+        {
+            Text = text;
+            IsSelectable = isSelectable;
+        }
+    }
+
     [Header("Root")]
     [SerializeField] private GameObject root;
 
@@ -16,9 +29,49 @@ public class DialogueUI : MonoBehaviour
     [Header("Choices")]
     [SerializeField] private List<TMP_Text> choiceTexts = new();
 
-    [Header("Selection")]
+    [Header("Selection Prefixes")]
     [SerializeField] private string selectedPrefix = "> ";
     [SerializeField] private string unselectedPrefix = "  ";
+    [SerializeField] private string disabledPrefix = "X ";
+
+    [Header("Disabled Choice Style")]
+    [SerializeField] private bool tintDisabledChoices = true;
+    [SerializeField] private Color normalChoiceColor = Color.white;
+    [SerializeField] private Color disabledChoiceColor = Color.gray;
+
+    [Header("Continue Indicator")]
+    [Tooltip("Иконка, которая показывается только на обычных репликах без выбора.")]
+    [SerializeField] private GameObject continueIndicatorObject;
+
+    [Tooltip("RectTransform иконки. Нужен для плавного движения вверх-вниз.")]
+    [SerializeField] private RectTransform continueIndicatorRect;
+
+    [Tooltip("Насколько пикселей иконка поднимается вверх.")]
+    [SerializeField] private float continueIndicatorMoveDistance = 10f;
+
+    [Tooltip("Скорость движения иконки.")]
+    [SerializeField] private float continueIndicatorMoveSpeed = 2f;
+
+    private bool isContinueIndicatorVisible;
+    private Vector2 continueIndicatorStartAnchoredPosition;
+
+    private void Awake()
+    {
+        if (continueIndicatorRect != null)
+        {
+            continueIndicatorStartAnchoredPosition = continueIndicatorRect.anchoredPosition;
+        }
+    }
+
+    private void OnEnable()
+    {
+        ResetContinueIndicatorPosition();
+    }
+
+    private void Update()
+    {
+        UpdateContinueIndicatorAnimation();
+    }
 
     public void Show()
     {
@@ -30,6 +83,8 @@ public class DialogueUI : MonoBehaviour
     {
         if (root != null)
             root.SetActive(false);
+
+        HideContinueIndicator();
     }
 
     public void SetSpeakerName(string speakerName)
@@ -69,11 +124,12 @@ public class DialogueUI : MonoBehaviour
             {
                 choiceTexts[i].gameObject.SetActive(false);
                 choiceTexts[i].text = string.Empty;
+                choiceTexts[i].color = normalChoiceColor;
             }
         }
     }
 
-    public void SetChoices(List<string> choices, int selectedIndex)
+    public void SetChoices(List<ChoiceViewData> choices, int selectedIndex)
     {
         ClearChoices();
 
@@ -91,9 +147,74 @@ public class DialogueUI : MonoBehaviour
 
             choiceText.gameObject.SetActive(true);
 
+            ChoiceViewData data = choices[i];
+
             bool isSelected = i == selectedIndex;
-            string prefix = isSelected ? selectedPrefix : unselectedPrefix;
-            choiceText.text = prefix + choices[i];
+            string prefix;
+
+            if (!data.IsSelectable)
+            {
+                prefix = disabledPrefix;
+            }
+            else
+            {
+                prefix = isSelected ? selectedPrefix : unselectedPrefix;
+            }
+
+            choiceText.text = prefix + data.Text;
+
+            if (tintDisabledChoices)
+            {
+                choiceText.color = data.IsSelectable ? normalChoiceColor : disabledChoiceColor;
+            }
+            else
+            {
+                choiceText.color = normalChoiceColor;
+            }
         }
+    }
+
+    public void ShowContinueIndicator()
+    {
+        isContinueIndicatorVisible = true;
+
+        if (continueIndicatorObject != null)
+        {
+            continueIndicatorObject.SetActive(true);
+        }
+
+        ResetContinueIndicatorPosition();
+    }
+
+    public void HideContinueIndicator()
+    {
+        isContinueIndicatorVisible = false;
+
+        if (continueIndicatorObject != null)
+        {
+            continueIndicatorObject.SetActive(false);
+        }
+
+        ResetContinueIndicatorPosition();
+    }
+
+    private void UpdateContinueIndicatorAnimation()
+    {
+        if (!isContinueIndicatorVisible)
+            return;
+
+        if (continueIndicatorRect == null)
+            return;
+
+        float offsetY = Mathf.Sin(Time.unscaledTime * continueIndicatorMoveSpeed) * continueIndicatorMoveDistance;
+        continueIndicatorRect.anchoredPosition = continueIndicatorStartAnchoredPosition + new Vector2(0f, offsetY);
+    }
+
+    private void ResetContinueIndicatorPosition()
+    {
+        if (continueIndicatorRect == null)
+            return;
+
+        continueIndicatorRect.anchoredPosition = continueIndicatorStartAnchoredPosition;
     }
 }

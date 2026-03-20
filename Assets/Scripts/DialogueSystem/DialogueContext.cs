@@ -5,14 +5,20 @@ public class DialogueContext
 {
     public IDialogueSource Source { get; private set; }
     public IDialogueQuestProvider QuestProvider { get; private set; }
+    public IDialogueActionQuestHandler QuestActionHandler { get; private set; }
 
     private int playerLevel;
 
-    public DialogueContext(IDialogueSource source, int playerLevel, IDialogueQuestProvider questProvider = null)
+    public DialogueContext(
+        IDialogueSource source,
+        int playerLevel,
+        IDialogueQuestProvider questProvider = null,
+        IDialogueActionQuestHandler questActionHandler = null)
     {
         Source = source;
         this.playerLevel = playerLevel;
         QuestProvider = questProvider;
+        QuestActionHandler = questActionHandler;
     }
 
     public int GetPlayerLevel()

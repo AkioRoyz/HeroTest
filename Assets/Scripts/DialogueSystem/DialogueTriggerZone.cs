@@ -40,7 +40,7 @@ public class DialogueTriggerZone : MonoBehaviour, IDialogueSource
             return;
         }
 
-        if (DialogueManager.Instance.IsDialogueActive)
+        if (!DialogueManager.Instance.CanStartDialogue(dialogueData, this))
             return;
 
         bool started = DialogueManager.Instance.StartDialogue(dialogueData, this);

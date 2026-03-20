@@ -4,20 +4,33 @@ using UnityEngine.Localization;
 
 public class DialogueManager : MonoBehaviour
 {
+    private class RuntimeChoiceEntry
+    {
+        public DialogueChoiceData SourceChoice;
+        public bool IsSelectable;
+        public string DisplayText;
+
+        public RuntimeChoiceEntry(DialogueChoiceData sourceChoice, bool isSelectable, string displayText)
+        {
+            SourceChoice = sourceChoice;
+            IsSelectable = isSelectable;
+            DisplayText = displayText;
+        }
+    }
+
     public static DialogueManager Instance;
 
     [Header("References")]
     [SerializeField] private GameInput gameInput;
     [SerializeField] private DialogueUI dialogueUI;
+    [SerializeField] private ExpSystem expSystem;
 
     [Header("Optional Runtime Providers")]
     [SerializeField] private MonoBehaviour questProviderBehaviour;
-
-    [Header("Player Data")]
-    [Tooltip("¬ременно: текущий уровень игрока. ѕозже заменим на реальную систему уровн€.")]
-    [SerializeField] private int debugPlayerLevel = 1;
+    [SerializeField] private MonoBehaviour questActionHandlerBehaviour;
 
     private IDialogueQuestProvider questProvider;
+    private IDialogueActionQuestHandler questActionHandler;
 
     private DialogueData currentDialogue;
     private DialogueContext currentContext;
@@ -25,8 +38,8 @@ public class DialogueManager : MonoBehaviour
     private int selectedChoiceIndex = 0;
     private bool isDialogueActive = false;
 
-    // –еально доступные ответы текущего choice-узла
-    private readonly List<DialogueChoiceData> availableChoices = new();
+    private readonly List<RuntimeChoiceEntry> visibleChoices = new();
+    private readonly HashSet<int> enteredNodeIndices = new();
 
     public bool IsDialogueActive => isDialogueActive;
     public DialogueData CurrentDialogue => currentDialogue;
@@ -41,6 +54,7 @@ public class DialogueManager : MonoBehaviour
 
         Instance = this;
         questProvider = questProviderBehaviour as IDialogueQuestProvider;
+        questActionHandler = questActionHandlerBehaviour as IDialogueActionQuestHandler;
     }
 
     private void Start()
@@ -73,7 +87,6 @@ public class DialogueManager : MonoBehaviour
         }
     }
 
-    // ѕублична€ проверка: можно ли вообще стартовать этот диалог сейчас
     public bool CanStartDialogue(DialogueData dialogueData, IDialogueSource source = null)
     {
         if (dialogueData == null)
@@ -82,13 +95,14 @@ public class DialogueManager : MonoBehaviour
         if (isDialogueActive)
             return false;
 
+        if (!IsDialogueRepeatableOrNotCompleted(dialogueData))
+            return false;
+
         DialogueContext context = BuildContext(source);
 
-        // ѕровер€ем услови€ всего диалога
         if (!AreConditionsMet(dialogueData.Conditions, context))
             return false;
 
-        // ѕровер€ем, есть ли вообще хот€ бы один валидный стартовый узел
         int startNodeIndex = dialogueData.GetStartNodeIndex();
         if (startNodeIndex < 0)
             return false;
@@ -108,6 +122,12 @@ public class DialogueManager : MonoBehaviour
         if (isDialogueActive)
         {
             Debug.LogWarning("Cannot start dialogue: another dialogue is already active.");
+            return false;
+        }
+
+        if (!IsDialogueRepeatableOrNotCompleted(dialogueData))
+        {
+            Debug.Log($"Dialogue {dialogueData.name} is non-repeatable and has already been completed.");
             return false;
         }
 
@@ -138,6 +158,8 @@ public class DialogueManager : MonoBehaviour
         currentNodeIndex = firstValidNodeIndex;
         selectedChoiceIndex = 0;
         isDialogueActive = true;
+        enteredNodeIndices.Clear();
+        visibleChoices.Clear();
 
         if (gameInput != null)
         {
@@ -158,12 +180,15 @@ public class DialogueManager : MonoBehaviour
         if (!isDialogueActive)
             return;
 
+        MarkDialogueCompletedIfNeeded();
+
         currentDialogue = null;
         currentContext = null;
         currentNodeIndex = -1;
         selectedChoiceIndex = 0;
         isDialogueActive = false;
-        availableChoices.Clear();
+        visibleChoices.Clear();
+        enteredNodeIndices.Clear();
 
         if (dialogueUI != null)
         {
@@ -182,7 +207,42 @@ public class DialogueManager : MonoBehaviour
 
     private DialogueContext BuildContext(IDialogueSource source)
     {
-        return new DialogueContext(source, debugPlayerLevel, questProvider);
+        int playerLevel = 1;
+
+        if (expSystem != null)
+        {
+            playerLevel = expSystem.CurrentLvl;
+        }
+
+        return new DialogueContext(source, playerLevel, questProvider, questActionHandler);
+    }
+
+    private bool IsDialogueRepeatableOrNotCompleted(DialogueData dialogueData)
+    {
+        if (dialogueData == null)
+            return false;
+
+        if (dialogueData.Repeatable)
+            return true;
+
+        if (DialogueRuntimeState.Instance == null)
+            return true;
+
+        return !DialogueRuntimeState.Instance.IsDialogueCompleted(dialogueData.DialogueId);
+    }
+
+    private void MarkDialogueCompletedIfNeeded()
+    {
+        if (currentDialogue == null)
+            return;
+
+        if (currentDialogue.Repeatable)
+            return;
+
+        if (DialogueRuntimeState.Instance == null)
+            return;
+
+        DialogueRuntimeState.Instance.MarkDialogueCompleted(currentDialogue.DialogueId);
     }
 
     private void ShowCurrentNode()
@@ -201,12 +261,13 @@ public class DialogueManager : MonoBehaviour
             return;
         }
 
-        selectedChoiceIndex = 0;
-        BuildAvailableChoices(node);
+        ExecuteNodeEnterActionsIfNeeded(node);
+
+        BuildVisibleChoices(node);
+        ResetSelectedChoiceIndexToFirstSelectable();
         RefreshCurrentNodeUI(node);
     }
 
-    // ¬озвращает текущий узел, а если он невалиден Ч пытаетс€ найти следующий валидный
     private DialogueNodeData GetCurrentValidNode()
     {
         if (currentDialogue == null)
@@ -226,9 +287,21 @@ public class DialogueManager : MonoBehaviour
         return currentDialogue.GetNode(currentNodeIndex);
     }
 
-    private void BuildAvailableChoices(DialogueNodeData node)
+    private void ExecuteNodeEnterActionsIfNeeded(DialogueNodeData node)
     {
-        availableChoices.Clear();
+        if (node == null)
+            return;
+
+        if (enteredNodeIndices.Contains(currentNodeIndex))
+            return;
+
+        enteredNodeIndices.Add(currentNodeIndex);
+        ExecuteActions(node.OnEnterActions);
+    }
+
+    private void BuildVisibleChoices(DialogueNodeData node)
+    {
+        visibleChoices.Clear();
 
         if (node == null || node.NodeType != DialogueNodeType.Choice)
             return;
@@ -236,12 +309,36 @@ public class DialogueManager : MonoBehaviour
         for (int i = 0; i < node.Choices.Count; i++)
         {
             DialogueChoiceData choice = node.Choices[i];
+            bool isAvailable = AreConditionsMet(choice.Conditions, currentContext);
 
-            if (AreConditionsMet(choice.Conditions, currentContext))
+            if (isAvailable)
             {
-                availableChoices.Add(choice);
+                visibleChoices.Add(new RuntimeChoiceEntry(choice, true, string.Empty));
+            }
+            else
+            {
+                if (choice.UnavailableMode == DialogueChoiceUnavailableMode.ShowDisabled)
+                {
+                    visibleChoices.Add(new RuntimeChoiceEntry(choice, false, string.Empty));
+                }
             }
         }
+    }
+
+    private void ResetSelectedChoiceIndexToFirstSelectable()
+    {
+        selectedChoiceIndex = 0;
+
+        for (int i = 0; i < visibleChoices.Count; i++)
+        {
+            if (visibleChoices[i].IsSelectable)
+            {
+                selectedChoiceIndex = i;
+                return;
+            }
+        }
+
+        selectedChoiceIndex = -1;
     }
 
     private async void RefreshCurrentNodeUI(DialogueNodeData node)
@@ -259,26 +356,50 @@ public class DialogueManager : MonoBehaviour
 
         if (node.NodeType == DialogueNodeType.Choice)
         {
-            List<string> choiceStrings = new List<string>();
+            List<DialogueUI.ChoiceViewData> choiceViewData = new List<DialogueUI.ChoiceViewData>();
 
-            for (int i = 0; i < availableChoices.Count; i++)
+            for (int i = 0; i < visibleChoices.Count; i++)
             {
-                string choiceText = await ResolveLocalizedString(availableChoices[i].ChoiceText);
-                choiceStrings.Add(choiceText);
+                RuntimeChoiceEntry entry = visibleChoices[i];
+                string text;
+
+                if (entry.IsSelectable)
+                {
+                    text = await ResolveLocalizedString(entry.SourceChoice.ChoiceText);
+                }
+                else
+                {
+                    if (entry.SourceChoice.DisabledChoiceText != null)
+                    {
+                        string disabledText = await ResolveLocalizedString(entry.SourceChoice.DisabledChoiceText);
+                        text = string.IsNullOrEmpty(disabledText)
+                            ? await ResolveLocalizedString(entry.SourceChoice.ChoiceText)
+                            : disabledText;
+                    }
+                    else
+                    {
+                        text = await ResolveLocalizedString(entry.SourceChoice.ChoiceText);
+                    }
+                }
+
+                entry.DisplayText = text;
+                choiceViewData.Add(new DialogueUI.ChoiceViewData(text, entry.IsSelectable));
             }
 
-            if (choiceStrings.Count == 0)
+            if (choiceViewData.Count == 0)
             {
-                Debug.LogWarning("Choice node has no available choices. Closing dialogue.");
+                Debug.LogWarning("Choice node has no visible choices. Closing dialogue.");
                 CloseDialogue();
                 return;
             }
 
-            dialogueUI.SetChoices(choiceStrings, selectedChoiceIndex);
+            dialogueUI.SetChoices(choiceViewData, selectedChoiceIndex);
+            dialogueUI.HideContinueIndicator();
         }
         else
         {
             dialogueUI.ClearChoices();
+            dialogueUI.ShowContinueIndicator();
         }
     }
 
@@ -329,46 +450,83 @@ public class DialogueManager : MonoBehaviour
 
     private void HandleDialogueUp()
     {
-        if (!isDialogueActive || availableChoices.Count == 0)
+        if (!isDialogueActive)
             return;
 
-        selectedChoiceIndex--;
-        if (selectedChoiceIndex < 0)
-        {
-            selectedChoiceIndex = availableChoices.Count - 1;
-        }
+        if (visibleChoices.Count == 0)
+            return;
 
-        RefreshChoiceSelection();
+        MoveSelection(-1);
     }
 
     private void HandleDialogueDown()
     {
-        if (!isDialogueActive || availableChoices.Count == 0)
+        if (!isDialogueActive)
             return;
 
-        selectedChoiceIndex++;
-        if (selectedChoiceIndex >= availableChoices.Count)
-        {
-            selectedChoiceIndex = 0;
-        }
+        if (visibleChoices.Count == 0)
+            return;
 
-        RefreshChoiceSelection();
+        MoveSelection(1);
     }
 
-    private async void RefreshChoiceSelection()
+    private void MoveSelection(int direction)
+    {
+        if (visibleChoices.Count == 0)
+            return;
+
+        if (!HasAnySelectableChoice())
+            return;
+
+        int newIndex = selectedChoiceIndex;
+
+        for (int i = 0; i < visibleChoices.Count; i++)
+        {
+            newIndex += direction;
+
+            if (newIndex < 0)
+            {
+                newIndex = visibleChoices.Count - 1;
+            }
+            else if (newIndex >= visibleChoices.Count)
+            {
+                newIndex = 0;
+            }
+
+            if (visibleChoices[newIndex].IsSelectable)
+            {
+                selectedChoiceIndex = newIndex;
+                RefreshChoiceSelection();
+                return;
+            }
+        }
+    }
+
+    private bool HasAnySelectableChoice()
+    {
+        for (int i = 0; i < visibleChoices.Count; i++)
+        {
+            if (visibleChoices[i].IsSelectable)
+                return true;
+        }
+
+        return false;
+    }
+
+    private void RefreshChoiceSelection()
     {
         if (dialogueUI == null)
             return;
 
-        List<string> choiceStrings = new List<string>();
+        List<DialogueUI.ChoiceViewData> choiceViewData = new List<DialogueUI.ChoiceViewData>();
 
-        for (int i = 0; i < availableChoices.Count; i++)
+        for (int i = 0; i < visibleChoices.Count; i++)
         {
-            string choiceText = await ResolveLocalizedString(availableChoices[i].ChoiceText);
-            choiceStrings.Add(choiceText);
+            RuntimeChoiceEntry entry = visibleChoices[i];
+            choiceViewData.Add(new DialogueUI.ChoiceViewData(entry.DisplayText, entry.IsSelectable));
         }
 
-        dialogueUI.SetChoices(choiceStrings, selectedChoiceIndex);
+        dialogueUI.SetChoices(choiceViewData, selectedChoiceIndex);
     }
 
     private void HandleDialogueSelect()
@@ -389,21 +547,26 @@ public class DialogueManager : MonoBehaviour
         }
         else if (node.NodeType == DialogueNodeType.Choice)
         {
-            if (availableChoices.Count == 0)
+            if (visibleChoices.Count == 0)
             {
                 CloseDialogue();
                 return;
             }
 
-            if (selectedChoiceIndex < 0 || selectedChoiceIndex >= availableChoices.Count)
+            if (selectedChoiceIndex < 0 || selectedChoiceIndex >= visibleChoices.Count)
             {
-                Debug.LogWarning("Selected choice index is out of range.");
-                CloseDialogue();
                 return;
             }
 
-            DialogueChoiceData selectedChoice = availableChoices[selectedChoiceIndex];
-            GoToNode(selectedChoice.NextNodeIndex);
+            RuntimeChoiceEntry selectedEntry = visibleChoices[selectedChoiceIndex];
+
+            if (!selectedEntry.IsSelectable)
+            {
+                return;
+            }
+
+            ExecuteActions(selectedEntry.SourceChoice.OnSelectActions);
+            GoToNode(selectedEntry.SourceChoice.NextNodeIndex);
         }
     }
 
@@ -518,8 +681,61 @@ public class DialogueManager : MonoBehaviour
         }
     }
 
-    public void SetDebugPlayerLevel(int level)
+    private void ExecuteActions(IReadOnlyList<DialogueActionData> actions)
     {
-        debugPlayerLevel = Mathf.Max(1, level);
+        if (actions == null || actions.Count == 0)
+            return;
+
+        for (int i = 0; i < actions.Count; i++)
+        {
+            ExecuteAction(actions[i]);
+        }
+    }
+
+    private void ExecuteAction(DialogueActionData action)
+    {
+        if (action == null)
+            return;
+
+        switch (action.ActionType)
+        {
+            case DialogueActionType.None:
+                break;
+
+            case DialogueActionType.GiveReward:
+                if (RewardSystem.Instance != null)
+                {
+                    RewardSystem.Instance.GiveReward(action.RewardData);
+                }
+                break;
+
+            case DialogueActionType.RemoveItem:
+                if (InventorySystem.Instance != null &&
+                    action.ItemToRemove != null &&
+                    action.ItemRemoveAmount > 0)
+                {
+                    bool removed = InventorySystem.Instance.RemoveItem(action.ItemToRemove, action.ItemRemoveAmount);
+
+                    if (!removed)
+                    {
+                        Debug.LogWarning($"Failed to remove item {action.ItemToRemove.name} x{action.ItemRemoveAmount}");
+                    }
+                }
+                break;
+
+            case DialogueActionType.MarkPlayed:
+                if (DialogueRuntimeState.Instance != null)
+                {
+                    DialogueRuntimeState.Instance.MarkPlayed(action.PlayedKey);
+                }
+                break;
+
+            case DialogueActionType.QuestAction:
+                if (currentContext != null && currentContext.QuestActionHandler != null)
+                {
+                    currentContext.QuestActionHandler.ExecuteQuestAction(action.QuestId, action.QuestStateValue);
+                }
+                break;
+        }
     }
 }

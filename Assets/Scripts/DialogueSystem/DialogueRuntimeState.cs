@@ -6,6 +6,7 @@ public class DialogueRuntimeState : MonoBehaviour
     public static DialogueRuntimeState Instance;
 
     private readonly HashSet<string> playedKeys = new();
+    private readonly HashSet<string> completedDialogues = new();
 
     private void Awake()
     {
@@ -34,8 +35,25 @@ public class DialogueRuntimeState : MonoBehaviour
         playedKeys.Add(key);
     }
 
+    public bool IsDialogueCompleted(string dialogueId)
+    {
+        if (string.IsNullOrWhiteSpace(dialogueId))
+            return false;
+
+        return completedDialogues.Contains(dialogueId);
+    }
+
+    public void MarkDialogueCompleted(string dialogueId)
+    {
+        if (string.IsNullOrWhiteSpace(dialogueId))
+            return;
+
+        completedDialogues.Add(dialogueId);
+    }
+
     public void ClearAll()
     {
         playedKeys.Clear();
+        completedDialogues.Clear();
     }
 }

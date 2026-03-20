@@ -13,7 +13,8 @@ MonoBehaviour:
   m_Name: GreenSquareTest
   m_EditorClassIdentifier: Assembly-CSharp::DialogueData
   dialogueId: green_test_01
-  repeatable: 1
+  repeatable: 0
+  conditions: []
   nodes:
   - nodeType: 0
     isStartNode: 1
@@ -39,6 +40,8 @@ MonoBehaviour:
       m_LocalVariables: []
     nextNodeIndex: 1
     choices: []
+    conditions: []
+    onEnterActions: []
   - nodeType: 1
     isStartNode: 0
     speakerMode: 1
@@ -73,6 +76,10 @@ MonoBehaviour:
         m_WaitForCompletion: 0
         m_LocalVariables: []
       nextNodeIndex: -1
+      conditions: []
+      onSelectActions: []
+    conditions: []
+    onEnterActions: []
   references:
     version: 2
     RefIds: []

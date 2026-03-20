@@ -33,6 +33,9 @@ public class DialogueNodeData
     [Header("Conditions")]
     [SerializeField] private List<DialogueConditionData> conditions = new();
 
+    [Header("On Enter Actions")]
+    [SerializeField] private List<DialogueActionData> onEnterActions = new();
+
     public DialogueNodeType NodeType => nodeType;
     public bool IsStartNode => isStartNode;
 
@@ -45,4 +48,5 @@ public class DialogueNodeData
 
     public IReadOnlyList<DialogueChoiceData> Choices => choices;
     public IReadOnlyList<DialogueConditionData> Conditions => conditions;
+    public IReadOnlyList<DialogueActionData> OnEnterActions => onEnterActions;
 }

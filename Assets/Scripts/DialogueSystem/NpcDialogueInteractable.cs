@@ -9,12 +9,17 @@ public class NpcDialogueInteractable : MonoBehaviour, IDialogueSource
     [Header("Speaker")]
     [SerializeField] private DialogueSpeakerData speakerData;
 
+    [Header("NPC Role")]
+    [SerializeField] private DialogueNpcRole npcRole = DialogueNpcRole.Regular;
+
     [Header("Interaction")]
     [SerializeField] private GameInput gameInput;
     [SerializeField] private GameObject interactionHintObject;
 
     private bool isPlayerInside;
     private int playerLayer;
+
+    public DialogueNpcRole NpcRole => npcRole;
 
     private void Awake()
     {
@@ -44,8 +49,6 @@ public class NpcDialogueInteractable : MonoBehaviour, IDialogueSource
 
     private void Update()
     {
-        // „тобы иконка сразу реагировала, если услови€ изменились,
-        // пока игрок стоит р€дом с NPC.
         if (isPlayerInside)
         {
             RefreshHint();

@@ -38,6 +38,10 @@ MonoBehaviour:
     m_Localized: Test NPC2
     m_Metadata:
       m_Items: []
+  - m_Id: 2071759018602496
+    m_Localized: TestovuiTorgovec
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []
