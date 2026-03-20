@@ -32,6 +32,8 @@ public class DialogueManager : MonoBehaviour
     private IDialogueQuestProvider questProvider;
     private IDialogueActionQuestHandler questActionHandler;
 
+    private int uiRefreshVersion = 0;
+
     private DialogueData currentDialogue;
     private DialogueContext currentContext;
     private int currentNodeIndex = -1;
@@ -346,17 +348,24 @@ public class DialogueManager : MonoBehaviour
         if (dialogueUI == null || node == null)
             return;
 
+        int refreshVersion = ++uiRefreshVersion;
+
+        dialogueUI.ShowLoadingState();
+
         string speakerName = await ResolveSpeakerName(node);
         string dialogueText = await ResolveLocalizedString(node.DialogueText);
         Sprite portrait = ResolvePortrait(node);
 
-        dialogueUI.SetSpeakerName(speakerName);
-        dialogueUI.SetDialogueText(dialogueText);
-        dialogueUI.SetPortrait(portrait);
+        // ≈сли за врем€ ожидани€ диалог уже сменилс€ или закрылс€,
+        // не примен€ем устаревший результат.
+        if (!isDialogueActive || refreshVersion != uiRefreshVersion)
+            return;
+
+        List<DialogueUI.ChoiceViewData> choiceViewData = null;
 
         if (node.NodeType == DialogueNodeType.Choice)
         {
-            List<DialogueUI.ChoiceViewData> choiceViewData = new List<DialogueUI.ChoiceViewData>();
+            choiceViewData = new List<DialogueUI.ChoiceViewData>();
 
             for (int i = 0; i < visibleChoices.Count; i++)
             {
@@ -382,17 +391,29 @@ public class DialogueManager : MonoBehaviour
                     }
                 }
 
+                if (!isDialogueActive || refreshVersion != uiRefreshVersion)
+                    return;
+
                 entry.DisplayText = text;
                 choiceViewData.Add(new DialogueUI.ChoiceViewData(text, entry.IsSelectable));
             }
 
             if (choiceViewData.Count == 0)
             {
-                Debug.LogWarning("Choice node has no visible choices. Closing dialogue.");
                 CloseDialogue();
                 return;
             }
+        }
 
+        if (!isDialogueActive || refreshVersion != uiRefreshVersion)
+            return;
+
+        dialogueUI.SetSpeakerName(speakerName);
+        dialogueUI.SetDialogueText(dialogueText);
+        dialogueUI.SetPortrait(portrait);
+
+        if (node.NodeType == DialogueNodeType.Choice)
+        {
             dialogueUI.SetChoices(choiceViewData, selectedChoiceIndex);
             dialogueUI.HideContinueIndicator();
         }
@@ -401,6 +422,8 @@ public class DialogueManager : MonoBehaviour
             dialogueUI.ClearChoices();
             dialogueUI.ShowContinueIndicator();
         }
+
+        dialogueUI.HideLoadingState();
     }
 
     private async System.Threading.Tasks.Task<string> ResolveSpeakerName(DialogueNodeData node)

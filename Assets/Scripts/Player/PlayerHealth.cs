@@ -23,6 +23,7 @@ public class PlayerHealth : MonoBehaviour
         if (statsSystem != null)
         {
             statsSystem.OnStatsUpdate += OnStatsUpdated;
+            statsSystem.OnLevelStatsUpdated += OnLevelStatsUpdated;
         }
     }
 
@@ -31,14 +32,7 @@ public class PlayerHealth : MonoBehaviour
         if (statsSystem != null)
         {
             statsSystem.OnStatsUpdate -= OnStatsUpdated;
-        }
-    }
-
-    private void Update()
-    {
-        if (Input.GetKeyDown(KeyCode.X)) // ТЕСТОВЫЙ КОД, потом удалить
-        {
-            TakeDamage(10);
+            statsSystem.OnLevelStatsUpdated -= OnLevelStatsUpdated;
         }
     }
 
@@ -63,9 +57,23 @@ public class PlayerHealth : MonoBehaviour
         OnHealthChange?.Invoke();
     }
 
+    public void RestoreToFull()
+    {
+        currentHealth = maxHealth;
+        OnHealthChange?.Invoke();
+    }
+
     private void OnStatsUpdated()
     {
         RefreshHealthFromStats(false);
+    }
+
+    private void OnLevelStatsUpdated()
+    {
+        // После повышения уровня статы уже пересчитаны,
+        // поэтому просто заполняем здоровье до нового максимума.
+        currentHealth = maxHealth;
+        OnHealthChange?.Invoke();
     }
 
     private void RefreshHealthFromStats(bool firstInit)
@@ -79,7 +87,6 @@ public class PlayerHealth : MonoBehaviour
         }
         else
         {
-            // Чтобы при смене статов здоровье не "ломалось"
             int difference = maxHealth - oldMaxHealth;
             currentHealth += difference;
             currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth);

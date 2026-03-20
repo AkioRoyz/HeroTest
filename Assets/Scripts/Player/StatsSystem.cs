@@ -26,6 +26,9 @@ public class StatsSystem : MonoBehaviour
 
     public event Action OnStatsUpdate;
 
+    // Отдельное событие: статы были пересчитаны именно из-за повышения уровня
+    public event Action OnLevelStatsUpdated;
+
     public int Strength => currentStrength;
     public int Mana => currentMana;
     public int Defence => currentDefence;
@@ -54,6 +57,7 @@ public class StatsSystem : MonoBehaviour
     private void OnLevelChanged(int level)
     {
         RecalculateStats();
+        OnLevelStatsUpdated?.Invoke();
     }
 
     public void AddBonusStats(int strength, int mana, int defence)

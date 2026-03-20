@@ -10566,7 +10566,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dbcdb9fb2706dd04a88d7a85bcb4ae31, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GoldSystem
-  goldAmount: 0
+  goldItem: {fileID: 11400000, guid: fa92b06fe4804524caf00dd627986926, type: 2}
 --- !u!1 &1185112373
 GameObject:
   m_ObjectHideFlags: 0
@@ -16279,8 +16279,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DialogueUI
   root: {fileID: 1875210115}
+  contentRoot: {fileID: 33323270}
+  loadingObject: {fileID: 0}
+  speakerNameRoot: {fileID: 1490953706}
   speakerNameText: {fileID: 1490953709}
   dialogueText: {fileID: 844981454}
+  portraitRoot: {fileID: 290414856}
   portraitImage: {fileID: 290414858}
   choiceTexts:
   - {fileID: 920806370}
@@ -16289,7 +16293,7 @@ MonoBehaviour:
   - {fileID: 1491750278}
   selectedPrefix: '> '
   unselectedPrefix: '  '
-  disabledPrefix: '  '
+  disabledPrefix: '   '
   tintDisabledChoices: 1
   normalChoiceColor: {r: 0, g: 0, b: 0, a: 1}
   disabledChoiceColor: {r: 0, g: 0, b: 0, a: 0.50980395}

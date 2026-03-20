@@ -22,6 +22,7 @@ public class PlayerMana : MonoBehaviour
         if (statsSystem != null)
         {
             statsSystem.OnStatsUpdate += OnStatsUpdated;
+            statsSystem.OnLevelStatsUpdated += OnLevelStatsUpdated;
         }
     }
 
@@ -30,14 +31,7 @@ public class PlayerMana : MonoBehaviour
         if (statsSystem != null)
         {
             statsSystem.OnStatsUpdate -= OnStatsUpdated;
-        }
-    }
-
-    private void Update()
-    {
-        if (Input.GetKeyDown(KeyCode.C)) // ТЕСТОВЫЙ КОД, потом удалить
-        {
-            SpendMana(10);
+            statsSystem.OnLevelStatsUpdated -= OnLevelStatsUpdated;
         }
     }
 
@@ -63,9 +57,21 @@ public class PlayerMana : MonoBehaviour
         OnManaChange?.Invoke();
     }
 
+    public void RestoreToFull()
+    {
+        currentMana = maxMana;
+        OnManaChange?.Invoke();
+    }
+
     private void OnStatsUpdated()
     {
         RefreshManaFromStats(false);
+    }
+
+    private void OnLevelStatsUpdated()
+    {
+        currentMana = maxMana;
+        OnManaChange?.Invoke();
     }
 
     private void RefreshManaFromStats(bool firstInit)

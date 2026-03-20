@@ -3,24 +3,32 @@ using UnityEngine;
 
 public class GoldAmount : MonoBehaviour
 {
-    [SerializeField] GoldSystem goldSystem;
-    [SerializeField] TextMeshProUGUI goldText;
-
-    private int goldAmount;
+    [SerializeField] private GoldSystem goldSystem;
+    [SerializeField] private TextMeshProUGUI goldText;
 
     private void OnEnable()
     {
-        goldSystem.OnGoldChange += GoldTextChange;
+        if (goldSystem != null)
+        {
+            goldSystem.OnGoldChange += GoldTextChange;
+        }
+
+        GoldTextChange();
     }
 
     private void OnDisable()
     {
-        goldSystem.OnGoldChange -= GoldTextChange;
+        if (goldSystem != null)
+        {
+            goldSystem.OnGoldChange -= GoldTextChange;
+        }
     }
 
     private void GoldTextChange()
     {
-        goldAmount = goldSystem.GoldAmount;
-        goldText.text = goldAmount.ToString();
+        if (goldSystem == null || goldText == null)
+            return;
+
+        goldText.text = goldSystem.GoldAmount.ToString();
     }
 }

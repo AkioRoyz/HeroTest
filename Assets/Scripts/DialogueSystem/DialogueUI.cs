@@ -21,9 +21,23 @@ public class DialogueUI : MonoBehaviour
     [Header("Root")]
     [SerializeField] private GameObject root;
 
-    [Header("Main UI")]
+    [Header("Content Root")]
+    [Tooltip("ќсновной контейнер содержимого диалога.")]
+    [SerializeField] private GameObject contentRoot;
+
+    [Header("Optional Loading Object")]
+    [Tooltip("Ќеоб€зательный объект, который можно показывать во врем€ первой загрузки локализованных строк.")]
+    [SerializeField] private GameObject loadingObject;
+
+    [Header("Speaker UI")]
+    [SerializeField] private GameObject speakerNameRoot;
     [SerializeField] private TMP_Text speakerNameText;
+
+    [Header("Dialogue Text UI")]
     [SerializeField] private TMP_Text dialogueText;
+
+    [Header("Portrait UI")]
+    [SerializeField] private GameObject portraitRoot;
     [SerializeField] private Image portraitImage;
 
     [Header("Choices")]
@@ -85,12 +99,56 @@ public class DialogueUI : MonoBehaviour
             root.SetActive(false);
 
         HideContinueIndicator();
+        HideLoadingState();
+        ClearAllVisuals();
+    }
+
+    public void ShowLoadingState()
+    {
+        if (contentRoot != null)
+        {
+            contentRoot.SetActive(false);
+        }
+
+        if (loadingObject != null)
+        {
+            loadingObject.SetActive(true);
+        }
+
+        HideContinueIndicator();
+        ClearAllVisuals();
+    }
+
+    public void HideLoadingState()
+    {
+        if (loadingObject != null)
+        {
+            loadingObject.SetActive(false);
+        }
+
+        if (contentRoot != null)
+        {
+            contentRoot.SetActive(true);
+        }
+    }
+
+    public void ClearAllVisuals()
+    {
+        SetSpeakerName(string.Empty);
+        SetDialogueText(string.Empty);
+        SetPortrait(null);
+        ClearChoices();
     }
 
     public void SetSpeakerName(string speakerName)
     {
+        string finalName = speakerName ?? string.Empty;
+
         if (speakerNameText != null)
-            speakerNameText.text = speakerName ?? string.Empty;
+            speakerNameText.text = finalName;
+
+        if (speakerNameRoot != null)
+            speakerNameRoot.SetActive(!string.IsNullOrWhiteSpace(finalName));
     }
 
     public void SetDialogueText(string text)
@@ -101,18 +159,17 @@ public class DialogueUI : MonoBehaviour
 
     public void SetPortrait(Sprite portrait)
     {
-        if (portraitImage == null)
-            return;
+        bool hasPortrait = portrait != null;
 
-        if (portrait != null)
+        if (portraitImage != null)
         {
             portraitImage.sprite = portrait;
-            portraitImage.enabled = true;
+            portraitImage.enabled = hasPortrait;
         }
-        else
+
+        if (portraitRoot != null)
         {
-            portraitImage.sprite = null;
-            portraitImage.enabled = false;
+            portraitRoot.SetActive(hasPortrait);
         }
     }
 
@@ -161,7 +218,7 @@ public class DialogueUI : MonoBehaviour
                 prefix = isSelected ? selectedPrefix : unselectedPrefix;
             }
 
-            choiceText.text = prefix + data.Text;
+            choiceText.text = prefix + (data.Text ?? string.Empty);
 
             if (tintDisabledChoices)
             {

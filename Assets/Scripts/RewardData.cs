@@ -4,7 +4,11 @@ using System;
 public struct RewardData
 {
     public int Exp;
+
+    // Используй это поле для выдачи золота.
+    // Не добавляй золото как Item в массив Items.
     public int Gold;
+
     public RewardItemData[] Items;
 
     public RewardData(int exp, int gold)
