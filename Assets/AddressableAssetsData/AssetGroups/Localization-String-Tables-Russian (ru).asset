@@ -33,6 +33,12 @@ MonoBehaviour:
     m_SerializedLabels:
     - Locale-ru
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 436c98c1297eba140a67ac414559f81e
+    m_Address: QuestTest_ru
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-ru
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 61a8b42f77dca6e4a929339f99e1b844
     m_Address: Items_ru
     m_ReadOnly: 1

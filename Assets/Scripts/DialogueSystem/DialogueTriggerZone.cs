@@ -9,6 +9,10 @@ public class DialogueTriggerZone : MonoBehaviour, IDialogueSource
     [Header("Speaker Source (Optional)")]
     [SerializeField] private DialogueSpeakerData speakerData;
 
+    [Header("Quest Trigger Id")]
+    [Tooltip("Уникальный ID триггера для квестов. Например: cave_entrance, forest_ruins")]
+    [SerializeField] private string triggerId;
+
     [Header("Trigger Settings")]
     [SerializeField] private bool triggerOnlyOnce = true;
 
@@ -24,6 +28,11 @@ public class DialogueTriggerZone : MonoBehaviour, IDialogueSource
     {
         if (other.gameObject.layer != playerLayer)
             return;
+
+        if (QuestSystem.Instance != null && !string.IsNullOrWhiteSpace(triggerId))
+        {
+            QuestSystem.Instance.RegisterTriggerEntered(triggerId);
+        }
 
         if (triggerOnlyOnce && hasTriggered)
             return;

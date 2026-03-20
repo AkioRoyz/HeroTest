@@ -9,6 +9,10 @@ public class NpcDialogueInteractable : MonoBehaviour, IDialogueSource
     [Header("Speaker")]
     [SerializeField] private DialogueSpeakerData speakerData;
 
+    [Header("NPC Quest Id")]
+    [Tooltip("Уникальный ID NPC для квестов. Например: elder_npc, guard_01")]
+    [SerializeField] private string npcId;
+
     [Header("NPC Role")]
     [SerializeField] private DialogueNpcRole npcRole = DialogueNpcRole.Regular;
 
@@ -20,6 +24,7 @@ public class NpcDialogueInteractable : MonoBehaviour, IDialogueSource
     private int playerLayer;
 
     public DialogueNpcRole NpcRole => npcRole;
+    public string NpcId => npcId;
 
     private void Awake()
     {
@@ -100,6 +105,11 @@ public class NpcDialogueInteractable : MonoBehaviour, IDialogueSource
 
         if (started)
         {
+            if (QuestSystem.Instance != null && !string.IsNullOrWhiteSpace(npcId))
+            {
+                QuestSystem.Instance.RegisterNpcTalked(npcId);
+            }
+
             RefreshHint();
         }
     }
