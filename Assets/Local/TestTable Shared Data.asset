@@ -55,6 +55,14 @@ MonoBehaviour:
     m_Key: test.elder_quest_node_4
     m_Metadata:
       m_Items: []
+  - m_Id: 307382988910592
+    m_Key: test.elder_quest_node_5
+    m_Metadata:
+      m_Items: []
+  - m_Id: 308044623589376
+    m_Key: test.elder_quest_node_5_1
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

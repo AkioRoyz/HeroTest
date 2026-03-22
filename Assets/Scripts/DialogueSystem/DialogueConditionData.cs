@@ -18,11 +18,11 @@ public class DialogueConditionData
     [SerializeField] private string onceKey;
 
     [Header("Quest Condition")]
-    [Tooltip("ID квеста. Пока это заготовка под будущую систему.")]
     [SerializeField] private string questId;
-
-    [Tooltip("Числовое состояние/этап квеста. Пока это заготовка под будущую систему.")]
     [SerializeField] private int requiredQuestState = 0;
+
+    [Header("Quest Step Condition")]
+    [SerializeField] private int requiredQuestStepIndex = 0;
 
     public DialogueConditionType ConditionType => conditionType;
     public int RequiredLevel => requiredLevel;
@@ -31,4 +31,5 @@ public class DialogueConditionData
     public string OnceKey => onceKey;
     public string QuestId => questId;
     public int RequiredQuestState => requiredQuestState;
+    public int RequiredQuestStepIndex => requiredQuestStepIndex;
 }

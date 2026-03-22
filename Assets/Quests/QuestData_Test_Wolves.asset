@@ -84,39 +84,6 @@ MonoBehaviour:
         m_LocalVariables: []
       targetId: wolf
       requiredAmount: 1
-  - stepId: talk_elder
-    stepDescription:
-      m_TableReference:
-        m_TableCollectionName: GUID:2aeced72d880ce045bccaf9301e724c7
-      m_TableEntryReference:
-        m_KeyId: 3101651972096
-        m_Key: 
-      m_FallbackState: 0
-      m_WaitForCompletion: 0
-      m_LocalVariables: []
-    stepTaskText:
-      m_TableReference:
-        m_TableCollectionName: GUID:2aeced72d880ce045bccaf9301e724c7
-      m_TableEntryReference:
-        m_KeyId: 3246007332864
-        m_Key: 
-      m_FallbackState: 0
-      m_WaitForCompletion: 0
-      m_LocalVariables: []
-    objectives:
-    - objectiveId: talk_to_elder
-      objectiveType: 1
-      objectiveDescription:
-        m_TableReference:
-          m_TableCollectionName: GUID:2aeced72d880ce045bccaf9301e724c7
-        m_TableEntryReference:
-          m_KeyId: 3518540623872
-          m_Key: 
-        m_FallbackState: 0
-        m_WaitForCompletion: 0
-        m_LocalVariables: []
-      targetId: elder_npc
-      requiredAmount: 1
   references:
     version: 2
     RefIds: []

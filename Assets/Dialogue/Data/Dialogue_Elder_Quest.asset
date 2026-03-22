@@ -58,6 +58,7 @@ MonoBehaviour:
         onceKey: 
         questId: side_wolves_001
         requiredQuestState: 0
+        requiredQuestStepIndex: 0
       unavailableMode: 0
       disabledChoiceText:
         m_TableReference:
@@ -96,7 +97,8 @@ MonoBehaviour:
         requiredItemAmount: 0
         onceKey: 
         questId: side_wolves_001
-        requiredQuestState: 2
+        requiredQuestState: 1
+        requiredQuestStepIndex: 0
       unavailableMode: 0
       disabledChoiceText:
         m_TableReference:
@@ -125,7 +127,8 @@ MonoBehaviour:
         requiredItemAmount: 0
         onceKey: 
         questId: side_wolves_001
-        requiredQuestState: 3
+        requiredQuestState: 2
+        requiredQuestStepIndex: 0
       unavailableMode: 0
       disabledChoiceText:
         m_TableReference:
@@ -136,7 +139,17 @@ MonoBehaviour:
         m_FallbackState: 0
         m_WaitForCompletion: 0
         m_LocalVariables: []
-      onSelectActions: []
+      onSelectActions:
+      - actionType: 4
+        rewardData:
+          Exp: 0
+          Gold: 0
+          Items: []
+        itemToRemove: {fileID: 0}
+        itemRemoveAmount: 0
+        playedKey: 
+        questId: side_wolves_001
+        questActionType: 3
     - choiceText:
         m_TableReference:
           m_TableCollectionName: GUID:b7fa0654d63a80c4ba9b0d68ecd122a6
@@ -153,8 +166,31 @@ MonoBehaviour:
         requiredItem: {fileID: 0}
         requiredItemAmount: 0
         onceKey: 
-        questId: test.elder_quest_ch_4
+        questId: side_wolves_001
         requiredQuestState: 3
+        requiredQuestStepIndex: 0
+      unavailableMode: 0
+      disabledChoiceText:
+        m_TableReference:
+          m_TableCollectionName: 
+        m_TableEntryReference:
+          m_KeyId: 0
+          m_Key: 
+        m_FallbackState: 0
+        m_WaitForCompletion: 0
+        m_LocalVariables: []
+      onSelectActions: []
+    - choiceText:
+        m_TableReference:
+          m_TableCollectionName: GUID:b7fa0654d63a80c4ba9b0d68ecd122a6
+        m_TableEntryReference:
+          m_KeyId: 307382988910592
+          m_Key: 
+        m_FallbackState: 0
+        m_WaitForCompletion: 0
+        m_LocalVariables: []
+      nextNodeIndex: 5
+      conditions: []
       unavailableMode: 0
       disabledChoiceText:
         m_TableReference:
@@ -281,17 +317,33 @@ MonoBehaviour:
     nextNodeIndex: -1
     choices: []
     conditions: []
-    onEnterActions:
-    - actionType: 1
-      rewardData:
-        Exp: 1000
-        Gold: 500
-        Items: []
-      itemToRemove: {fileID: 0}
-      itemRemoveAmount: 0
-      playedKey: 
-      questId: 
-      questActionType: 0
+    onEnterActions: []
+  - nodeType: 0
+    isStartNode: 0
+    speakerMode: 0
+    customSpeakerName:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    speakerPortrait: {fileID: 0}
+    dialogueText:
+      m_TableReference:
+        m_TableCollectionName: GUID:b7fa0654d63a80c4ba9b0d68ecd122a6
+      m_TableEntryReference:
+        m_KeyId: 308044623589376
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    nextNodeIndex: -1
+    choices: []
+    conditions: []
+    onEnterActions: []
   references:
     version: 2
     RefIds: []

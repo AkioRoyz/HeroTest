@@ -173,6 +173,17 @@ public class QuestManager : MonoBehaviour, IDialogueQuestProvider, IDialogueActi
         return (int)currentState == requiredQuestState;
     }
 
+    public bool IsQuestStepIndexMatched(string questId, int requiredQuestStepIndex)
+    {
+        if (!activeQuests.TryGetValue(questId, out QuestRuntimeData runtimeData))
+            return false;
+
+        if (runtimeData.QuestState != QuestState.Active)
+            return false;
+
+        return runtimeData.CurrentStepIndex == requiredQuestStepIndex;
+    }
+
     public bool CanAcceptQuest(string questId)
     {
         QuestData questData = GetQuestData(questId);

@@ -1,5 +1,5 @@
 public interface IDialogueQuestProvider
 {
-    // Возвращает true, если состояние квеста подходит.
-    bool IsQuestStateMatched(string questId, int requiredState);
+    bool IsQuestStateMatched(string questId, int requiredQuestState);
+    bool IsQuestStepIndexMatched(string questId, int requiredQuestStepIndex);
 }

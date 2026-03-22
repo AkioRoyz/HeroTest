@@ -14,6 +14,9 @@ public enum DialogueConditionType
     // Условие "этот шаг доступен только один раз"
     PlayOnce,
 
-    // Заготовка под квестовую систему
-    QuestState
+    // Проверка состояния квеста
+    QuestState,
+
+    // Проверка текущего индекса этапа квеста
+    QuestStepIndex
 }
