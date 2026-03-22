@@ -39,6 +39,10 @@ MonoBehaviour:
     m_Key: npcNames.testNPCtorgovec
     m_Metadata:
       m_Items: []
+  - m_Id: 2502150376468480
+    m_Key: npcNames.Elder
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

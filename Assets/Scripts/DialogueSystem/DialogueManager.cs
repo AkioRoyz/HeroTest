@@ -754,11 +754,28 @@ public class DialogueManager : MonoBehaviour
                 break;
 
             case DialogueActionType.QuestAction:
-                if (currentContext != null && currentContext.QuestActionHandler != null)
                 {
-                    currentContext.QuestActionHandler.ExecuteQuestAction(action.QuestId, action.QuestStateValue);
+                    if (questActionHandler == null)
+                    {
+                        Debug.LogWarning("DialogueManager: questActionHandler is missing.");
+                        break;
+                    }
+
+                    if (string.IsNullOrWhiteSpace(action.QuestId))
+                    {
+                        Debug.LogWarning("DialogueManager: QuestAction has empty questId.");
+                        break;
+                    }
+
+                    bool handled = questActionHandler.HandleQuestAction(action.QuestId, action.QuestActionType);
+
+                    if (!handled)
+                    {
+                        Debug.LogWarning($"DialogueManager: failed to handle quest action '{action.QuestActionType}' for quest '{action.QuestId}'.");
+                    }
+
+                    break;
                 }
-                break;
         }
     }
 }
