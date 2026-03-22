@@ -21,14 +21,14 @@ MonoBehaviour:
     m_SerializedLabels:
     - Locale-en
     FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: 5f323767d7646844a87a28988bbc8b6c
-    m_Address: DialogueTest_en
+  - m_GUID: 601e803462316154d86d4e9fa064ea5b
+    m_Address: UI_inGame_en
     m_ReadOnly: 1
     m_SerializedLabels:
     - Locale-en
     FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: 601e803462316154d86d4e9fa064ea5b
-    m_Address: UI_inGame_en
+  - m_GUID: 615aab13a19a6ec4bbc6c83cef6c5a8a
+    m_Address: Quests_en
     m_ReadOnly: 1
     m_SerializedLabels:
     - Locale-en
@@ -45,8 +45,14 @@ MonoBehaviour:
     m_SerializedLabels:
     - Locale-en
     FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: e8ebb2a191218dd4fbe420b9812df949
-    m_Address: UI_Stats_en
+  - m_GUID: b89310bd356524e4c901fd0031c9a899
+    m_Address: UI_InventorySystem_en
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-en
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: c506e5ab3920bec469dfc2c5878de33f
+    m_Address: TestTable_en
     m_ReadOnly: 1
     m_SerializedLabels:
     - Locale-en

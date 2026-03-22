@@ -12,6 +12,9 @@ public class NpcDialogueInteractable : MonoBehaviour, IDialogueSource
     [Header("NPC Role")]
     [SerializeField] private DialogueNpcRole npcRole = DialogueNpcRole.Regular;
 
+    [Header("Quest")]
+    [SerializeField] private string npcId;
+
     [Header("Interaction")]
     [SerializeField] private GameInput gameInput;
     [SerializeField] private GameObject interactionHintObject;
@@ -20,6 +23,7 @@ public class NpcDialogueInteractable : MonoBehaviour, IDialogueSource
     private int playerLayer;
 
     public DialogueNpcRole NpcRole => npcRole;
+    public string NpcId => npcId;
 
     private void Awake()
     {
@@ -100,6 +104,11 @@ public class NpcDialogueInteractable : MonoBehaviour, IDialogueSource
 
         if (started)
         {
+            if (QuestManager.Instance != null && !string.IsNullOrWhiteSpace(npcId))
+            {
+                QuestManager.Instance.NotifyNpcTalked(npcId);
+            }
+
             RefreshHint();
         }
     }

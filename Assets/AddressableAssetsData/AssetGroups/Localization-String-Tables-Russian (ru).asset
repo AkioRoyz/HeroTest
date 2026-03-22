@@ -21,14 +21,20 @@ MonoBehaviour:
     m_SerializedLabels:
     - Locale-ru
     FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: 220006f87e1910646b1625f6accfef88
-    m_Address: DialogueTest_ru
+  - m_GUID: 2abb895e1bd9fa1458225d19539642c9
+    m_Address: NPC_names_ru
     m_ReadOnly: 1
     m_SerializedLabels:
     - Locale-ru
     FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: 2abb895e1bd9fa1458225d19539642c9
-    m_Address: NPC_names_ru
+  - m_GUID: 53c1231923ec8f74f9c0f9be1f285adb
+    m_Address: UI_InventorySystem_ru
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-ru
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 55b55744caf7d7c4a892028be302fefe
+    m_Address: Quests_ru
     m_ReadOnly: 1
     m_SerializedLabels:
     - Locale-ru
@@ -45,8 +51,8 @@ MonoBehaviour:
     m_SerializedLabels:
     - Locale-ru
     FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: c13f02972f2c02d4dae9e73de0392a86
-    m_Address: UI_Stats_ru
+  - m_GUID: af4a43e2963947b42bd7872c6ed0da7c
+    m_Address: TestTable_ru
     m_ReadOnly: 1
     m_SerializedLabels:
     - Locale-ru

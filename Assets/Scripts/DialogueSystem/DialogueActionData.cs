@@ -17,9 +17,9 @@ public class DialogueActionData
     [Tooltip("Уникальный ключ. Например: villager_intro_completed")]
     [SerializeField] private string playedKey;
 
-    [Header("Quest Action (Future)")]
+    [Header("Quest Action")]
     [SerializeField] private string questId;
-    [SerializeField] private int questStateValue = 0;
+    [SerializeField] private QuestActionType questActionType = QuestActionType.None;
 
     public DialogueActionType ActionType => actionType;
     public RewardData RewardData => rewardData;
@@ -30,5 +30,5 @@ public class DialogueActionData
     public string PlayedKey => playedKey;
 
     public string QuestId => questId;
-    public int QuestStateValue => questStateValue;
+    public QuestActionType QuestActionType => questActionType;
 }

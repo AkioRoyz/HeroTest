@@ -1,4 +1,4 @@
 public interface IDialogueActionQuestHandler
 {
-    void ExecuteQuestAction(string questId, int questStateValue);
+    bool HandleQuestAction(string questId, QuestActionType actionType);
 }
