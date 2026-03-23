@@ -17,6 +17,6 @@ public enum DialogueConditionType
     // Проверка состояния квеста
     QuestState,
 
-    // Проверка текущего индекса этапа квеста
-    QuestStepIndex
+    // Проверка текущего этапа квеста по StepId
+    QuestStepId
 }

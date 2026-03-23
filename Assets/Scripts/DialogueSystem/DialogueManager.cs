@@ -356,8 +356,6 @@ public class DialogueManager : MonoBehaviour
         string dialogueText = await ResolveLocalizedString(node.DialogueText);
         Sprite portrait = ResolvePortrait(node);
 
-        // ≈сли за врем€ ожидани€ диалог уже сменилс€ или закрылс€,
-        // не примен€ем устаревший результат.
         if (!isDialogueActive || refreshVersion != uiRefreshVersion)
             return;
 
@@ -699,6 +697,12 @@ public class DialogueManager : MonoBehaviour
 
                 return context.QuestProvider.IsQuestStateMatched(condition.QuestId, condition.RequiredQuestState);
 
+            case DialogueConditionType.QuestStepId:
+                if (context == null || context.QuestProvider == null)
+                    return false;
+
+                return context.QuestProvider.IsQuestStepIdMatched(condition.QuestId, condition.RequiredQuestStepId);
+
             default:
                 return true;
         }
@@ -772,6 +776,37 @@ public class DialogueManager : MonoBehaviour
                     if (!handled)
                     {
                         Debug.LogWarning($"DialogueManager: failed to handle quest action '{action.QuestActionType}' for quest '{action.QuestId}'.");
+                    }
+
+                    break;
+                }
+
+            case DialogueActionType.AcceptQuestObjective:
+                {
+                    if (questActionHandler == null)
+                    {
+                        Debug.LogWarning("DialogueManager: questActionHandler is missing.");
+                        break;
+                    }
+
+                    if (string.IsNullOrWhiteSpace(action.QuestId))
+                    {
+                        Debug.LogWarning("DialogueManager: AcceptQuestObjective has empty questId.");
+                        break;
+                    }
+
+                    if (string.IsNullOrWhiteSpace(action.QuestObjectiveId))
+                    {
+                        Debug.LogWarning("DialogueManager: AcceptQuestObjective has empty questObjectiveId.");
+                        break;
+                    }
+
+                    int amount = Mathf.Max(1, action.QuestObjectiveAmount);
+                    bool handled = questActionHandler.AcceptQuestObjective(action.QuestId, action.QuestObjectiveId, amount);
+
+                    if (!handled)
+                    {
+                        Debug.LogWarning($"DialogueManager: failed to accept objective '{action.QuestObjectiveId}' for quest '{action.QuestId}'.");
                     }
 
                     break;

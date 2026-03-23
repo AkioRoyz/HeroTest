@@ -4042,9 +4042,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::QuestManager
   allQuestData:
   - {fileID: 11400000, guid: 30d167f06b12bfd47a65bd501bbc2186, type: 2}
-  - {fileID: 11400000, guid: cd4dcfb5b440a60469dd6e287a2627fe, type: 2}
-  - {fileID: 11400000, guid: f9a10089b49353149bc2e662df078b04, type: 2}
-  - {fileID: 11400000, guid: 675a9a0ef63b07142af02c5fdeaf690a, type: 2}
   expSystem: {fileID: 1608696422}
 --- !u!1 &567485764
 GameObject:
@@ -11751,6 +11748,10 @@ PrefabInstance:
       propertyPath: interactionHintObject
       value: 
       objectReference: {fileID: 1697755328}
+    - target: {fileID: 453094341888341340, guid: b2ff964321ffe5c4a809137c9a2af90a, type: 3}
+      propertyPath: notifyQuestTalkOnDialogueStart
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5028454102970830304, guid: b2ff964321ffe5c4a809137c9a2af90a, type: 3}
       propertyPath: m_LocalPosition.x
       value: -6.73

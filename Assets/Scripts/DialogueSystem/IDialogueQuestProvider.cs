@@ -1,5 +1,5 @@
 public interface IDialogueQuestProvider
 {
-    bool IsQuestStateMatched(string questId, int requiredQuestState);
-    bool IsQuestStepIndexMatched(string questId, int requiredQuestStepIndex);
+    bool IsQuestStateMatched(string questId, QuestState requiredQuestState);
+    bool IsQuestStepIdMatched(string questId, string requiredQuestStepId);
 }

@@ -19,10 +19,11 @@ public class DialogueConditionData
 
     [Header("Quest Condition")]
     [SerializeField] private string questId;
-    [SerializeField] private int requiredQuestState = 0;
+    [SerializeField] private QuestState requiredQuestState = QuestState.NotStarted;
 
     [Header("Quest Step Condition")]
-    [SerializeField] private int requiredQuestStepIndex = 0;
+    [Tooltip("StepId этапа квеста, на котором это условие должно быть истинным.")]
+    [SerializeField] private string requiredQuestStepId;
 
     public DialogueConditionType ConditionType => conditionType;
     public int RequiredLevel => requiredLevel;
@@ -30,6 +31,6 @@ public class DialogueConditionData
     public int RequiredItemAmount => requiredItemAmount;
     public string OnceKey => onceKey;
     public string QuestId => questId;
-    public int RequiredQuestState => requiredQuestState;
-    public int RequiredQuestStepIndex => requiredQuestStepIndex;
+    public QuestState RequiredQuestState => requiredQuestState;
+    public string RequiredQuestStepId => requiredQuestStepId;
 }

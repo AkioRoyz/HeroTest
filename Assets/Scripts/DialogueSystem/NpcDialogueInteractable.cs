@@ -15,6 +15,9 @@ public class NpcDialogueInteractable : MonoBehaviour, IDialogueSource
     [Header("Quest")]
     [SerializeField] private string npcId;
 
+    [Tooltip("Если включено, сам старт диалога будет считаться разговором для старой системы TalkToNpc по npcId. Для новой удобной схемы обычно оставляем выключенным.")]
+    [SerializeField] private bool notifyQuestTalkOnDialogueStart = false;
+
     [Header("Interaction")]
     [SerializeField] private GameInput gameInput;
     [SerializeField] private GameObject interactionHintObject;
@@ -104,7 +107,9 @@ public class NpcDialogueInteractable : MonoBehaviour, IDialogueSource
 
         if (started)
         {
-            if (QuestManager.Instance != null && !string.IsNullOrWhiteSpace(npcId))
+            if (notifyQuestTalkOnDialogueStart &&
+                QuestManager.Instance != null &&
+                !string.IsNullOrWhiteSpace(npcId))
             {
                 QuestManager.Instance.NotifyNpcTalked(npcId);
             }

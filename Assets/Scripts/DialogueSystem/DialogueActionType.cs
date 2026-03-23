@@ -11,6 +11,9 @@ public enum DialogueActionType
     // Пометить ключ как использованный
     MarkPlayed,
 
-    // Заготовка под будущую квестовую систему
-    QuestAction
+    // Действие над всем квестом: взять, завершить, провалить и т.д.
+    QuestAction,
+
+    // Засчитать конкретную задачу квеста
+    AcceptQuestObjective
 }

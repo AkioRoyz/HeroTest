@@ -62,6 +62,7 @@ public class QuestManager : MonoBehaviour, IDialogueQuestProvider, IDialogueActi
         TrySubscribeInventorySystem();
         TryAutoStartQuestsByCurrentLevel();
         TryAutoStartQuestsByInventory();
+        RefreshItemObjectivesForAllActiveQuests();
     }
 
     private void OnDisable()
@@ -167,21 +168,28 @@ public class QuestManager : MonoBehaviour, IDialogueQuestProvider, IDialogueActi
         return runtime.QuestState;
     }
 
-    public bool IsQuestStateMatched(string questId, int requiredQuestState)
+    public bool IsQuestStateMatched(string questId, QuestState requiredQuestState)
     {
         QuestState currentState = GetQuestState(questId);
-        return (int)currentState == requiredQuestState;
+        return currentState == requiredQuestState;
     }
 
-    public bool IsQuestStepIndexMatched(string questId, int requiredQuestStepIndex)
+    public bool IsQuestStepIdMatched(string questId, string requiredQuestStepId)
     {
+        if (string.IsNullOrWhiteSpace(questId) || string.IsNullOrWhiteSpace(requiredQuestStepId))
+            return false;
+
         if (!activeQuests.TryGetValue(questId, out QuestRuntimeData runtimeData))
             return false;
 
         if (runtimeData.QuestState != QuestState.Active)
             return false;
 
-        return runtimeData.CurrentStepIndex == requiredQuestStepIndex;
+        QuestStepRuntimeData currentStep = runtimeData.GetCurrentStep();
+        if (currentStep == null)
+            return false;
+
+        return string.Equals(currentStep.StepId, requiredQuestStepId, StringComparison.Ordinal);
     }
 
     public bool CanAcceptQuest(string questId)
@@ -225,6 +233,10 @@ public class QuestManager : MonoBehaviour, IDialogueQuestProvider, IDialogueActi
 
         OnQuestAccepted?.Invoke(questData);
         OnQuestListChanged?.Invoke();
+
+        RefreshItemObjectivesForQuest(questId);
+        TryAdvanceZeroObjectiveSteps(questId);
+
         return true;
     }
 
@@ -268,6 +280,10 @@ public class QuestManager : MonoBehaviour, IDialogueQuestProvider, IDialogueActi
         }
 
         OnQuestListChanged?.Invoke();
+
+        RefreshItemObjectivesForQuest(questId);
+        TryAdvanceZeroObjectiveSteps(questId);
+
         return true;
     }
 
@@ -435,6 +451,70 @@ public class QuestManager : MonoBehaviour, IDialogueQuestProvider, IDialogueActi
         }
     }
 
+    public bool AcceptQuestObjective(string questId, string objectiveId, int amount = 1)
+    {
+        if (string.IsNullOrWhiteSpace(questId) || string.IsNullOrWhiteSpace(objectiveId))
+            return false;
+
+        if (amount <= 0)
+            amount = 1;
+
+        if (!activeQuests.TryGetValue(questId, out QuestRuntimeData runtimeData))
+            return false;
+
+        if (runtimeData.QuestState != QuestState.Active)
+            return false;
+
+        QuestStepRuntimeData currentStep = runtimeData.GetCurrentStep();
+        if (currentStep == null || currentStep.Objectives == null)
+            return false;
+
+        bool anyProgress = false;
+
+        for (int i = 0; i < currentStep.Objectives.Count; i++)
+        {
+            QuestObjectiveRuntimeData objective = currentStep.Objectives[i];
+
+            if (objective == null)
+                continue;
+
+            if (objective.IsCompleted || objective.IsFailed)
+                continue;
+
+            if (!string.Equals(objective.ObjectiveId, objectiveId, StringComparison.Ordinal))
+                continue;
+
+            objective.CurrentAmount += amount;
+
+            if (objective.CurrentAmount >= objective.RequiredAmount)
+            {
+                objective.CurrentAmount = objective.RequiredAmount;
+                objective.IsCompleted = true;
+            }
+
+            anyProgress = true;
+            break;
+        }
+
+        if (!anyProgress)
+            return false;
+
+        QuestData questData = GetQuestData(questId);
+        if (questData != null)
+        {
+            OnQuestProgressChanged?.Invoke(questData);
+        }
+
+        OnQuestListChanged?.Invoke();
+
+        if (currentStep.AreAllObjectivesCompleted())
+        {
+            AdvanceQuestStep(questId);
+        }
+
+        return true;
+    }
+
     public void NotifyNpcTalked(string npcId)
     {
         if (string.IsNullOrWhiteSpace(npcId))
@@ -444,7 +524,7 @@ public class QuestManager : MonoBehaviour, IDialogueQuestProvider, IDialogueActi
 
         for (int i = 0; i < questIds.Count; i++)
         {
-            TryProgressObjective(questIds[i], QuestObjectiveType.TalkToNpc, npcId, 1);
+            TryProgressObjectiveByTarget(questIds[i], QuestObjectiveType.TalkToNpc, npcId, 1);
         }
     }
 
@@ -457,7 +537,7 @@ public class QuestManager : MonoBehaviour, IDialogueQuestProvider, IDialogueActi
 
         for (int i = 0; i < questIds.Count; i++)
         {
-            TryProgressObjective(questIds[i], QuestObjectiveType.ReachTriggerZone, zoneId, 1);
+            TryProgressObjectiveByTarget(questIds[i], QuestObjectiveType.ReachTriggerZone, zoneId, 1);
         }
     }
 
@@ -469,12 +549,12 @@ public class QuestManager : MonoBehaviour, IDialogueQuestProvider, IDialogueActi
         {
             if (!string.IsNullOrWhiteSpace(enemyTypeId))
             {
-                TryProgressObjective(questIds[i], QuestObjectiveType.KillEnemyType, enemyTypeId, 1);
+                TryProgressObjectiveByTarget(questIds[i], QuestObjectiveType.KillEnemyType, enemyTypeId, 1);
             }
 
             if (!string.IsNullOrWhiteSpace(enemyUniqueId))
             {
-                TryProgressObjective(questIds[i], QuestObjectiveType.KillSpecificEnemy, enemyUniqueId, 1);
+                TryProgressObjectiveByTarget(questIds[i], QuestObjectiveType.KillSpecificEnemy, enemyUniqueId, 1);
             }
         }
     }
@@ -487,6 +567,7 @@ public class QuestManager : MonoBehaviour, IDialogueQuestProvider, IDialogueActi
     private void HandleInventoryChanged()
     {
         TryAutoStartQuestsByInventory();
+        RefreshItemObjectivesForAllActiveQuests();
     }
 
     private void HandleQuestCompletedForProgressAndAutoStart(QuestData completedQuestData)
@@ -498,7 +579,7 @@ public class QuestManager : MonoBehaviour, IDialogueQuestProvider, IDialogueActi
 
         for (int i = 0; i < questIds.Count; i++)
         {
-            TryProgressObjective(questIds[i], QuestObjectiveType.CompleteQuest, completedQuestData.QuestId, 1);
+            TryProgressObjectiveByTarget(questIds[i], QuestObjectiveType.CompleteQuest, completedQuestData.QuestId, 1);
         }
 
         TryAutoStartQuestsByCompletedQuest(completedQuestData.QuestId);
@@ -568,18 +649,27 @@ public class QuestManager : MonoBehaviour, IDialogueQuestProvider, IDialogueActi
 
     private bool InventoryContainsItemId(string itemId)
     {
-        if (InventorySystem.Instance == null || string.IsNullOrWhiteSpace(itemId))
-            return false;
-
-        return ListContainsItemId(InventorySystem.Instance.ConsumableItems, itemId) ||
-               ListContainsItemId(InventorySystem.Instance.QuestItems, itemId) ||
-               ListContainsItemId(InventorySystem.Instance.EquipmentItems, itemId);
+        return GetInventoryItemCountByItemId(itemId) > 0;
     }
 
-    private bool ListContainsItemId(IReadOnlyList<InventoryEntry> entries, string itemId)
+    private int GetInventoryItemCountByItemId(string itemId)
+    {
+        if (InventorySystem.Instance == null || string.IsNullOrWhiteSpace(itemId))
+            return 0;
+
+        int total = 0;
+        total += CountItemIdInList(InventorySystem.Instance.ConsumableItems, itemId);
+        total += CountItemIdInList(InventorySystem.Instance.QuestItems, itemId);
+        total += CountItemIdInList(InventorySystem.Instance.EquipmentItems, itemId);
+        return total;
+    }
+
+    private int CountItemIdInList(IReadOnlyList<InventoryEntry> entries, string itemId)
     {
         if (entries == null)
-            return false;
+            return 0;
+
+        int count = 0;
 
         for (int i = 0; i < entries.Count; i++)
         {
@@ -592,10 +682,12 @@ public class QuestManager : MonoBehaviour, IDialogueQuestProvider, IDialogueActi
                 continue;
 
             if (entry.Item.ItemId == itemId)
-                return true;
+            {
+                count += entry.Amount;
+            }
         }
 
-        return false;
+        return count;
     }
 
     private List<string> GetActiveQuestIdsSnapshot()
@@ -610,7 +702,17 @@ public class QuestManager : MonoBehaviour, IDialogueQuestProvider, IDialogueActi
         return ids;
     }
 
-    private void TryProgressObjective(string questId, QuestObjectiveType objectiveType, string targetId, int amount)
+    private void RefreshItemObjectivesForAllActiveQuests()
+    {
+        List<string> questIds = GetActiveQuestIdsSnapshot();
+
+        for (int i = 0; i < questIds.Count; i++)
+        {
+            RefreshItemObjectivesForQuest(questIds[i]);
+        }
+    }
+
+    private void RefreshItemObjectivesForQuest(string questId)
     {
         if (!activeQuests.TryGetValue(questId, out QuestRuntimeData runtimeData))
             return;
@@ -619,7 +721,95 @@ public class QuestManager : MonoBehaviour, IDialogueQuestProvider, IDialogueActi
             return;
 
         QuestStepRuntimeData currentStep = runtimeData.GetCurrentStep();
-        if (currentStep == null)
+        if (currentStep == null || currentStep.Objectives == null)
+            return;
+
+        bool anyProgress = false;
+
+        for (int i = 0; i < currentStep.Objectives.Count; i++)
+        {
+            QuestObjectiveRuntimeData objective = currentStep.Objectives[i];
+
+            if (objective == null)
+                continue;
+
+            if (objective.IsCompleted || objective.IsFailed)
+                continue;
+
+            if (objective.ObjectiveType != QuestObjectiveType.ObtainItem)
+                continue;
+
+            int itemCount = GetInventoryItemCountByItemId(objective.TargetId);
+            int clamped = Mathf.Clamp(itemCount, 0, objective.RequiredAmount);
+
+            if (clamped != objective.CurrentAmount)
+            {
+                objective.CurrentAmount = clamped;
+                anyProgress = true;
+            }
+
+            if (objective.CurrentAmount >= objective.RequiredAmount)
+            {
+                objective.CurrentAmount = objective.RequiredAmount;
+                objective.IsCompleted = true;
+                anyProgress = true;
+            }
+        }
+
+        if (!anyProgress)
+            return;
+
+        QuestData questData = GetQuestData(questId);
+        if (questData != null)
+        {
+            OnQuestProgressChanged?.Invoke(questData);
+        }
+
+        OnQuestListChanged?.Invoke();
+
+        if (currentStep.AreAllObjectivesCompleted())
+        {
+            AdvanceQuestStep(questId);
+        }
+    }
+
+    private void TryAdvanceZeroObjectiveSteps(string questId)
+    {
+        int safety = 50;
+
+        while (safety-- > 0)
+        {
+            if (!activeQuests.TryGetValue(questId, out QuestRuntimeData runtimeData))
+                return;
+
+            if (runtimeData.QuestState != QuestState.Active)
+                return;
+
+            QuestStepRuntimeData currentStep = runtimeData.GetCurrentStep();
+            if (currentStep == null)
+                return;
+
+            if (currentStep.Objectives != null && currentStep.Objectives.Count > 0)
+                return;
+
+            bool advanced = AdvanceQuestStep(questId);
+            if (!advanced)
+                return;
+        }
+
+        Debug.LogWarning($"QuestManager: safety break triggered while auto-advancing zero-objective steps for quest '{questId}'.");
+    }
+
+    private void TryProgressObjectiveByTarget(string questId, QuestObjectiveType objectiveType, string targetId, int amount)
+    {
+        if (!activeQuests.TryGetValue(questId, out QuestRuntimeData runtimeData))
+            return;
+
+        if (runtimeData.QuestState != QuestState.Active)
+            return;
+
+        QuestStepRuntimeData currentStep = runtimeData.GetCurrentStep();
+        if (currentStep == null || currentStep.Objectives == null)
             return;
 
         bool anyProgress = false;

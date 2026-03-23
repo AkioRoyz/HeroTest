@@ -40,7 +40,8 @@ MonoBehaviour:
       m_LocalVariables: []
     nextNodeIndex: 0
     choices:
-    - choiceText:
+    - inspectorChoiceTitle: Choice
+      choiceText:
         m_TableReference:
           m_TableCollectionName: GUID:b7fa0654d63a80c4ba9b0d68ecd122a6
         m_TableEntryReference:
@@ -52,13 +53,13 @@ MonoBehaviour:
       nextNodeIndex: 1
       conditions:
       - conditionType: 5
-        requiredLevel: 0
+        requiredLevel: 3
         requiredItem: {fileID: 0}
         requiredItemAmount: 0
         onceKey: 
         questId: side_wolves_001
         requiredQuestState: 0
-        requiredQuestStepIndex: 0
+        requiredQuestStepId: 
       unavailableMode: 0
       disabledChoiceText:
         m_TableReference:
@@ -80,7 +81,10 @@ MonoBehaviour:
         playedKey: 
         questId: side_wolves_001
         questActionType: 1
-    - choiceText:
+        questObjectiveId: 
+        questObjectiveAmount: 1
+    - inspectorChoiceTitle: Choice
+      choiceText:
         m_TableReference:
           m_TableCollectionName: GUID:b7fa0654d63a80c4ba9b0d68ecd122a6
         m_TableEntryReference:
@@ -98,7 +102,7 @@ MonoBehaviour:
         onceKey: 
         questId: side_wolves_001
         requiredQuestState: 1
-        requiredQuestStepIndex: 0
+        requiredQuestStepId: 
       unavailableMode: 0
       disabledChoiceText:
         m_TableReference:
@@ -109,8 +113,21 @@ MonoBehaviour:
         m_FallbackState: 0
         m_WaitForCompletion: 0
         m_LocalVariables: []
-      onSelectActions: []
-    - choiceText:
+      onSelectActions:
+      - actionType: 4
+        rewardData:
+          Exp: 0
+          Gold: 0
+          Items: []
+        itemToRemove: {fileID: 0}
+        itemRemoveAmount: 0
+        playedKey: 
+        questId: 
+        questActionType: 0
+        questObjectiveId: 
+        questObjectiveAmount: 0
+    - inspectorChoiceTitle: Choice
+      choiceText:
         m_TableReference:
           m_TableCollectionName: GUID:b7fa0654d63a80c4ba9b0d68ecd122a6
         m_TableEntryReference:
@@ -128,7 +145,7 @@ MonoBehaviour:
         onceKey: 
         questId: side_wolves_001
         requiredQuestState: 2
-        requiredQuestStepIndex: 0
+        requiredQuestStepId: 
       unavailableMode: 0
       disabledChoiceText:
         m_TableReference:
@@ -150,7 +167,10 @@ MonoBehaviour:
         playedKey: 
         questId: side_wolves_001
         questActionType: 3
-    - choiceText:
+        questObjectiveId: 
+        questObjectiveAmount: 1
+    - inspectorChoiceTitle: Choice
+      choiceText:
         m_TableReference:
           m_TableCollectionName: GUID:b7fa0654d63a80c4ba9b0d68ecd122a6
         m_TableEntryReference:
@@ -168,7 +188,7 @@ MonoBehaviour:
         onceKey: 
         questId: side_wolves_001
         requiredQuestState: 3
-        requiredQuestStepIndex: 0
+        requiredQuestStepId: 
       unavailableMode: 0
       disabledChoiceText:
         m_TableReference:
@@ -180,7 +200,8 @@ MonoBehaviour:
         m_WaitForCompletion: 0
         m_LocalVariables: []
       onSelectActions: []
-    - choiceText:
+    - inspectorChoiceTitle: Choice
+      choiceText:
         m_TableReference:
           m_TableCollectionName: GUID:b7fa0654d63a80c4ba9b0d68ecd122a6
         m_TableEntryReference:
@@ -292,6 +313,8 @@ MonoBehaviour:
       playedKey: 
       questId: 
       questActionType: 0
+      questObjectiveId: 
+      questObjectiveAmount: 1
   - nodeType: 0
     isStartNode: 0
     speakerMode: 0

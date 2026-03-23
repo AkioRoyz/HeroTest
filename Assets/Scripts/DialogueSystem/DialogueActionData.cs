@@ -21,6 +21,13 @@ public class DialogueActionData
     [SerializeField] private string questId;
     [SerializeField] private QuestActionType questActionType = QuestActionType.None;
 
+    [Header("Accept Quest Objective Action")]
+    [Tooltip("ID конкретной задачи квеста, которую нужно засчитать. ќбычно это задача типа TalkToNpc.")]
+    [SerializeField] private string questObjectiveId;
+
+    [Tooltip("Ќа сколько увеличить прогресс задачи. ќбычно оставл€ем 1.")]
+    [SerializeField] private int questObjectiveAmount = 1;
+
     public DialogueActionType ActionType => actionType;
     public RewardData RewardData => rewardData;
 
@@ -31,4 +38,7 @@ public class DialogueActionData
 
     public string QuestId => questId;
     public QuestActionType QuestActionType => questActionType;
+
+    public string QuestObjectiveId => questObjectiveId;
+    public int QuestObjectiveAmount => questObjectiveAmount;
 }

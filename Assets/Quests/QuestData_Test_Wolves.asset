@@ -51,7 +51,7 @@ MonoBehaviour:
   requiredPlayerLevel: 0
   requiredCompletedQuestId: 
   steps:
-  - stepId: kill_wolves
+  - stepId: kill_first_wolf
     stepDescription:
       m_TableReference:
         m_TableCollectionName: GUID:2aeced72d880ce045bccaf9301e724c7
@@ -71,7 +71,7 @@ MonoBehaviour:
       m_WaitForCompletion: 0
       m_LocalVariables: []
     objectives:
-    - objectiveId: kill_wolf_type
+    - objectiveId: kill_first_wolf_objective
       objectiveType: 2
       objectiveDescription:
         m_TableReference:
@@ -83,6 +83,72 @@ MonoBehaviour:
         m_WaitForCompletion: 0
         m_LocalVariables: []
       targetId: wolf
+      requiredAmount: 1
+  - stepId: report_to_elder
+    stepDescription:
+      m_TableReference:
+        m_TableCollectionName: GUID:2aeced72d880ce045bccaf9301e724c7
+      m_TableEntryReference:
+        m_KeyId: 3681891987456
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    stepTaskText:
+      m_TableReference:
+        m_TableCollectionName: GUID:2aeced72d880ce045bccaf9301e724c7
+      m_TableEntryReference:
+        m_KeyId: 3817380589568
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    objectives:
+    - objectiveId: talk_elder_after_wolf
+      objectiveType: 1
+      objectiveDescription:
+        m_TableReference:
+          m_TableCollectionName: GUID:2aeced72d880ce045bccaf9301e724c7
+        m_TableEntryReference:
+          m_KeyId: 3929561444352
+          m_Key: 
+        m_FallbackState: 0
+        m_WaitForCompletion: 0
+        m_LocalVariables: []
+      targetId: elder
+      requiredAmount: 1
+  - stepId: kill_special_enemy
+    stepDescription:
+      m_TableReference:
+        m_TableCollectionName: GUID:2aeced72d880ce045bccaf9301e724c7
+      m_TableEntryReference:
+        m_KeyId: 3681891987456
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    stepTaskText:
+      m_TableReference:
+        m_TableCollectionName: GUID:2aeced72d880ce045bccaf9301e724c7
+      m_TableEntryReference:
+        m_KeyId: 3817380589568
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    objectives:
+    - objectiveId: kill_alpha
+      objectiveType: 3
+      objectiveDescription:
+        m_TableReference:
+          m_TableCollectionName: GUID:2aeced72d880ce045bccaf9301e724c7
+        m_TableEntryReference:
+          m_KeyId: 3929561444352
+          m_Key: 
+        m_FallbackState: 0
+        m_WaitForCompletion: 0
+        m_LocalVariables: []
+      targetId: wolf_alpha_north_forest
       requiredAmount: 1
   references:
     version: 2

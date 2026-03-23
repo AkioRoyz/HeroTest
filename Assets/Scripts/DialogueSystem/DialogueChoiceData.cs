@@ -6,6 +6,10 @@ using UnityEngine.Localization;
 [Serializable]
 public class DialogueChoiceData
 {
+    [Header("Editor")]
+    [Tooltip("Техническое удобное название ответа для инспектора. Используется только для удобства настройки.")]
+    [SerializeField] private string inspectorChoiceTitle = "Choice";
+
     [Header("Choice Text")]
     [SerializeField] private LocalizedString choiceText;
 
@@ -25,6 +29,7 @@ public class DialogueChoiceData
     [Header("On Select Actions")]
     [SerializeField] private List<DialogueActionData> onSelectActions = new();
 
+    public string InspectorChoiceTitle => inspectorChoiceTitle;
     public LocalizedString ChoiceText => choiceText;
     public int NextNodeIndex => nextNodeIndex;
     public IReadOnlyList<DialogueConditionData> Conditions => conditions;
