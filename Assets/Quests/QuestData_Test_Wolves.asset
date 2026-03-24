@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6299c384b60ce654d970f1a1eb61ede3, type: 3}
   m_Name: QuestData_Test_Wolves
   m_EditorClassIdentifier: Assembly-CSharp::QuestData
-  questId: side_wolves_001
+  questId: elder_wolf_test
   questType: 1
   startType: 2
   repeatMode: 0
@@ -77,7 +77,7 @@ MonoBehaviour:
         m_TableReference:
           m_TableCollectionName: GUID:2aeced72d880ce045bccaf9301e724c7
         m_TableEntryReference:
-          m_KeyId: 3929561444352
+          m_KeyId: 3817380589568
           m_Key: 
         m_FallbackState: 0
         m_WaitForCompletion: 0
@@ -89,7 +89,7 @@ MonoBehaviour:
       m_TableReference:
         m_TableCollectionName: GUID:2aeced72d880ce045bccaf9301e724c7
       m_TableEntryReference:
-        m_KeyId: 3681891987456
+        m_KeyId: 3246007332864
         m_Key: 
       m_FallbackState: 0
       m_WaitForCompletion: 0
@@ -98,31 +98,31 @@ MonoBehaviour:
       m_TableReference:
         m_TableCollectionName: GUID:2aeced72d880ce045bccaf9301e724c7
       m_TableEntryReference:
-        m_KeyId: 3817380589568
+        m_KeyId: 3518540623872
         m_Key: 
       m_FallbackState: 0
       m_WaitForCompletion: 0
       m_LocalVariables: []
     objectives:
-    - objectiveId: talk_elder_after_wolf
+    - objectiveId: report_to_elder_objective
       objectiveType: 1
       objectiveDescription:
         m_TableReference:
           m_TableCollectionName: GUID:2aeced72d880ce045bccaf9301e724c7
         m_TableEntryReference:
-          m_KeyId: 3929561444352
+          m_KeyId: 3681891987456
           m_Key: 
         m_FallbackState: 0
         m_WaitForCompletion: 0
         m_LocalVariables: []
       targetId: elder
       requiredAmount: 1
-  - stepId: kill_special_enemy
+  - stepId: kill_alpha_wolf
     stepDescription:
       m_TableReference:
         m_TableCollectionName: GUID:2aeced72d880ce045bccaf9301e724c7
       m_TableEntryReference:
-        m_KeyId: 3681891987456
+        m_KeyId: 3929561444352
         m_Key: 
       m_FallbackState: 0
       m_WaitForCompletion: 0
@@ -131,13 +131,13 @@ MonoBehaviour:
       m_TableReference:
         m_TableCollectionName: GUID:2aeced72d880ce045bccaf9301e724c7
       m_TableEntryReference:
-        m_KeyId: 3817380589568
+        m_KeyId: 3929561444352
         m_Key: 
       m_FallbackState: 0
       m_WaitForCompletion: 0
       m_LocalVariables: []
     objectives:
-    - objectiveId: kill_alpha
+    - objectiveId: kill_alpha_wolf_objective
       objectiveType: 3
       objectiveDescription:
         m_TableReference:
@@ -148,7 +148,7 @@ MonoBehaviour:
         m_FallbackState: 0
         m_WaitForCompletion: 0
         m_LocalVariables: []
-      targetId: wolf_alpha_north_forest
+      targetId: wolf_alpha
       requiredAmount: 1
   references:
     version: 2
