@@ -63,6 +63,22 @@ MonoBehaviour:
     m_Key: test.elder_quest_node_5_1
     m_Metadata:
       m_Items: []
+  - m_Id: 945789674188800
+    m_Key: test.elder_quest_node_alpha
+    m_Metadata:
+      m_Items: []
+  - m_Id: 947826763755520
+    m_Key: test.elder_quest_node_alpha_kill
+    m_Metadata:
+      m_Items: []
+  - m_Id: 948833296052224
+    m_Key: test.elder_money
+    m_Metadata:
+      m_Items: []
+  - m_Id: 949169423380480
+    m_Key: test.elder_money_give
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

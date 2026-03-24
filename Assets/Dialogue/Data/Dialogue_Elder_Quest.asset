@@ -40,17 +40,17 @@ MonoBehaviour:
       m_LocalVariables: []
     nextNodeIndex: 0
     choices:
-    - inspectorChoiceTitle: 
+    - inspectorChoiceTitle: Start Quest
       choiceText:
         m_TableReference:
-          m_TableCollectionName: 
+          m_TableCollectionName: GUID:b7fa0654d63a80c4ba9b0d68ecd122a6
         m_TableEntryReference:
-          m_KeyId: 0
+          m_KeyId: 14426646065152
           m_Key: 
         m_FallbackState: 0
         m_WaitForCompletion: 0
         m_LocalVariables: []
-      nextNodeIndex: 0
+      nextNodeIndex: 1
       conditions:
       - conditionType: 5
         requiredLevel: 0
@@ -60,12 +60,20 @@ MonoBehaviour:
         questId: elder_wolf_test
         requiredQuestState: 0
         requiredQuestStepId: 
+      - conditionType: 1
+        requiredLevel: 3
+        requiredItem: {fileID: 0}
+        requiredItemAmount: 0
+        onceKey: 
+        questId: elder_wolf_test
+        requiredQuestState: 0
+        requiredQuestStepId: 
       unavailableMode: 0
       disabledChoiceText:
         m_TableReference:
-          m_TableCollectionName: GUID:b7fa0654d63a80c4ba9b0d68ecd122a6
+          m_TableCollectionName: 
         m_TableEntryReference:
-          m_KeyId: 14426646065152
+          m_KeyId: 0
           m_Key: 
         m_FallbackState: 0
         m_WaitForCompletion: 0
@@ -83,8 +91,302 @@ MonoBehaviour:
         questActionType: 1
         questObjectiveId: 
         questObjectiveAmount: 0
+    - inspectorChoiceTitle: Queastion about place
+      choiceText:
+        m_TableReference:
+          m_TableCollectionName: GUID:b7fa0654d63a80c4ba9b0d68ecd122a6
+        m_TableEntryReference:
+          m_KeyId: 307382988910592
+          m_Key: 
+        m_FallbackState: 0
+        m_WaitForCompletion: 0
+        m_LocalVariables: []
+      nextNodeIndex: 2
+      conditions: []
+      unavailableMode: 0
+      disabledChoiceText:
+        m_TableReference:
+          m_TableCollectionName: 
+        m_TableEntryReference:
+          m_KeyId: 0
+          m_Key: 
+        m_FallbackState: 0
+        m_WaitForCompletion: 0
+        m_LocalVariables: []
+      onSelectActions: []
+    - inspectorChoiceTitle: Report First Wolf Kill
+      choiceText:
+        m_TableReference:
+          m_TableCollectionName: GUID:b7fa0654d63a80c4ba9b0d68ecd122a6
+        m_TableEntryReference:
+          m_KeyId: 16036428328960
+          m_Key: 
+        m_FallbackState: 0
+        m_WaitForCompletion: 0
+        m_LocalVariables: []
+      nextNodeIndex: 3
+      conditions:
+      - conditionType: 6
+        requiredLevel: 0
+        requiredItem: {fileID: 0}
+        requiredItemAmount: 0
+        onceKey: 
+        questId: elder_wolf_test
+        requiredQuestState: 0
+        requiredQuestStepId: report_to_elder
+      unavailableMode: 0
+      disabledChoiceText:
+        m_TableReference:
+          m_TableCollectionName: 
+        m_TableEntryReference:
+          m_KeyId: 0
+          m_Key: 
+        m_FallbackState: 0
+        m_WaitForCompletion: 0
+        m_LocalVariables: []
+      onSelectActions:
+      - actionType: 5
+        rewardData:
+          Exp: 0
+          Gold: 0
+          Items: []
+        itemToRemove: {fileID: 0}
+        itemRemoveAmount: 0
+        playedKey: 
+        questId: elder_wolf_test
+        questActionType: 0
+        questObjectiveId: report_to_elder_objective
+        questObjectiveAmount: 1
+    - inspectorChoiceTitle: Complete Quest
+      choiceText:
+        m_TableReference:
+          m_TableCollectionName: GUID:b7fa0654d63a80c4ba9b0d68ecd122a6
+        m_TableEntryReference:
+          m_KeyId: 947826763755520
+          m_Key: 
+        m_FallbackState: 0
+        m_WaitForCompletion: 0
+        m_LocalVariables: []
+      nextNodeIndex: 4
+      conditions:
+      - conditionType: 5
+        requiredLevel: 0
+        requiredItem: {fileID: 0}
+        requiredItemAmount: 0
+        onceKey: 
+        questId: elder_wolf_test
+        requiredQuestState: 2
+        requiredQuestStepId: 
+      unavailableMode: 0
+      disabledChoiceText:
+        m_TableReference:
+          m_TableCollectionName: 
+        m_TableEntryReference:
+          m_KeyId: 0
+          m_Key: 
+        m_FallbackState: 0
+        m_WaitForCompletion: 0
+        m_LocalVariables: []
+      onSelectActions:
+      - actionType: 4
+        rewardData:
+          Exp: 0
+          Gold: 0
+          Items: []
+        itemToRemove: {fileID: 0}
+        itemRemoveAmount: 0
+        playedKey: 
+        questId: elder_wolf_test
+        questActionType: 3
+        questObjectiveId: 
+        questObjectiveAmount: 0
+    - inspectorChoiceTitle: Money after
+      choiceText:
+        m_TableReference:
+          m_TableCollectionName: GUID:b7fa0654d63a80c4ba9b0d68ecd122a6
+        m_TableEntryReference:
+          m_KeyId: 948833296052224
+          m_Key: 
+        m_FallbackState: 0
+        m_WaitForCompletion: 0
+        m_LocalVariables: []
+      nextNodeIndex: 5
+      conditions:
+      - conditionType: 5
+        requiredLevel: 0
+        requiredItem: {fileID: 0}
+        requiredItemAmount: 0
+        onceKey: 
+        questId: elder_wolf_test
+        requiredQuestState: 3
+        requiredQuestStepId: 
+      unavailableMode: 0
+      disabledChoiceText:
+        m_TableReference:
+          m_TableCollectionName: 
+        m_TableEntryReference:
+          m_KeyId: 0
+          m_Key: 
+        m_FallbackState: 0
+        m_WaitForCompletion: 0
+        m_LocalVariables: []
+      onSelectActions: []
     conditions: []
     onEnterActions: []
+  - nodeType: 0
+    isStartNode: 0
+    speakerMode: 0
+    customSpeakerName:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    speakerPortrait: {fileID: 0}
+    dialogueText:
+      m_TableReference:
+        m_TableCollectionName: GUID:b7fa0654d63a80c4ba9b0d68ecd122a6
+      m_TableEntryReference:
+        m_KeyId: 17253468549120
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    nextNodeIndex: -1
+    choices: []
+    conditions: []
+    onEnterActions: []
+  - nodeType: 0
+    isStartNode: 0
+    speakerMode: 0
+    customSpeakerName:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    speakerPortrait: {fileID: 0}
+    dialogueText:
+      m_TableReference:
+        m_TableCollectionName: GUID:b7fa0654d63a80c4ba9b0d68ecd122a6
+      m_TableEntryReference:
+        m_KeyId: 308044623589376
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    nextNodeIndex: -1
+    choices: []
+    conditions: []
+    onEnterActions: []
+  - nodeType: 0
+    isStartNode: 0
+    speakerMode: 0
+    customSpeakerName:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    speakerPortrait: {fileID: 0}
+    dialogueText:
+      m_TableReference:
+        m_TableCollectionName: GUID:b7fa0654d63a80c4ba9b0d68ecd122a6
+      m_TableEntryReference:
+        m_KeyId: 945789674188800
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    nextNodeIndex: -1
+    choices: []
+    conditions: []
+    onEnterActions: []
+  - nodeType: 0
+    isStartNode: 0
+    speakerMode: 0
+    customSpeakerName:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    speakerPortrait: {fileID: 0}
+    dialogueText:
+      m_TableReference:
+        m_TableCollectionName: GUID:b7fa0654d63a80c4ba9b0d68ecd122a6
+      m_TableEntryReference:
+        m_KeyId: 17839328931840
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    nextNodeIndex: -1
+    choices: []
+    conditions: []
+    onEnterActions:
+    - actionType: 1
+      rewardData:
+        Exp: 100
+        Gold: 100
+        Items: []
+      itemToRemove: {fileID: 0}
+      itemRemoveAmount: 0
+      playedKey: 
+      questId: 
+      questActionType: 0
+      questObjectiveId: 
+      questObjectiveAmount: 0
+  - nodeType: 0
+    isStartNode: 0
+    speakerMode: 0
+    customSpeakerName:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    speakerPortrait: {fileID: 0}
+    dialogueText:
+      m_TableReference:
+        m_TableCollectionName: GUID:b7fa0654d63a80c4ba9b0d68ecd122a6
+      m_TableEntryReference:
+        m_KeyId: 949169423380480
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    nextNodeIndex: -1
+    choices: []
+    conditions: []
+    onEnterActions:
+    - actionType: 1
+      rewardData:
+        Exp: 1
+        Gold: 1
+        Items: []
+      itemToRemove: {fileID: 0}
+      itemRemoveAmount: 0
+      playedKey: 
+      questId: 
+      questActionType: 0
+      questObjectiveId: 
+      questObjectiveAmount: 0
   references:
     version: 2
     RefIds: []

@@ -3451,7 +3451,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f03eb55d5b39d8b4995c8ca54dea70f5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::QuestDebugHotkeys
-  testQuestId: side_wolves_001
+  testQuestId: elder_wolf_test
   printQuestKey: 282
   printAllActiveKey: 283
   acceptQuestKey: 284
@@ -17149,7 +17149,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1324237381396901076, guid: 58b2a194698829e40ba840fa59900ae0, type: 3}
       propertyPath: enemyUniqueId
-      value: wolf_alpha_north_forest
+      value: wolf_alpha
       objectReference: {fileID: 0}
     - target: {fileID: 4860656605150259286, guid: 58b2a194698829e40ba840fa59900ae0, type: 3}
       propertyPath: m_LocalScale.x

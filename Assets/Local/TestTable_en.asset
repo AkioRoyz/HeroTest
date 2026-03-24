@@ -66,6 +66,22 @@ MonoBehaviour:
     m_Localized: This is a good place.
     m_Metadata:
       m_Items: []
+  - m_Id: 945789674188800
+    m_Localized: Alpha wolf
+    m_Metadata:
+      m_Items: []
+  - m_Id: 947826763755520
+    m_Localized: I kill alpha
+    m_Metadata:
+      m_Items: []
+  - m_Id: 948833296052224
+    m_Localized: Money
+    m_Metadata:
+      m_Items: []
+  - m_Id: 949169423380480
+    m_Localized: eh..
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []
