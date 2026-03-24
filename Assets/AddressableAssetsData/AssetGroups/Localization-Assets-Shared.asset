@@ -25,6 +25,11 @@ MonoBehaviour:
     m_ReadOnly: 1
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 789b5b6146da7c24a833495cc5368bac
+    m_Address: Assets/Local/QuestJournal Shared Data.asset
+    m_ReadOnly: 1
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 94ae6c3021d907241a36c7f3ee57da88
     m_Address: Assets/Local/Items Shared Data.asset
     m_ReadOnly: 1

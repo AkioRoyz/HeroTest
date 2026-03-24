@@ -8,7 +8,8 @@ public class GameInput : MonoBehaviour
     {
         Player,
         Dialogue,
-        Menu
+        Menu,
+        QuestJournal
     }
 
     public enum DeviceGroupType
@@ -22,6 +23,7 @@ public class GameInput : MonoBehaviour
     public event Action OnAttack;
     public event Action OnUse;
     public event Action OnStats;
+    public event Action OnQuestJournal;
     public event Action<int> OnQuickSlotPressed;
 
     public event Action OnDialogueUp;
@@ -37,13 +39,20 @@ public class GameInput : MonoBehaviour
     public event Action OnMenuUnequip;
     public event Action OnMenuClose;
 
-    // Новое событие: изменилось последнее активное устройство
+    public event Action OnQuestJournalUp;
+    public event Action OnQuestJournalDown;
+    public event Action OnQuestJournalSelect;
+    public event Action OnQuestJournalBack;
+    public event Action OnQuestJournalMainTab;
+    public event Action OnQuestJournalSideTab;
+    public event Action OnQuestJournalPinQuest;
+    public event Action OnQuestJournalClose;
+
     public event Action OnActiveDeviceGroupChanged;
 
     public Vector2 MoveVector { get; private set; }
     public InputMode CurrentMode { get; private set; }
 
-    // Текущая группа устройства для UI-подсказок
     public DeviceGroupType CurrentDeviceGroup { get; private set; } = DeviceGroupType.KeyboardMouse;
     public string CurrentDeviceLayoutName { get; private set; } = "Keyboard";
 
@@ -98,6 +107,7 @@ public class GameInput : MonoBehaviour
         inputActions.Player.Attack.performed += OnAttackPerformed;
         inputActions.Player.Use.performed += OnUsePerformed;
         inputActions.Player.Stats.performed += OnStatsPerformed;
+        inputActions.Player.QuestJournal.performed += OnQuestJournalPerformed;
 
         inputActions.Player.Item1.performed += OnItem1Performed;
         inputActions.Player.Item2.performed += OnItem2Performed;
@@ -119,6 +129,16 @@ public class GameInput : MonoBehaviour
         inputActions.Menu.SelectChoise.performed += OnMenuSelectPerformed;
         inputActions.Menu.UnequipItem.performed += OnMenuUnequipPerformed;
         inputActions.Menu.CloseUI.performed += OnMenuClosePerformed;
+
+        // QuestJournal
+        inputActions.QuestJournal.UpSelect.performed += OnQuestJournalUpPerformed;
+        inputActions.QuestJournal.DownSelect.performed += OnQuestJournalDownPerformed;
+        inputActions.QuestJournal.Select.performed += OnQuestJournalSelectPerformed;
+        inputActions.QuestJournal.Back.performed += OnQuestJournalBackPerformed;
+        inputActions.QuestJournal.MainTab.performed += OnQuestJournalMainTabPerformed;
+        inputActions.QuestJournal.SideTab.performed += OnQuestJournalSideTabPerformed;
+        inputActions.QuestJournal.PinQuest.performed += OnQuestJournalPinQuestPerformed;
+        inputActions.QuestJournal.CloseUI.performed += OnQuestJournalClosePerformed;
     }
 
     private void UnsubscribeFromInput()
@@ -127,6 +147,7 @@ public class GameInput : MonoBehaviour
         inputActions.Player.Attack.performed -= OnAttackPerformed;
         inputActions.Player.Use.performed -= OnUsePerformed;
         inputActions.Player.Stats.performed -= OnStatsPerformed;
+        inputActions.Player.QuestJournal.performed -= OnQuestJournalPerformed;
 
         inputActions.Player.Item1.performed -= OnItem1Performed;
         inputActions.Player.Item2.performed -= OnItem2Performed;
@@ -148,6 +169,16 @@ public class GameInput : MonoBehaviour
         inputActions.Menu.SelectChoise.performed -= OnMenuSelectPerformed;
         inputActions.Menu.UnequipItem.performed -= OnMenuUnequipPerformed;
         inputActions.Menu.CloseUI.performed -= OnMenuClosePerformed;
+
+        // QuestJournal
+        inputActions.QuestJournal.UpSelect.performed -= OnQuestJournalUpPerformed;
+        inputActions.QuestJournal.DownSelect.performed -= OnQuestJournalDownPerformed;
+        inputActions.QuestJournal.Select.performed -= OnQuestJournalSelectPerformed;
+        inputActions.QuestJournal.Back.performed -= OnQuestJournalBackPerformed;
+        inputActions.QuestJournal.MainTab.performed -= OnQuestJournalMainTabPerformed;
+        inputActions.QuestJournal.SideTab.performed -= OnQuestJournalSideTabPerformed;
+        inputActions.QuestJournal.PinQuest.performed -= OnQuestJournalPinQuestPerformed;
+        inputActions.QuestJournal.CloseUI.performed -= OnQuestJournalClosePerformed;
     }
 
     public void SwitchToPlayerMode()
@@ -155,7 +186,9 @@ public class GameInput : MonoBehaviour
         inputActions.Player.Enable();
         inputActions.Dialogue.Disable();
         inputActions.Menu.Disable();
+        inputActions.QuestJournal.Disable();
 
+        MoveVector = Vector2.zero;
         CurrentMode = InputMode.Player;
     }
 
@@ -164,6 +197,7 @@ public class GameInput : MonoBehaviour
         inputActions.Player.Disable();
         inputActions.Dialogue.Enable();
         inputActions.Menu.Disable();
+        inputActions.QuestJournal.Disable();
 
         MoveVector = Vector2.zero;
         CurrentMode = InputMode.Dialogue;
@@ -174,9 +208,21 @@ public class GameInput : MonoBehaviour
         inputActions.Player.Disable();
         inputActions.Dialogue.Disable();
         inputActions.Menu.Enable();
+        inputActions.QuestJournal.Disable();
 
         MoveVector = Vector2.zero;
         CurrentMode = InputMode.Menu;
+    }
+
+    public void SwitchToQuestJournalMode()
+    {
+        inputActions.Player.Disable();
+        inputActions.Dialogue.Disable();
+        inputActions.Menu.Disable();
+        inputActions.QuestJournal.Enable();
+
+        MoveVector = Vector2.zero;
+        CurrentMode = InputMode.QuestJournal;
     }
 
     private void UpdateDeviceGroup(InputAction.CallbackContext context)
@@ -231,6 +277,13 @@ public class GameInput : MonoBehaviour
         if (CurrentMode != InputMode.Player && CurrentMode != InputMode.Menu) return;
         UpdateDeviceGroup(context);
         OnStats?.Invoke();
+    }
+
+    private void OnQuestJournalPerformed(InputAction.CallbackContext context)
+    {
+        if (CurrentMode != InputMode.Player) return;
+        UpdateDeviceGroup(context);
+        OnQuestJournal?.Invoke();
     }
 
     private void OnItem1Performed(InputAction.CallbackContext context)
@@ -347,5 +400,63 @@ public class GameInput : MonoBehaviour
         if (CurrentMode != InputMode.Menu) return;
         UpdateDeviceGroup(context);
         OnMenuClose?.Invoke();
+    }
+
+    // -------------------- QuestJournal --------------------
+
+    private void OnQuestJournalUpPerformed(InputAction.CallbackContext context)
+    {
+        if (CurrentMode != InputMode.QuestJournal) return;
+        UpdateDeviceGroup(context);
+        OnQuestJournalUp?.Invoke();
+    }
+
+    private void OnQuestJournalDownPerformed(InputAction.CallbackContext context)
+    {
+        if (CurrentMode != InputMode.QuestJournal) return;
+        UpdateDeviceGroup(context);
+        OnQuestJournalDown?.Invoke();
+    }
+
+    private void OnQuestJournalSelectPerformed(InputAction.CallbackContext context)
+    {
+        if (CurrentMode != InputMode.QuestJournal) return;
+        UpdateDeviceGroup(context);
+        OnQuestJournalSelect?.Invoke();
+    }
+
+    private void OnQuestJournalBackPerformed(InputAction.CallbackContext context)
+    {
+        if (CurrentMode != InputMode.QuestJournal) return;
+        UpdateDeviceGroup(context);
+        OnQuestJournalBack?.Invoke();
+    }
+
+    private void OnQuestJournalMainTabPerformed(InputAction.CallbackContext context)
+    {
+        if (CurrentMode != InputMode.QuestJournal) return;
+        UpdateDeviceGroup(context);
+        OnQuestJournalMainTab?.Invoke();
+    }
+
+    private void OnQuestJournalSideTabPerformed(InputAction.CallbackContext context)
+    {
+        if (CurrentMode != InputMode.QuestJournal) return;
+        UpdateDeviceGroup(context);
+        OnQuestJournalSideTab?.Invoke();
+    }
+
+    private void OnQuestJournalPinQuestPerformed(InputAction.CallbackContext context)
+    {
+        if (CurrentMode != InputMode.QuestJournal) return;
+        UpdateDeviceGroup(context);
+        OnQuestJournalPinQuest?.Invoke();
+    }
+
+    private void OnQuestJournalClosePerformed(InputAction.CallbackContext context)
+    {
+        if (CurrentMode != InputMode.QuestJournal) return;
+        UpdateDeviceGroup(context);
+        OnQuestJournalClose?.Invoke();
     }
 }

@@ -83,7 +83,6 @@ public class QuestJournalUI : MonoBehaviour
     {
         HidePinLimitMessage();
         RefreshUI();
-        Close();
     }
 
     public void Open()
@@ -93,6 +92,7 @@ public class QuestJournalUI : MonoBehaviour
             root.SetActive(true);
         }
 
+        HidePinLimitMessage();
         RefreshUI();
     }
 
@@ -192,6 +192,32 @@ public class QuestJournalUI : MonoBehaviour
         }
 
         RefreshDetailsOnly();
+    }
+
+    public void HandleJournalSelectInput()
+    {
+        HidePinLimitMessage();
+
+        if (currentSection == JournalSection.Active)
+        {
+            if (cachedCompletedEntries != null && cachedCompletedEntries.Count > 0)
+            {
+                FocusCompletedSection();
+            }
+        }
+    }
+
+    public void HandleJournalBackInput()
+    {
+        HidePinLimitMessage();
+
+        if (currentSection == JournalSection.Completed)
+        {
+            if (cachedActiveEntries != null && cachedActiveEntries.Count > 0)
+            {
+                FocusActiveSection();
+            }
+        }
     }
 
     public void TogglePinForSelectedQuest()

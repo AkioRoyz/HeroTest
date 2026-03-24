@@ -3891,7 +3891,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 10, y: -10}
-  m_SizeDelta: {x: 200, y: 50}
+  m_SizeDelta: {x: 320, y: 60}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &293764393
 MonoBehaviour:
@@ -3940,8 +3940,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 36
-  m_fontSizeBase: 36
+  m_fontSize: 28
+  m_fontSizeBase: 28
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -7519,6 +7519,7 @@ GameObject:
   m_Component:
   - component: {fileID: 555193743}
   - component: {fileID: 555193744}
+  - component: {fileID: 555193745}
   m_Layer: 0
   m_Name: QuestManager
   m_TagString: Untagged
@@ -7556,6 +7557,20 @@ MonoBehaviour:
   allQuestData:
   - {fileID: 11400000, guid: 30d167f06b12bfd47a65bd501bbc2186, type: 2}
   expSystem: {fileID: 1608696422}
+--- !u!114 &555193745
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 555193742}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f029bd4dc21f663499465aad4f718bd2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::QuestJournalController
+  gameInput: {fileID: 811662987}
+  questJournalUI: {fileID: 1405947371}
 --- !u!1 &567485764
 GameObject:
   m_ObjectHideFlags: 0
@@ -9776,7 +9791,8 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: New Text
+  m_text: "\u041D\u0435\u0432\u043E\u0437\u043C\u043E\u0436\u043D\u043E \u0437\u0430\u043A\u0440\u0435\u043F\u0438\u0442\u044C
+    \u0431\u043E\u043B\u0435\u0435 5 \u0437\u0430\u0434\u0430\u043D\u0438\u0439 \u043E\u0434\u043D\u043E\u0432\u0440\u0435\u043C\u0435\u043D\u043D\u043E"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -13673,8 +13689,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 30
-  m_fontSizeBase: 30
+  m_fontSize: 24
+  m_fontSizeBase: 24
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -17291,8 +17307,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 10, y: -60}
-  m_SizeDelta: {x: 500, y: 30}
+  m_AnchoredPosition: {x: 10, y: -80}
+  m_SizeDelta: {x: 500, y: 60}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &1230124562
 MonoBehaviour:
@@ -17341,8 +17357,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 26
-  m_fontSizeBase: 26
+  m_fontSize: 24
+  m_fontSizeBase: 24
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -19852,7 +19868,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 10, y: -100}
+  m_AnchoredPosition: {x: 10, y: -150}
   m_SizeDelta: {x: 530, y: 300}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &1384083784
@@ -20472,119 +20488,119 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5feb32951dcae1a4497f4c0610aced0e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::QuestJournalUI
-  root: {fileID: 0}
-  activeQuestListUI: {fileID: 0}
-  completedQuestListUI: {fileID: 0}
-  mainTabSelectedObject: {fileID: 0}
-  sideTabSelectedObject: {fileID: 0}
-  activeSectionLabel: {fileID: 0}
-  completedSectionLabel: {fileID: 0}
+  root: {fileID: 1405947369}
+  activeQuestListUI: {fileID: 1919585022}
+  completedQuestListUI: {fileID: 1752925679}
+  mainTabSelectedObject: {fileID: 1270351469}
+  sideTabSelectedObject: {fileID: 422350832}
+  activeSectionLabel: {fileID: 1415866621}
+  completedSectionLabel: {fileID: 399749006}
   activeSectionText:
     m_TableReference:
-      m_TableCollectionName: 
+      m_TableCollectionName: GUID:789b5b6146da7c24a833495cc5368bac
     m_TableEntryReference:
-      m_KeyId: 0
+      m_KeyId: 32155447296
       m_Key: 
     m_FallbackState: 0
     m_WaitForCompletion: 0
     m_LocalVariables: []
   completedSectionText:
     m_TableReference:
-      m_TableCollectionName: 
+      m_TableCollectionName: GUID:789b5b6146da7c24a833495cc5368bac
     m_TableEntryReference:
-      m_KeyId: 0
+      m_KeyId: 183896977408
       m_Key: 
     m_FallbackState: 0
     m_WaitForCompletion: 0
     m_LocalVariables: []
-  detailRoot: {fileID: 0}
-  noSelectionRoot: {fileID: 0}
-  questTitleText: {fileID: 0}
-  questFullDescriptionText: {fileID: 0}
-  questStateText: {fileID: 0}
-  currentStepTitleText: {fileID: 0}
+  detailRoot: {fileID: 686317356}
+  noSelectionRoot: {fileID: 585938705}
+  questTitleText: {fileID: 293764393}
+  questFullDescriptionText: {fileID: 1384083784}
+  questStateText: {fileID: 916363934}
+  currentStepTitleText: {fileID: 1230124562}
   objectiveRows:
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  pinButtonObject: {fileID: 0}
-  pinButton: {fileID: 0}
-  pinButtonText: {fileID: 0}
+  - {fileID: 244684820}
+  - {fileID: 1865323341}
+  - {fileID: 1387863515}
+  - {fileID: 282966446}
+  - {fileID: 733564018}
+  - {fileID: 1386079997}
+  - {fileID: 1764061296}
+  - {fileID: 656646038}
+  pinButtonObject: {fileID: 1534346549}
+  pinButton: {fileID: 1534346551}
+  pinButtonText: {fileID: 226934971}
   pinText:
     m_TableReference:
-      m_TableCollectionName: 
+      m_TableCollectionName: GUID:789b5b6146da7c24a833495cc5368bac
     m_TableEntryReference:
-      m_KeyId: 0
+      m_KeyId: 272711364608
       m_Key: 
     m_FallbackState: 0
     m_WaitForCompletion: 0
     m_LocalVariables: []
   unpinText:
     m_TableReference:
-      m_TableCollectionName: 
+      m_TableCollectionName: GUID:789b5b6146da7c24a833495cc5368bac
     m_TableEntryReference:
-      m_KeyId: 0
+      m_KeyId: 425077846016
       m_Key: 
     m_FallbackState: 0
     m_WaitForCompletion: 0
     m_LocalVariables: []
-  pinLimitMessageObject: {fileID: 0}
-  pinLimitMessageText: {fileID: 0}
+  pinLimitMessageObject: {fileID: 1620433837}
+  pinLimitMessageText: {fileID: 708493863}
   pinLimitMessage:
     m_TableReference:
-      m_TableCollectionName: 
+      m_TableCollectionName: GUID:789b5b6146da7c24a833495cc5368bac
     m_TableEntryReference:
-      m_KeyId: 0
+      m_KeyId: 531931934720
       m_Key: 
     m_FallbackState: 0
     m_WaitForCompletion: 0
     m_LocalVariables: []
   stateNotStartedText:
     m_TableReference:
-      m_TableCollectionName: 
+      m_TableCollectionName: GUID:789b5b6146da7c24a833495cc5368bac
     m_TableEntryReference:
-      m_KeyId: 0
+      m_KeyId: 636282023936
       m_Key: 
     m_FallbackState: 0
     m_WaitForCompletion: 0
     m_LocalVariables: []
   stateActiveText:
     m_TableReference:
-      m_TableCollectionName: 
+      m_TableCollectionName: GUID:789b5b6146da7c24a833495cc5368bac
     m_TableEntryReference:
-      m_KeyId: 0
+      m_KeyId: 776023650304
       m_Key: 
     m_FallbackState: 0
     m_WaitForCompletion: 0
     m_LocalVariables: []
   stateReadyToTurnInText:
     m_TableReference:
-      m_TableCollectionName: 
+      m_TableCollectionName: GUID:789b5b6146da7c24a833495cc5368bac
     m_TableEntryReference:
-      m_KeyId: 0
+      m_KeyId: 883167145984
       m_Key: 
     m_FallbackState: 0
     m_WaitForCompletion: 0
     m_LocalVariables: []
   stateCompletedText:
     m_TableReference:
-      m_TableCollectionName: 
+      m_TableCollectionName: GUID:789b5b6146da7c24a833495cc5368bac
     m_TableEntryReference:
-      m_KeyId: 0
+      m_KeyId: 1063975202816
       m_Key: 
     m_FallbackState: 0
     m_WaitForCompletion: 0
     m_LocalVariables: []
   stateFailedText:
     m_TableReference:
-      m_TableCollectionName: 
+      m_TableCollectionName: GUID:789b5b6146da7c24a833495cc5368bac
     m_TableEntryReference:
-      m_KeyId: 0
+      m_KeyId: 1156660932608
       m_Key: 
     m_FallbackState: 0
     m_WaitForCompletion: 0
@@ -28193,7 +28209,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 10, y: -410}
+  m_AnchoredPosition: {x: 10, y: -460}
   m_SizeDelta: {x: 525, y: 30}
   m_Pivot: {x: 0, y: 1}
 --- !u!1 &1952187761

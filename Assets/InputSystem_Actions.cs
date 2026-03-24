@@ -172,6 +172,15 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""QuestJournal"",
+                    ""type"": ""Button"",
+                    ""id"": ""68e7ba66-3124-4403-ace3-19bdfd53358f"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -403,6 +412,17 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""groups"": ""KeyboardMouse"",
                     ""action"": ""Item5"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""79712e70-b9e4-4063-b97e-ca7933a74910"",
+                    ""path"": ""<Keyboard>/o"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";KeyboardMouse"",
+                    ""action"": ""QuestJournal"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -797,6 +817,196 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
                     ""isPartOfComposite"": false
                 }
             ]
+        },
+        {
+            ""name"": ""QuestJournal"",
+            ""id"": ""f50bd8cd-b0fb-4e47-ad74-f5be2443c65b"",
+            ""actions"": [
+                {
+                    ""name"": ""UpSelect"",
+                    ""type"": ""Button"",
+                    ""id"": ""8a91a546-5227-44bf-80b8-7501823e48f5"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""DownSelect"",
+                    ""type"": ""Button"",
+                    ""id"": ""8c26bba4-f553-4c1e-93fe-d5f2b106d4da"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Select"",
+                    ""type"": ""Button"",
+                    ""id"": ""297339e7-4a37-43f1-9ec5-3842fb65f852"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Back"",
+                    ""type"": ""Button"",
+                    ""id"": ""6183b639-a777-499c-9360-1b065d536154"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""MainTab"",
+                    ""type"": ""Button"",
+                    ""id"": ""b788899f-bb9d-4882-b0ac-2a54f57adc4c"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""SideTab"",
+                    ""type"": ""Button"",
+                    ""id"": ""8f5ccf74-b115-4e30-92d0-2a4b9feb5fef"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""CloseUI"",
+                    ""type"": ""Button"",
+                    ""id"": ""e46f7afd-2247-4e60-9218-d03f8aa2d28b"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""PinQuest"",
+                    ""type"": ""Button"",
+                    ""id"": ""2fb165af-c9a0-4ac4-bca7-25da3d6c26af"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                }
+            ],
+            ""bindings"": [
+                {
+                    ""name"": """",
+                    ""id"": ""0483c5aa-dd49-44d4-a561-cd2349d11028"",
+                    ""path"": ""<Keyboard>/w"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";KeyboardMouse"",
+                    ""action"": ""UpSelect"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""4573303a-5703-4e57-93d7-3fd1a35b19b6"",
+                    ""path"": ""<Keyboard>/upArrow"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";KeyboardMouse"",
+                    ""action"": ""UpSelect"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""892d85be-19ec-46cc-ac21-fc28788c0019"",
+                    ""path"": ""<Keyboard>/s"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";KeyboardMouse"",
+                    ""action"": ""DownSelect"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""79934c65-c5ee-40a3-bd14-00de4b7f6a5e"",
+                    ""path"": ""<Keyboard>/downArrow"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";KeyboardMouse"",
+                    ""action"": ""DownSelect"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""a3b0b4cf-9e01-443b-970c-fff4c79f57c5"",
+                    ""path"": ""<Keyboard>/q"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";KeyboardMouse"",
+                    ""action"": ""Select"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""95fc62ef-bf46-49e6-a68b-14c4b32d4019"",
+                    ""path"": ""<Keyboard>/e"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";KeyboardMouse"",
+                    ""action"": ""Back"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""d4220410-42d1-42db-bce4-746a8d30a4bb"",
+                    ""path"": ""<Keyboard>/1"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";KeyboardMouse"",
+                    ""action"": ""MainTab"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""e44b40f0-ff2e-4ffa-bf6d-b044ee0e0cdc"",
+                    ""path"": ""<Keyboard>/2"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";KeyboardMouse"",
+                    ""action"": ""SideTab"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""7b59a22b-53f6-4eff-81d0-a79797e8c212"",
+                    ""path"": ""<Keyboard>/o"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";KeyboardMouse"",
+                    ""action"": ""CloseUI"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""8f60a54e-26c5-482f-b181-ba7e852c1214"",
+                    ""path"": ""<Keyboard>/f"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";KeyboardMouse"",
+                    ""action"": ""PinQuest"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                }
+            ]
         }
     ],
     ""controlSchemes"": [
@@ -873,6 +1083,7 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
         m_Player_Item3 = m_Player.FindAction("Item3", throwIfNotFound: true);
         m_Player_Item4 = m_Player.FindAction("Item4", throwIfNotFound: true);
         m_Player_Item5 = m_Player.FindAction("Item5", throwIfNotFound: true);
+        m_Player_QuestJournal = m_Player.FindAction("QuestJournal", throwIfNotFound: true);
         // Dialogue
         m_Dialogue = asset.FindActionMap("Dialogue", throwIfNotFound: true);
         m_Dialogue_UpSelect = m_Dialogue.FindAction("UpSelect", throwIfNotFound: true);
@@ -888,6 +1099,16 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
         m_Menu_LeftSelect = m_Menu.FindAction("LeftSelect", throwIfNotFound: true);
         m_Menu_RightSelect = m_Menu.FindAction("RightSelect", throwIfNotFound: true);
         m_Menu_UnequipItem = m_Menu.FindAction("UnequipItem", throwIfNotFound: true);
+        // QuestJournal
+        m_QuestJournal = asset.FindActionMap("QuestJournal", throwIfNotFound: true);
+        m_QuestJournal_UpSelect = m_QuestJournal.FindAction("UpSelect", throwIfNotFound: true);
+        m_QuestJournal_DownSelect = m_QuestJournal.FindAction("DownSelect", throwIfNotFound: true);
+        m_QuestJournal_Select = m_QuestJournal.FindAction("Select", throwIfNotFound: true);
+        m_QuestJournal_Back = m_QuestJournal.FindAction("Back", throwIfNotFound: true);
+        m_QuestJournal_MainTab = m_QuestJournal.FindAction("MainTab", throwIfNotFound: true);
+        m_QuestJournal_SideTab = m_QuestJournal.FindAction("SideTab", throwIfNotFound: true);
+        m_QuestJournal_CloseUI = m_QuestJournal.FindAction("CloseUI", throwIfNotFound: true);
+        m_QuestJournal_PinQuest = m_QuestJournal.FindAction("PinQuest", throwIfNotFound: true);
     }
 
     ~@InputSystem_Actions()
@@ -895,6 +1116,7 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
         UnityEngine.Debug.Assert(!m_Player.enabled, "This will cause a leak and performance issues, InputSystem_Actions.Player.Disable() has not been called.");
         UnityEngine.Debug.Assert(!m_Dialogue.enabled, "This will cause a leak and performance issues, InputSystem_Actions.Dialogue.Disable() has not been called.");
         UnityEngine.Debug.Assert(!m_Menu.enabled, "This will cause a leak and performance issues, InputSystem_Actions.Menu.Disable() has not been called.");
+        UnityEngine.Debug.Assert(!m_QuestJournal.enabled, "This will cause a leak and performance issues, InputSystem_Actions.QuestJournal.Disable() has not been called.");
     }
 
     /// <summary>
@@ -979,6 +1201,7 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
     private readonly InputAction m_Player_Item3;
     private readonly InputAction m_Player_Item4;
     private readonly InputAction m_Player_Item5;
+    private readonly InputAction m_Player_QuestJournal;
     /// <summary>
     /// Provides access to input actions defined in input action map "Player".
     /// </summary>
@@ -1026,6 +1249,10 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
         /// Provides access to the underlying input action "Player/Item5".
         /// </summary>
         public InputAction @Item5 => m_Wrapper.m_Player_Item5;
+        /// <summary>
+        /// Provides access to the underlying input action "Player/QuestJournal".
+        /// </summary>
+        public InputAction @QuestJournal => m_Wrapper.m_Player_QuestJournal;
         /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
@@ -1079,6 +1306,9 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
             @Item5.started += instance.OnItem5;
             @Item5.performed += instance.OnItem5;
             @Item5.canceled += instance.OnItem5;
+            @QuestJournal.started += instance.OnQuestJournal;
+            @QuestJournal.performed += instance.OnQuestJournal;
+            @QuestJournal.canceled += instance.OnQuestJournal;
         }
 
         /// <summary>
@@ -1117,6 +1347,9 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
             @Item5.started -= instance.OnItem5;
             @Item5.performed -= instance.OnItem5;
             @Item5.canceled -= instance.OnItem5;
+            @QuestJournal.started -= instance.OnQuestJournal;
+            @QuestJournal.performed -= instance.OnQuestJournal;
+            @QuestJournal.canceled -= instance.OnQuestJournal;
         }
 
         /// <summary>
@@ -1441,6 +1674,179 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
     /// Provides a new <see cref="MenuActions" /> instance referencing this action map.
     /// </summary>
     public MenuActions @Menu => new MenuActions(this);
+
+    // QuestJournal
+    private readonly InputActionMap m_QuestJournal;
+    private List<IQuestJournalActions> m_QuestJournalActionsCallbackInterfaces = new List<IQuestJournalActions>();
+    private readonly InputAction m_QuestJournal_UpSelect;
+    private readonly InputAction m_QuestJournal_DownSelect;
+    private readonly InputAction m_QuestJournal_Select;
+    private readonly InputAction m_QuestJournal_Back;
+    private readonly InputAction m_QuestJournal_MainTab;
+    private readonly InputAction m_QuestJournal_SideTab;
+    private readonly InputAction m_QuestJournal_CloseUI;
+    private readonly InputAction m_QuestJournal_PinQuest;
+    /// <summary>
+    /// Provides access to input actions defined in input action map "QuestJournal".
+    /// </summary>
+    public struct QuestJournalActions
+    {
+        private @InputSystem_Actions m_Wrapper;
+
+        /// <summary>
+        /// Construct a new instance of the input action map wrapper class.
+        /// </summary>
+        public QuestJournalActions(@InputSystem_Actions wrapper) { m_Wrapper = wrapper; }
+        /// <summary>
+        /// Provides access to the underlying input action "QuestJournal/UpSelect".
+        /// </summary>
+        public InputAction @UpSelect => m_Wrapper.m_QuestJournal_UpSelect;
+        /// <summary>
+        /// Provides access to the underlying input action "QuestJournal/DownSelect".
+        /// </summary>
+        public InputAction @DownSelect => m_Wrapper.m_QuestJournal_DownSelect;
+        /// <summary>
+        /// Provides access to the underlying input action "QuestJournal/Select".
+        /// </summary>
+        public InputAction @Select => m_Wrapper.m_QuestJournal_Select;
+        /// <summary>
+        /// Provides access to the underlying input action "QuestJournal/Back".
+        /// </summary>
+        public InputAction @Back => m_Wrapper.m_QuestJournal_Back;
+        /// <summary>
+        /// Provides access to the underlying input action "QuestJournal/MainTab".
+        /// </summary>
+        public InputAction @MainTab => m_Wrapper.m_QuestJournal_MainTab;
+        /// <summary>
+        /// Provides access to the underlying input action "QuestJournal/SideTab".
+        /// </summary>
+        public InputAction @SideTab => m_Wrapper.m_QuestJournal_SideTab;
+        /// <summary>
+        /// Provides access to the underlying input action "QuestJournal/CloseUI".
+        /// </summary>
+        public InputAction @CloseUI => m_Wrapper.m_QuestJournal_CloseUI;
+        /// <summary>
+        /// Provides access to the underlying input action "QuestJournal/PinQuest".
+        /// </summary>
+        public InputAction @PinQuest => m_Wrapper.m_QuestJournal_PinQuest;
+        /// <summary>
+        /// Provides access to the underlying input action map instance.
+        /// </summary>
+        public InputActionMap Get() { return m_Wrapper.m_QuestJournal; }
+        /// <inheritdoc cref="UnityEngine.InputSystem.InputActionMap.Enable()" />
+        public void Enable() { Get().Enable(); }
+        /// <inheritdoc cref="UnityEngine.InputSystem.InputActionMap.Disable()" />
+        public void Disable() { Get().Disable(); }
+        /// <inheritdoc cref="UnityEngine.InputSystem.InputActionMap.enabled" />
+        public bool enabled => Get().enabled;
+        /// <summary>
+        /// Implicitly converts an <see ref="QuestJournalActions" /> to an <see ref="InputActionMap" /> instance.
+        /// </summary>
+        public static implicit operator InputActionMap(QuestJournalActions set) { return set.Get(); }
+        /// <summary>
+        /// Adds <see cref="InputAction.started"/>, <see cref="InputAction.performed"/> and <see cref="InputAction.canceled"/> callbacks provided via <param cref="instance" /> on all input actions contained in this map.
+        /// </summary>
+        /// <param name="instance">Callback instance.</param>
+        /// <remarks>
+        /// If <paramref name="instance" /> is <c>null</c> or <paramref name="instance"/> have already been added this method does nothing.
+        /// </remarks>
+        /// <seealso cref="QuestJournalActions" />
+        public void AddCallbacks(IQuestJournalActions instance)
+        {
+            if (instance == null || m_Wrapper.m_QuestJournalActionsCallbackInterfaces.Contains(instance)) return;
+            m_Wrapper.m_QuestJournalActionsCallbackInterfaces.Add(instance);
+            @UpSelect.started += instance.OnUpSelect;
+            @UpSelect.performed += instance.OnUpSelect;
+            @UpSelect.canceled += instance.OnUpSelect;
+            @DownSelect.started += instance.OnDownSelect;
+            @DownSelect.performed += instance.OnDownSelect;
+            @DownSelect.canceled += instance.OnDownSelect;
+            @Select.started += instance.OnSelect;
+            @Select.performed += instance.OnSelect;
+            @Select.canceled += instance.OnSelect;
+            @Back.started += instance.OnBack;
+            @Back.performed += instance.OnBack;
+            @Back.canceled += instance.OnBack;
+            @MainTab.started += instance.OnMainTab;
+            @MainTab.performed += instance.OnMainTab;
+            @MainTab.canceled += instance.OnMainTab;
+            @SideTab.started += instance.OnSideTab;
+            @SideTab.performed += instance.OnSideTab;
+            @SideTab.canceled += instance.OnSideTab;
+            @CloseUI.started += instance.OnCloseUI;
+            @CloseUI.performed += instance.OnCloseUI;
+            @CloseUI.canceled += instance.OnCloseUI;
+            @PinQuest.started += instance.OnPinQuest;
+            @PinQuest.performed += instance.OnPinQuest;
+            @PinQuest.canceled += instance.OnPinQuest;
+        }
+
+        /// <summary>
+        /// Removes <see cref="InputAction.started"/>, <see cref="InputAction.performed"/> and <see cref="InputAction.canceled"/> callbacks provided via <param cref="instance" /> on all input actions contained in this map.
+        /// </summary>
+        /// <remarks>
+        /// Calling this method when <paramref name="instance" /> have not previously been registered has no side-effects.
+        /// </remarks>
+        /// <seealso cref="QuestJournalActions" />
+        private void UnregisterCallbacks(IQuestJournalActions instance)
+        {
+            @UpSelect.started -= instance.OnUpSelect;
+            @UpSelect.performed -= instance.OnUpSelect;
+            @UpSelect.canceled -= instance.OnUpSelect;
+            @DownSelect.started -= instance.OnDownSelect;
+            @DownSelect.performed -= instance.OnDownSelect;
+            @DownSelect.canceled -= instance.OnDownSelect;
+            @Select.started -= instance.OnSelect;
+            @Select.performed -= instance.OnSelect;
+            @Select.canceled -= instance.OnSelect;
+            @Back.started -= instance.OnBack;
+            @Back.performed -= instance.OnBack;
+            @Back.canceled -= instance.OnBack;
+            @MainTab.started -= instance.OnMainTab;
+            @MainTab.performed -= instance.OnMainTab;
+            @MainTab.canceled -= instance.OnMainTab;
+            @SideTab.started -= instance.OnSideTab;
+            @SideTab.performed -= instance.OnSideTab;
+            @SideTab.canceled -= instance.OnSideTab;
+            @CloseUI.started -= instance.OnCloseUI;
+            @CloseUI.performed -= instance.OnCloseUI;
+            @CloseUI.canceled -= instance.OnCloseUI;
+            @PinQuest.started -= instance.OnPinQuest;
+            @PinQuest.performed -= instance.OnPinQuest;
+            @PinQuest.canceled -= instance.OnPinQuest;
+        }
+
+        /// <summary>
+        /// Unregisters <param cref="instance" /> and unregisters all input action callbacks via <see cref="QuestJournalActions.UnregisterCallbacks(IQuestJournalActions)" />.
+        /// </summary>
+        /// <seealso cref="QuestJournalActions.UnregisterCallbacks(IQuestJournalActions)" />
+        public void RemoveCallbacks(IQuestJournalActions instance)
+        {
+            if (m_Wrapper.m_QuestJournalActionsCallbackInterfaces.Remove(instance))
+                UnregisterCallbacks(instance);
+        }
+
+        /// <summary>
+        /// Replaces all existing callback instances and previously registered input action callbacks associated with them with callbacks provided via <param cref="instance" />.
+        /// </summary>
+        /// <remarks>
+        /// If <paramref name="instance" /> is <c>null</c>, calling this method will only unregister all existing callbacks but not register any new callbacks.
+        /// </remarks>
+        /// <seealso cref="QuestJournalActions.AddCallbacks(IQuestJournalActions)" />
+        /// <seealso cref="QuestJournalActions.RemoveCallbacks(IQuestJournalActions)" />
+        /// <seealso cref="QuestJournalActions.UnregisterCallbacks(IQuestJournalActions)" />
+        public void SetCallbacks(IQuestJournalActions instance)
+        {
+            foreach (var item in m_Wrapper.m_QuestJournalActionsCallbackInterfaces)
+                UnregisterCallbacks(item);
+            m_Wrapper.m_QuestJournalActionsCallbackInterfaces.Clear();
+            AddCallbacks(instance);
+        }
+    }
+    /// <summary>
+    /// Provides a new <see cref="QuestJournalActions" /> instance referencing this action map.
+    /// </summary>
+    public QuestJournalActions @QuestJournal => new QuestJournalActions(this);
     private int m_KeyboardMouseSchemeIndex = -1;
     /// <summary>
     /// Provides access to the input control scheme.
@@ -1576,6 +1982,13 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnItem5(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "QuestJournal" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnQuestJournal(InputAction.CallbackContext context);
     }
     /// <summary>
     /// Interface to implement callback methods for all input action callbacks associated with input actions defined by "Dialogue" which allows adding and removing callbacks.
@@ -1669,5 +2082,69 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnUnequipItem(InputAction.CallbackContext context);
+    }
+    /// <summary>
+    /// Interface to implement callback methods for all input action callbacks associated with input actions defined by "QuestJournal" which allows adding and removing callbacks.
+    /// </summary>
+    /// <seealso cref="QuestJournalActions.AddCallbacks(IQuestJournalActions)" />
+    /// <seealso cref="QuestJournalActions.RemoveCallbacks(IQuestJournalActions)" />
+    public interface IQuestJournalActions
+    {
+        /// <summary>
+        /// Method invoked when associated input action "UpSelect" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnUpSelect(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "DownSelect" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnDownSelect(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "Select" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnSelect(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "Back" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnBack(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "MainTab" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnMainTab(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "SideTab" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnSideTab(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "CloseUI" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnCloseUI(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "PinQuest" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnPinQuest(InputAction.CallbackContext context);
     }
 }

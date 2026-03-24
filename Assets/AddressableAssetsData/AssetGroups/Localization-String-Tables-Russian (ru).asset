@@ -57,6 +57,12 @@ MonoBehaviour:
     m_SerializedLabels:
     - Locale-ru
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: bb88fa1b3a0ea5b4896f69b7e194c019
+    m_Address: QuestJournal_ru
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-ru
+    FlaggedDuringContentUpdateRestriction: 0
   m_ReadOnly: 1
   m_Settings: {fileID: 11400000, guid: 995089ccf0d612c4c90c5a28e7415ca4, type: 2}
   m_SchemaSet:
