@@ -16,7 +16,8 @@ MonoBehaviour:
   repeatable: 1
   conditions: []
   nodes:
-  - nodeType: 1
+  - inspectorNodeTitle: StartNode
+    nodeType: 1
     isStartNode: 1
     speakerMode: 0
     customSpeakerName:
@@ -233,7 +234,8 @@ MonoBehaviour:
       onSelectActions: []
     conditions: []
     onEnterActions: []
-  - nodeType: 0
+  - inspectorNodeTitle: StartQuestWolves
+    nodeType: 0
     isStartNode: 0
     speakerMode: 0
     customSpeakerName:
@@ -259,7 +261,8 @@ MonoBehaviour:
     choices: []
     conditions: []
     onEnterActions: []
-  - nodeType: 0
+  - inspectorNodeTitle: AnswerAboutPlace
+    nodeType: 0
     isStartNode: 0
     speakerMode: 0
     customSpeakerName:
@@ -285,7 +288,8 @@ MonoBehaviour:
     choices: []
     conditions: []
     onEnterActions: []
-  - nodeType: 0
+  - inspectorNodeTitle: AlphaWolfQuestStep
+    nodeType: 0
     isStartNode: 0
     speakerMode: 0
     customSpeakerName:
@@ -311,7 +315,8 @@ MonoBehaviour:
     choices: []
     conditions: []
     onEnterActions: []
-  - nodeType: 0
+  - inspectorNodeTitle: EndWolfQuestAndReward
+    nodeType: 0
     isStartNode: 0
     speakerMode: 0
     customSpeakerName:
@@ -349,7 +354,8 @@ MonoBehaviour:
       questActionType: 0
       questObjectiveId: 
       questObjectiveAmount: 0
-  - nodeType: 0
+  - inspectorNodeTitle: FreeMoney
+    nodeType: 0
     isStartNode: 0
     speakerMode: 0
     customSpeakerName:

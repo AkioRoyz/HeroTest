@@ -6,6 +6,10 @@ using UnityEngine.Localization;
 [Serializable]
 public class DialogueNodeData
 {
+    [Header("Editor")]
+    [Tooltip("Техническое удобное название ноды для инспектора. Используется только для удобства настройки.")]
+    [SerializeField] private string inspectorNodeTitle = "Node";
+
     [Header("Node Settings")]
     [SerializeField] private DialogueNodeType nodeType = DialogueNodeType.Line;
 
@@ -35,6 +39,8 @@ public class DialogueNodeData
 
     [Header("On Enter Actions")]
     [SerializeField] private List<DialogueActionData> onEnterActions = new();
+
+    public string InspectorNodeTitle => inspectorNodeTitle;
 
     public DialogueNodeType NodeType => nodeType;
     public bool IsStartNode => isStartNode;
