@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: QuestData_Test_Wolves
   m_EditorClassIdentifier: Assembly-CSharp::QuestData
   questId: elder_wolf_test
-  questType: 1
+  questType: 0
   startType: 2
   repeatMode: 0
   hiddenUntilStarted: 0

@@ -95,6 +95,14 @@ MonoBehaviour:
     m_Key: quest.quest_test_item_obj_1
     m_Metadata:
       m_Items: []
+  - m_Id: 1480014354526208
+    m_Key: quest.acceptUI
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1480256076460032
+    m_Key: quest.completeUI
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:
