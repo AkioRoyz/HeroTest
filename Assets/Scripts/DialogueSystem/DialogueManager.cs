@@ -317,12 +317,9 @@ public class DialogueManager : MonoBehaviour
             {
                 visibleChoices.Add(new RuntimeChoiceEntry(choice, true, string.Empty));
             }
-            else
+            else if (choice.UnavailableMode == DialogueChoiceUnavailableMode.ShowDisabled)
             {
-                if (choice.UnavailableMode == DialogueChoiceUnavailableMode.ShowDisabled)
-                {
-                    visibleChoices.Add(new RuntimeChoiceEntry(choice, false, string.Empty));
-                }
+                visibleChoices.Add(new RuntimeChoiceEntry(choice, false, string.Empty));
             }
         }
     }
@@ -393,7 +390,12 @@ public class DialogueManager : MonoBehaviour
                     return;
 
                 entry.DisplayText = text;
-                choiceViewData.Add(new DialogueUI.ChoiceViewData(text, entry.IsSelectable));
+                choiceViewData.Add(new DialogueUI.ChoiceViewData(
+                    text,
+                    entry.IsSelectable,
+                    entry.SourceChoice.IsQuestRelated,
+                    entry.SourceChoice.ShowQuestMarker
+                ));
             }
 
             if (choiceViewData.Count == 0)
@@ -539,12 +541,17 @@ public class DialogueManager : MonoBehaviour
         if (dialogueUI == null)
             return;
 
-        List<DialogueUI.ChoiceViewData> choiceViewData = new List<DialogueUI.ChoiceViewData>();
+        List<DialogueUI.ChoiceViewData> choiceViewData = new();
 
         for (int i = 0; i < visibleChoices.Count; i++)
         {
             RuntimeChoiceEntry entry = visibleChoices[i];
-            choiceViewData.Add(new DialogueUI.ChoiceViewData(entry.DisplayText, entry.IsSelectable));
+            choiceViewData.Add(new DialogueUI.ChoiceViewData(
+                entry.DisplayText,
+                entry.IsSelectable,
+                entry.SourceChoice.IsQuestRelated,
+                entry.SourceChoice.ShowQuestMarker
+            ));
         }
 
         dialogueUI.SetChoices(choiceViewData, selectedChoiceIndex);
@@ -575,16 +582,12 @@ public class DialogueManager : MonoBehaviour
             }
 
             if (selectedChoiceIndex < 0 || selectedChoiceIndex >= visibleChoices.Count)
-            {
                 return;
-            }
 
             RuntimeChoiceEntry selectedEntry = visibleChoices[selectedChoiceIndex];
 
             if (!selectedEntry.IsSelectable)
-            {
                 return;
-            }
 
             ExecuteActions(selectedEntry.SourceChoice.OnSelectActions);
             GoToNode(selectedEntry.SourceChoice.NextNodeIndex);

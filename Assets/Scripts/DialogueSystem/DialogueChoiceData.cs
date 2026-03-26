@@ -10,6 +10,13 @@ public class DialogueChoiceData
     [Tooltip("Техническое удобное название ответа для инспектора. Используется только для удобства настройки.")]
     [SerializeField] private string inspectorChoiceTitle = "Choice";
 
+    [Header("Quest Visuals")]
+    [Tooltip("Если включено, ответ считается квестовым для визуального оформления.")]
+    [SerializeField] private bool isQuestRelated = false;
+
+    [Tooltip("Если включено, у ответа показывается квестовая иконка в UI. Работает только если Is Quest Related включён.")]
+    [SerializeField] private bool showQuestMarker = true;
+
     [Header("Choice Text")]
     [SerializeField] private LocalizedString choiceText;
 
@@ -30,6 +37,9 @@ public class DialogueChoiceData
     [SerializeField] private List<DialogueActionData> onSelectActions = new();
 
     public string InspectorChoiceTitle => inspectorChoiceTitle;
+    public bool IsQuestRelated => isQuestRelated;
+    public bool ShowQuestMarker => isQuestRelated && showQuestMarker;
+
     public LocalizedString ChoiceText => choiceText;
     public int NextNodeIndex => nextNodeIndex;
     public IReadOnlyList<DialogueConditionData> Conditions => conditions;

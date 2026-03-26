@@ -22,9 +22,14 @@ public class QuestData : ScriptableObject
     [SerializeField] private LocalizedString shortDescription;
     [SerializeField] private LocalizedString fullDescription;
 
-    [Header("Auto Start Conditions")]
+    [Header("Availability Conditions")]
+    [Tooltip("≈сли больше 0, квест доступен только начина€ с этого уровн€.")]
+    [SerializeField] private int requiredPlayerLevel = 0;
+
+    [Tooltip("≈сли заполнено, квест доступен только если у игрока есть предмет с этим ItemId.")]
     [SerializeField] private string requiredItemId;
-    [SerializeField] private int requiredPlayerLevel;
+
+    [Tooltip("≈сли заполнено, квест доступен только после завершени€ квеста с этим QuestId.")]
     [SerializeField] private string requiredCompletedQuestId;
 
     [Header("Quest Flow")]
@@ -44,8 +49,8 @@ public class QuestData : ScriptableObject
     public LocalizedString ShortDescription => shortDescription;
     public LocalizedString FullDescription => fullDescription;
 
-    public string RequiredItemId => requiredItemId;
     public int RequiredPlayerLevel => requiredPlayerLevel;
+    public string RequiredItemId => requiredItemId;
     public string RequiredCompletedQuestId => requiredCompletedQuestId;
 
     public QuestStepData[] Steps => steps;

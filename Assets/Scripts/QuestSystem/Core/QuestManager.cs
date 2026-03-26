@@ -62,7 +62,9 @@ public class QuestManager : MonoBehaviour, IDialogueQuestProvider, IDialogueActi
         TrySubscribeInventorySystem();
         TryAutoStartQuestsByCurrentLevel();
         TryAutoStartQuestsByInventory();
+        TryAutoStartQuestsByCompletedQuestState();
         RefreshItemObjectivesForAllActiveQuests();
+        OnQuestListChanged?.Invoke();
     }
 
     private void OnDisable()
@@ -214,6 +216,15 @@ public class QuestManager : MonoBehaviour, IDialogueQuestProvider, IDialogueActi
         return true;
     }
 
+    public bool AreQuestAvailabilityConditionsMet(string questId)
+    {
+        QuestData questData = GetQuestData(questId);
+        if (questData == null)
+            return false;
+
+        return AreQuestAvailabilityConditionsMet(questData);
+    }
+
     public bool CanQuestBeOfferedNow(string questId)
     {
         QuestData questData = GetQuestData(questId);
@@ -223,35 +234,12 @@ public class QuestManager : MonoBehaviour, IDialogueQuestProvider, IDialogueActi
         if (!CanAcceptQuest(questId))
             return false;
 
-        switch (questData.StartType)
-        {
-            case QuestStartType.Manual:
-            case QuestStartType.DialogueChoice:
-            case QuestStartType.TriggerZone:
-                return true;
-
-            case QuestStartType.PlayerLevelReached:
-                {
-                    int currentLevel = expSystem != null ? expSystem.CurrentLvl : 0;
-                    return questData.RequiredPlayerLevel > 0 && currentLevel >= questData.RequiredPlayerLevel;
-                }
-
-            case QuestStartType.ItemReceived:
-                return !string.IsNullOrWhiteSpace(questData.RequiredItemId) &&
-                       InventoryContainsItemId(questData.RequiredItemId);
-
-            case QuestStartType.QuestCompleted:
-                return !string.IsNullOrWhiteSpace(questData.RequiredCompletedQuestId) &&
-                       GetQuestState(questData.RequiredCompletedQuestId) == QuestState.Completed;
-
-            default:
-                return false;
-        }
+        return AreQuestAvailabilityConditionsMet(questData);
     }
 
     public bool AcceptQuest(string questId)
     {
-        if (!CanAcceptQuest(questId))
+        if (!CanQuestBeOfferedNow(questId))
             return false;
 
         QuestData questData = GetQuestData(questId);
@@ -620,12 +608,38 @@ public class QuestManager : MonoBehaviour, IDialogueQuestProvider, IDialogueActi
         }
 
         TryAutoStartQuestsByCompletedQuest(completedQuestData.QuestId);
+        OnQuestListChanged?.Invoke();
+    }
+
+    private bool AreQuestAvailabilityConditionsMet(QuestData questData)
+    {
+        if (questData == null)
+            return false;
+
+        if (questData.RequiredPlayerLevel > 0)
+        {
+            int currentLevel = expSystem != null ? expSystem.CurrentLvl : 0;
+            if (currentLevel < questData.RequiredPlayerLevel)
+                return false;
+        }
+
+        if (!string.IsNullOrWhiteSpace(questData.RequiredItemId))
+        {
+            if (!InventoryContainsItemId(questData.RequiredItemId))
+                return false;
+        }
+
+        if (!string.IsNullOrWhiteSpace(questData.RequiredCompletedQuestId))
+        {
+            if (GetQuestState(questData.RequiredCompletedQuestId) != QuestState.Completed)
+                return false;
+        }
+
+        return true;
     }
 
     private void TryAutoStartQuestsByCurrentLevel()
     {
-        int currentLevel = expSystem != null ? expSystem.CurrentLvl : 0;
-
         foreach (QuestData questData in questDataById.Values)
         {
             if (questData == null)
@@ -634,10 +648,7 @@ public class QuestManager : MonoBehaviour, IDialogueQuestProvider, IDialogueActi
             if (questData.StartType != QuestStartType.PlayerLevelReached)
                 continue;
 
-            if (questData.RequiredPlayerLevel <= 0)
-                continue;
-
-            if (currentLevel < questData.RequiredPlayerLevel)
+            if (!AreQuestAvailabilityConditionsMet(questData))
                 continue;
 
             AcceptQuest(questData.QuestId);
@@ -654,10 +665,7 @@ public class QuestManager : MonoBehaviour, IDialogueQuestProvider, IDialogueActi
             if (questData.StartType != QuestStartType.ItemReceived)
                 continue;
 
-            if (string.IsNullOrWhiteSpace(questData.RequiredItemId))
-                continue;
-
-            if (!InventoryContainsItemId(questData.RequiredItemId))
+            if (!AreQuestAvailabilityConditionsMet(questData))
                 continue;
 
             AcceptQuest(questData.QuestId);
@@ -677,7 +685,27 @@ public class QuestManager : MonoBehaviour, IDialogueQuestProvider, IDialogueActi
             if (questData.StartType != QuestStartType.QuestCompleted)
                 continue;
 
-            if (questData.RequiredCompletedQuestId != completedQuestId)
+            if (!string.Equals(questData.RequiredCompletedQuestId, completedQuestId, StringComparison.Ordinal))
+                continue;
+
+            if (!AreQuestAvailabilityConditionsMet(questData))
+                continue;
+
+            AcceptQuest(questData.QuestId);
+        }
+    }
+
+    private void TryAutoStartQuestsByCompletedQuestState()
+    {
+        foreach (QuestData questData in questDataById.Values)
+        {
+            if (questData == null)
+                continue;
+
+            if (questData.StartType != QuestStartType.QuestCompleted)
+                continue;
+
+            if (!AreQuestAvailabilityConditionsMet(questData))
                 continue;
 
             AcceptQuest(questData.QuestId);

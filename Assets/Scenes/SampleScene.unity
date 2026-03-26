@@ -15643,7 +15643,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 20, y: 20}
+  m_AnchoredPosition: {x: 50, y: 20}
   m_SizeDelta: {x: 1160, y: 100}
   m_Pivot: {x: 0, y: 0}
 --- !u!1 &1023555857
@@ -29221,12 +29221,15 @@ MonoBehaviour:
   - {fileID: 938882916}
   - {fileID: 1538957566}
   - {fileID: 1491750278}
+  choiceQuestMarkerObjects: []
   selectedPrefix: '> '
   unselectedPrefix: '  '
   disabledPrefix: '   '
   tintDisabledChoices: 1
+  tintQuestChoices: 1
   normalChoiceColor: {r: 0, g: 0, b: 0, a: 1}
   disabledChoiceColor: {r: 0, g: 0, b: 0, a: 0.50980395}
+  questChoiceColor: {r: 1, g: 0.85, b: 0.2, a: 1}
   continueIndicatorObject: {fileID: 907105410}
   continueIndicatorRect: {fileID: 907105411}
   continueIndicatorMoveDistance: 3

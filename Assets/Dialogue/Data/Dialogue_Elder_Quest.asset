@@ -42,6 +42,8 @@ MonoBehaviour:
     nextNodeIndex: 0
     choices:
     - inspectorChoiceTitle: Start Quest
+      isQuestRelated: 1
+      showQuestMarker: 1
       choiceText:
         m_TableReference:
           m_TableCollectionName: GUID:b7fa0654d63a80c4ba9b0d68ecd122a6
@@ -93,6 +95,8 @@ MonoBehaviour:
         questObjectiveId: 
         questObjectiveAmount: 0
     - inspectorChoiceTitle: Queastion about place
+      isQuestRelated: 0
+      showQuestMarker: 1
       choiceText:
         m_TableReference:
           m_TableCollectionName: GUID:b7fa0654d63a80c4ba9b0d68ecd122a6
@@ -116,6 +120,8 @@ MonoBehaviour:
         m_LocalVariables: []
       onSelectActions: []
     - inspectorChoiceTitle: Report First Wolf Kill
+      isQuestRelated: 1
+      showQuestMarker: 1
       choiceText:
         m_TableReference:
           m_TableCollectionName: GUID:b7fa0654d63a80c4ba9b0d68ecd122a6
@@ -159,6 +165,8 @@ MonoBehaviour:
         questObjectiveId: report_to_elder_objective
         questObjectiveAmount: 1
     - inspectorChoiceTitle: Complete Quest
+      isQuestRelated: 1
+      showQuestMarker: 1
       choiceText:
         m_TableReference:
           m_TableCollectionName: GUID:b7fa0654d63a80c4ba9b0d68ecd122a6
@@ -202,6 +210,8 @@ MonoBehaviour:
         questObjectiveId: 
         questObjectiveAmount: 0
     - inspectorChoiceTitle: Money after
+      isQuestRelated: 0
+      showQuestMarker: 1
       choiceText:
         m_TableReference:
           m_TableCollectionName: GUID:b7fa0654d63a80c4ba9b0d68ecd122a6

@@ -10,11 +10,15 @@ public class DialogueUI : MonoBehaviour
     {
         public string Text;
         public bool IsSelectable;
+        public bool IsQuestRelated;
+        public bool ShowQuestMarker;
 
-        public ChoiceViewData(string text, bool isSelectable)
+        public ChoiceViewData(string text, bool isSelectable, bool isQuestRelated, bool showQuestMarker)
         {
             Text = text;
             IsSelectable = isSelectable;
+            IsQuestRelated = isQuestRelated;
+            ShowQuestMarker = showQuestMarker;
         }
     }
 
@@ -43,15 +47,20 @@ public class DialogueUI : MonoBehaviour
     [Header("Choices")]
     [SerializeField] private List<TMP_Text> choiceTexts = new();
 
+    [Tooltip("Необязательные объекты-иконки для тех же строк выбора. Порядок должен совпадать с choiceTexts.")]
+    [SerializeField] private List<GameObject> choiceQuestMarkerObjects = new();
+
     [Header("Selection Prefixes")]
     [SerializeField] private string selectedPrefix = "> ";
     [SerializeField] private string unselectedPrefix = "  ";
     [SerializeField] private string disabledPrefix = "X ";
 
-    [Header("Disabled Choice Style")]
+    [Header("Choice Colors")]
     [SerializeField] private bool tintDisabledChoices = true;
+    [SerializeField] private bool tintQuestChoices = true;
     [SerializeField] private Color normalChoiceColor = Color.white;
     [SerializeField] private Color disabledChoiceColor = Color.gray;
+    [SerializeField] private Color questChoiceColor = new Color(1f, 0.85f, 0.2f, 1f);
 
     [Header("Continue Indicator")]
     [Tooltip("Иконка, которая показывается только на обычных репликах без выбора.")]
@@ -183,6 +192,11 @@ public class DialogueUI : MonoBehaviour
                 choiceTexts[i].text = string.Empty;
                 choiceTexts[i].color = normalChoiceColor;
             }
+
+            if (i < choiceQuestMarkerObjects.Count && choiceQuestMarkerObjects[i] != null)
+            {
+                choiceQuestMarkerObjects[i].SetActive(false);
+            }
         }
     }
 
@@ -219,14 +233,11 @@ public class DialogueUI : MonoBehaviour
             }
 
             choiceText.text = prefix + (data.Text ?? string.Empty);
+            choiceText.color = GetChoiceColor(data);
 
-            if (tintDisabledChoices)
+            if (i < choiceQuestMarkerObjects.Count && choiceQuestMarkerObjects[i] != null)
             {
-                choiceText.color = data.IsSelectable ? normalChoiceColor : disabledChoiceColor;
-            }
-            else
-            {
-                choiceText.color = normalChoiceColor;
+                choiceQuestMarkerObjects[i].SetActive(data.ShowQuestMarker);
             }
         }
     }
@@ -253,6 +264,20 @@ public class DialogueUI : MonoBehaviour
         }
 
         ResetContinueIndicatorPosition();
+    }
+
+    private Color GetChoiceColor(ChoiceViewData data)
+    {
+        if (data == null)
+            return normalChoiceColor;
+
+        if (!data.IsSelectable && tintDisabledChoices)
+            return disabledChoiceColor;
+
+        if (data.IsQuestRelated && tintQuestChoices)
+            return questChoiceColor;
+
+        return normalChoiceColor;
     }
 
     private void UpdateContinueIndicatorAnimation()

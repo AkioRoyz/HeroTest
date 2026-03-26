@@ -47,8 +47,8 @@ MonoBehaviour:
     m_FallbackState: 0
     m_WaitForCompletion: 0
     m_LocalVariables: []
+  requiredPlayerLevel: 3
   requiredItemId: 
-  requiredPlayerLevel: 0
   requiredCompletedQuestId: 
   steps:
   - stepId: kill_first_wolf
