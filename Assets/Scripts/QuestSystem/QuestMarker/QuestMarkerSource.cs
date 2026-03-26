@@ -114,49 +114,44 @@ public class QuestMarkerSource : MonoBehaviour
 
         QuestState questState = QuestManager.Instance.GetQuestState(link.QuestId);
 
-        // 1. Можно сдать
         if (questState == QuestState.ReadyToTurnIn && link.ShowReadyToTurnInMarker)
         {
             return QuestMarkerState.ReadyToTurnIn;
         }
 
-        // 2. Новый квест доступен
         if (questState == QuestState.NotStarted)
         {
             if (questData.HiddenUntilStarted)
                 return QuestMarkerState.None;
 
-            if (link.ShowAvailableMarker && QuestManager.Instance.CanAcceptQuest(link.QuestId))
+            if (link.ShowAvailableMarker && QuestManager.Instance.CanQuestBeOfferedNow(link.QuestId))
             {
                 return QuestMarkerState.Available;
             }
         }
 
-        // 3. Квест активен
         if (questState == QuestState.Active && link.ShowInProgressMarker)
         {
             return QuestMarkerState.InProgress;
         }
 
-        // 4. Провален и может быть взят снова
         if (questState == QuestState.Failed)
         {
             if (questData.HiddenUntilStarted)
                 return QuestMarkerState.None;
 
-            if (link.ShowAvailableMarker && QuestManager.Instance.CanAcceptQuest(link.QuestId))
+            if (link.ShowAvailableMarker && QuestManager.Instance.CanQuestBeOfferedNow(link.QuestId))
             {
                 return QuestMarkerState.Available;
             }
         }
 
-        // 5. Completed у repeatable-квеста
         if (questState == QuestState.Completed)
         {
             if (questData.HiddenUntilStarted)
                 return QuestMarkerState.None;
 
-            if (link.ShowAvailableMarker && QuestManager.Instance.CanAcceptQuest(link.QuestId))
+            if (link.ShowAvailableMarker && QuestManager.Instance.CanQuestBeOfferedNow(link.QuestId))
             {
                 return QuestMarkerState.Available;
             }
