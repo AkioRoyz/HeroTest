@@ -14,6 +14,9 @@ public class QuestManager : MonoBehaviour, IDialogueQuestProvider, IDialogueActi
     [Header("Runtime Sources")]
     [SerializeField] private ExpSystem expSystem;
 
+    [Header("Behaviour")]
+    [SerializeField] private bool autoPinAcceptedQuests = true;
+
     private readonly Dictionary<string, QuestData> questDataById = new();
     private readonly Dictionary<string, QuestRuntimeData> activeQuests = new();
     private readonly Dictionary<string, QuestRuntimeData> completedQuests = new();
@@ -252,9 +255,23 @@ public class QuestManager : MonoBehaviour, IDialogueQuestProvider, IDialogueActi
         if (runtimeData == null)
             return false;
 
+        bool wasAutoPinned = false;
+
+        if (autoPinAcceptedQuests && GetPinnedQuestCount() < MaxPinnedQuests)
+        {
+            runtimeData.IsPinned = true;
+            wasAutoPinned = true;
+        }
+
         activeQuests[questId] = runtimeData;
 
         OnQuestAccepted?.Invoke(questData);
+
+        if (wasAutoPinned)
+        {
+            OnPinnedQuestsChanged?.Invoke();
+        }
+
         OnQuestListChanged?.Invoke();
 
         RefreshItemObjectivesForQuest(questId);

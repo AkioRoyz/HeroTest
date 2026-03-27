@@ -265,10 +265,7 @@ public class QuestJournalUI : MonoBehaviour
             return;
 
         QuestManager.Instance.OnQuestListChanged -= HandleQuestDataChanged;
-        QuestManager.Instance.OnPinnedQuestsChanged -= HandleQuestDataChanged;
-
         QuestManager.Instance.OnQuestListChanged += HandleQuestDataChanged;
-        QuestManager.Instance.OnPinnedQuestsChanged += HandleQuestDataChanged;
     }
 
     private void UnsubscribeQuestManagerEvents()
@@ -277,11 +274,13 @@ public class QuestJournalUI : MonoBehaviour
             return;
 
         QuestManager.Instance.OnQuestListChanged -= HandleQuestDataChanged;
-        QuestManager.Instance.OnPinnedQuestsChanged -= HandleQuestDataChanged;
     }
 
     private void HandleQuestDataChanged()
     {
+        if (!IsOpen)
+            return;
+
         RefreshUI();
     }
 

@@ -187,14 +187,7 @@ public class QuestMarkerSource : MonoBehaviour
         if (QuestManager.Instance == null)
             return;
 
-        QuestManager.Instance.OnQuestAccepted += HandleQuestDataChanged;
-        QuestManager.Instance.OnQuestReadyToTurnIn += HandleQuestDataChanged;
-        QuestManager.Instance.OnQuestCompleted += HandleQuestDataChanged;
-        QuestManager.Instance.OnQuestFailed += HandleQuestDataChanged;
-        QuestManager.Instance.OnQuestAdvanced += HandleQuestDataChanged;
-        QuestManager.Instance.OnQuestProgressChanged += HandleQuestDataChanged;
         QuestManager.Instance.OnQuestListChanged += HandleQuestListChanged;
-
         isSubscribed = true;
     }
 
@@ -205,21 +198,10 @@ public class QuestMarkerSource : MonoBehaviour
 
         if (QuestManager.Instance != null)
         {
-            QuestManager.Instance.OnQuestAccepted -= HandleQuestDataChanged;
-            QuestManager.Instance.OnQuestReadyToTurnIn -= HandleQuestDataChanged;
-            QuestManager.Instance.OnQuestCompleted -= HandleQuestDataChanged;
-            QuestManager.Instance.OnQuestFailed -= HandleQuestDataChanged;
-            QuestManager.Instance.OnQuestAdvanced -= HandleQuestDataChanged;
-            QuestManager.Instance.OnQuestProgressChanged -= HandleQuestDataChanged;
             QuestManager.Instance.OnQuestListChanged -= HandleQuestListChanged;
         }
 
         isSubscribed = false;
-    }
-
-    private void HandleQuestDataChanged(QuestData _)
-    {
-        RefreshMarker();
     }
 
     private void HandleQuestListChanged()

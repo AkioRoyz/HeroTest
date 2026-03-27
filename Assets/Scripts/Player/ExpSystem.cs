@@ -8,7 +8,9 @@ public class ExpSystem : MonoBehaviour
     [SerializeField] private int maxLvl = 50;
     [SerializeField] private int currentLvl = 1;
     [SerializeField] private int percentUp = 10;
-    [SerializeField] private int testAddXp = 100;
+
+    [Header("Debug")]
+    [SerializeField] private int debugAddXpAmount = 100;
 
     public event Action<int> OnLevelChange;
     public event Action<int> OnXpAdd;
@@ -16,14 +18,11 @@ public class ExpSystem : MonoBehaviour
     public int XpToNextLvl => xpToNextLvl;
     public int CurrentLvl => currentLvl;
     public int MaxLvl => maxLvl;
+    public int CurrentXP => currentXP;
 
-
-    private void Update()
+    private void Start()
     {
-        if (Input.GetKeyDown(KeyCode.Escape))
-        {
-            AddXP(testAddXp);
-        }
+        OnXpAdd?.Invoke(currentXP);
     }
 
     private void OnEnable()
@@ -41,13 +40,22 @@ public class ExpSystem : MonoBehaviour
         AddXPInternal(reward.Exp);
     }
 
-    private void AddXP(int amount)
+    public void AddXP(int amount)
     {
         AddXPInternal(amount);
     }
 
+    [ContextMenu("Debug/Add XP")]
+    private void DebugAddXpFromContextMenu()
+    {
+        AddXPInternal(debugAddXpAmount);
+    }
+
     private void AddXPInternal(int amount)
     {
+        if (amount <= 0)
+            return;
+
         if (currentLvl == maxLvl)
             return;
 
@@ -71,9 +79,7 @@ public class ExpSystem : MonoBehaviour
     private void LvlUp()
     {
         if (currentLvl == maxLvl)
-        {
             return;
-        }
 
         currentLvl++;
 

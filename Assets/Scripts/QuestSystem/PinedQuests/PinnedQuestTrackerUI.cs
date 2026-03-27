@@ -36,25 +36,25 @@ public class PinnedQuestTrackerUI : MonoBehaviour
 
     private void OnEnable()
     {
-        TrySubscribeQuestManagerEvents();
+        TrySubscribeQuestManager();
         RefreshUI();
     }
 
     private void Start()
     {
-        TrySubscribeQuestManagerEvents();
+        TrySubscribeQuestManager();
         RefreshUI();
     }
 
     private void OnDisable()
     {
-        UnsubscribeQuestManagerEvents();
+        UnsubscribeQuestManager();
     }
 
     [ContextMenu("Force Refresh")]
     public void RefreshUI()
     {
-        TrySubscribeQuestManagerEvents();
+        TrySubscribeQuestManager();
 
         HideAllRows();
 
@@ -302,7 +302,7 @@ public class PinnedQuestTrackerUI : MonoBehaviour
         }
     }
 
-    private void TrySubscribeQuestManagerEvents()
+    private void TrySubscribeQuestManager()
     {
         if (isSubscribed)
             return;
@@ -311,23 +311,19 @@ public class PinnedQuestTrackerUI : MonoBehaviour
             return;
 
         QuestManager.Instance.OnQuestListChanged += HandleQuestDataChanged;
-        QuestManager.Instance.OnPinnedQuestsChanged += HandleQuestDataChanged;
         isSubscribed = true;
     }
 
-    private void UnsubscribeQuestManagerEvents()
+    private void UnsubscribeQuestManager()
     {
         if (!isSubscribed)
             return;
 
-        if (QuestManager.Instance == null)
+        if (QuestManager.Instance != null)
         {
-            isSubscribed = false;
-            return;
+            QuestManager.Instance.OnQuestListChanged -= HandleQuestDataChanged;
         }
 
-        QuestManager.Instance.OnQuestListChanged -= HandleQuestDataChanged;
-        QuestManager.Instance.OnPinnedQuestsChanged -= HandleQuestDataChanged;
         isSubscribed = false;
     }
 

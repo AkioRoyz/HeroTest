@@ -2013,6 +2013,7 @@ GameObject:
   - component: {fileID: 145709387}
   - component: {fileID: 145709386}
   - component: {fileID: 145709385}
+  - component: {fileID: 145709389}
   m_Layer: 5
   m_Name: UI Default
   m_TagString: Untagged
@@ -2100,8 +2101,8 @@ RectTransform:
   - {fileID: 1407748411}
   - {fileID: 34312830}
   - {fileID: 462293873}
-  - {fileID: 1688910958}
   - {fileID: 970007406}
+  - {fileID: 1688910958}
   - {fileID: 1875210116}
   - {fileID: 1405947370}
   - {fileID: 50841925}
@@ -2112,6 +2113,20 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 0}
+--- !u!114 &145709389
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 145709384}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dced69b1759028240b1f36f127e6dfe5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PersistentObject
+  persistentId: MAIN_UI
+  duplicateHandlingMode: 0
 --- !u!1 &157183987
 GameObject:
   m_ObjectHideFlags: 0
@@ -7830,6 +7845,7 @@ MonoBehaviour:
   allQuestData:
   - {fileID: 11400000, guid: 30d167f06b12bfd47a65bd501bbc2186, type: 2}
   expSystem: {fileID: 1608696422}
+  autoPinAcceptedQuests: 1
 --- !u!114 &555193745
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -26030,7 +26046,7 @@ MonoBehaviour:
   maxLvl: 50
   currentLvl: 1
   percentUp: 10
-  testAddXp: 100
+  debugAddXpAmount: 100
 --- !u!1 &1611162619
 GameObject:
   m_ObjectHideFlags: 0
@@ -32274,6 +32290,7 @@ GameObject:
   - component: {fileID: 2084367338}
   - component: {fileID: 2084367337}
   - component: {fileID: 2084367341}
+  - component: {fileID: 2084367342}
   m_Layer: 3
   m_Name: Player
   m_TagString: Untagged
@@ -32445,6 +32462,20 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &2084367342
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2084367336}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dced69b1759028240b1f36f127e6dfe5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PersistentObject
+  persistentId: MAIN_PLAYER
+  duplicateHandlingMode: 0
 --- !u!1 &2084639636
 GameObject:
   m_ObjectHideFlags: 0
@@ -33122,6 +33153,14 @@ PrefabInstance:
     - target: {fileID: 3007397020508705275, guid: e7ba12a807d69b342aad8644e3c5b729, type: 3}
       propertyPath: m_Name
       value: ChestTEST (1)
+      objectReference: {fileID: 0}
+    - target: {fileID: 7789656772874683833, guid: e7ba12a807d69b342aad8644e3c5b729, type: 3}
+      propertyPath: chestEXP
+      value: 500
+      objectReference: {fileID: 0}
+    - target: {fileID: 7789656772874683833, guid: e7ba12a807d69b342aad8644e3c5b729, type: 3}
+      propertyPath: chestGold
+      value: 200
       objectReference: {fileID: 0}
     - target: {fileID: 7789656772874683833, guid: e7ba12a807d69b342aad8644e3c5b729, type: 3}
       propertyPath: gameInput

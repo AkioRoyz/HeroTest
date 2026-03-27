@@ -27,12 +27,10 @@ public class EnemyHealth : MonoBehaviour
         currentHealth = maxHealth;
     }
 
-    private void Update()
+    [ContextMenu("Debug/Take 10 Damage")]
+    private void DebugTake10Damage()
     {
-        if (Input.GetKeyDown(KeyCode.J))
-        {
-            TakeDamage(10);
-        }
+        TakeDamage(10);
     }
 
     public void TakeDamage(int amount)

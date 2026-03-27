@@ -26,7 +26,7 @@ public class QuestNotificationUI : MonoBehaviour
     [SerializeField] private LocalizedString completedHeaderText;
 
     [Header("Animation")]
-    [SerializeField] private float delayBeforeShow = 0.2f; // 👈 НОВОЕ
+    [SerializeField] private float delayBeforeShow = 0.2f;
     [SerializeField] private float fadeInDuration = 0.35f;
     [SerializeField] private float visibleDuration = 2.25f;
     [SerializeField] private float fadeOutDuration = 0.35f;
@@ -89,7 +89,7 @@ public class QuestNotificationUI : MonoBehaviour
 
     private IEnumerator ShowRoutine(NotificationType type, string questTitle)
     {
-        // 👉 ЗАДЕРЖКА ПЕРЕД ПОКАЗОМ
+        // ЗАДЕРЖКА ПЕРЕД ПОКАЗОМ
         yield return WaitUnscaled(delayBeforeShow);
 
         string header = type == NotificationType.Accepted
