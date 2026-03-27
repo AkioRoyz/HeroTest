@@ -1,5 +1,6 @@
 using System.Collections;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class QuickConsumableUser : MonoBehaviour
 {
@@ -16,28 +17,96 @@ public class QuickConsumableUser : MonoBehaviour
     [Header("Quick Slots 1-5 (order matters)")]
     [SerializeField] private ItemData[] quickSlotItems = new ItemData[5];
 
+    private GameInput subscribedInput;
+
+    private void Awake()
+    {
+        ResolveReferences();
+    }
+
     private void OnEnable()
     {
-        if (gameInput != null)
-        {
-            gameInput.OnQuickSlotPressed += UseQuickSlotItem;
-        }
+        SceneManager.sceneLoaded += HandleSceneLoaded;
+        ResolveReferences();
+        RebindInput();
     }
 
     private void OnDisable()
     {
-        if (gameInput != null)
+        SceneManager.sceneLoaded -= HandleSceneLoaded;
+        UnbindInput();
+    }
+
+    private void HandleSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        ResolveReferences();
+        RebindInput();
+    }
+
+    private void ResolveReferences()
+    {
+        if (gameInput == null)
+            gameInput = FindFirstObjectByType<GameInput>();
+
+        if (inventorySystem == null)
+            inventorySystem = InventorySystem.Instance != null
+                ? InventorySystem.Instance
+                : FindFirstObjectByType<InventorySystem>();
+
+        if (statsSystem == null)
+            statsSystem = FindFirstObjectByType<StatsSystem>();
+
+        GameObject player = GameObject.FindGameObjectWithTag("Player");
+        if (player != null)
         {
-            gameInput.OnQuickSlotPressed -= UseQuickSlotItem;
+            if (playerTransform == null)
+                playerTransform = player.transform;
+
+            if (playerHealth == null)
+                playerHealth = player.GetComponent<PlayerHealth>();
+
+            if (playerMana == null)
+                playerMana = player.GetComponent<PlayerMana>();
+
+            if (playerMoving == null)
+                playerMoving = player.GetComponent<PlayerMoving>();
         }
+    }
+
+    private void RebindInput()
+    {
+        UnbindInput();
+
+        if (gameInput == null)
+            return;
+
+        gameInput.OnQuickSlotPressed += UseQuickSlotItem;
+        subscribedInput = gameInput;
+    }
+
+    private void UnbindInput()
+    {
+        if (subscribedInput == null)
+            return;
+
+        subscribedInput.OnQuickSlotPressed -= UseQuickSlotItem;
+        subscribedInput = null;
     }
 
     private void UseQuickSlotItem(int slotNumber)
     {
+        ResolveReferences();
+
         int index = slotNumber - 1;
 
         if (index < 0 || index >= quickSlotItems.Length)
             return;
+
+        if (inventorySystem == null)
+        {
+            Debug.LogWarning("QuickConsumableUser: InventorySystem is missing.");
+            return;
+        }
 
         ItemData item = quickSlotItems[index];
 
@@ -62,9 +131,7 @@ public class QuickConsumableUser : MonoBehaviour
         bool wasUsed = TryApplyConsumable(item);
 
         if (wasUsed)
-        {
             inventorySystem.RemoveItem(item, 1);
-        }
     }
 
     private bool TryApplyConsumable(ItemData item)
@@ -113,8 +180,13 @@ public class QuickConsumableUser : MonoBehaviour
 
     private IEnumerator TemporaryDefenceBuffRoutine(int bonusDefence, float duration)
     {
+        if (statsSystem == null)
+            yield break;
+
         statsSystem.AddBonusStats(0, 0, bonusDefence);
         yield return new WaitForSeconds(duration);
-        statsSystem.RemoveBonusStats(0, 0, bonusDefence);
+
+        if (statsSystem != null)
+            statsSystem.RemoveBonusStats(0, 0, bonusDefence);
     }
 }

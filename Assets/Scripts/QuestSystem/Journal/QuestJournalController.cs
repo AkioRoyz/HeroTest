@@ -7,22 +7,47 @@ public class QuestJournalController : MonoBehaviour
     [SerializeField] private QuestJournalUI questJournalUI;
 
     private bool isOpened;
+    private GameInput subscribedInput;
 
     private void Awake()
     {
         ResolveReferences();
-
-        isOpened = false;
-        if (questJournalUI != null)
-            questJournalUI.Close();
-
-        // Важно: здесь НЕ трогаем gameInput.SwitchToPlayerMode()
-        // чтобы не упасть по порядку инициализации.
+        ForceCloseJournalVisual();
     }
 
     private void OnEnable()
     {
         SceneManager.sceneLoaded += HandleSceneLoaded;
+        RebindInputEvents();
+        ForceCloseJournalVisual();
+    }
+
+    private void OnDisable()
+    {
+        SceneManager.sceneLoaded -= HandleSceneLoaded;
+        UnbindInputEvents();
+    }
+
+    private void HandleSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        ResolveReferences();
+        RebindInputEvents();
+        ForceCloseJournalVisual();
+    }
+
+    private void ResolveReferences()
+    {
+        if (gameInput == null)
+            gameInput = FindFirstObjectByType<GameInput>();
+
+        if (questJournalUI == null)
+            questJournalUI = FindFirstObjectByType<QuestJournalUI>();
+    }
+
+    private void RebindInputEvents()
+    {
+        UnbindInputEvents();
+
         ResolveReferences();
 
         if (gameInput == null)
@@ -38,37 +63,25 @@ public class QuestJournalController : MonoBehaviour
         gameInput.OnQuestJournalPinQuest += HandlePinQuest;
         gameInput.OnQuestJournalClose += HandleJournalClose;
 
-        ForceCloseJournalVisual();
+        subscribedInput = gameInput;
     }
 
-    private void OnDisable()
+    private void UnbindInputEvents()
     {
-        SceneManager.sceneLoaded -= HandleSceneLoaded;
-
-        if (gameInput == null)
+        if (subscribedInput == null)
             return;
 
-        gameInput.OnQuestJournal -= ToggleJournalFromPlayer;
-        gameInput.OnQuestJournalUp -= HandleJournalUp;
-        gameInput.OnQuestJournalDown -= HandleJournalDown;
-        gameInput.OnQuestJournalSelect -= HandleJournalSelect;
-        gameInput.OnQuestJournalBack -= HandleJournalBack;
-        gameInput.OnQuestJournalMainTab -= HandleMainTab;
-        gameInput.OnQuestJournalSideTab -= HandleSideTab;
-        gameInput.OnQuestJournalPinQuest -= HandlePinQuest;
-        gameInput.OnQuestJournalClose -= HandleJournalClose;
-    }
+        subscribedInput.OnQuestJournal -= ToggleJournalFromPlayer;
+        subscribedInput.OnQuestJournalUp -= HandleJournalUp;
+        subscribedInput.OnQuestJournalDown -= HandleJournalDown;
+        subscribedInput.OnQuestJournalSelect -= HandleJournalSelect;
+        subscribedInput.OnQuestJournalBack -= HandleJournalBack;
+        subscribedInput.OnQuestJournalMainTab -= HandleMainTab;
+        subscribedInput.OnQuestJournalSideTab -= HandleSideTab;
+        subscribedInput.OnQuestJournalPinQuest -= HandlePinQuest;
+        subscribedInput.OnQuestJournalClose -= HandleJournalClose;
 
-    private void HandleSceneLoaded(Scene scene, LoadSceneMode mode)
-    {
-        ResolveReferences();
-        ForceCloseJournalVisual();
-    }
-
-    private void ResolveReferences()
-    {
-        if (gameInput == null)
-            gameInput = FindFirstObjectByType<GameInput>();
+        subscribedInput = null;
     }
 
     private void ForceCloseJournalVisual()
@@ -81,8 +94,6 @@ public class QuestJournalController : MonoBehaviour
         if (GameStateManager.Instance != null && GameStateManager.Instance.CurrentState == GameState.Menu)
             GameStateManager.Instance.SetState(GameState.Playing);
 
-        // Переключаем режим только когда контроллер уже активен
-        // и ссылки точно резолвнуты.
         if (isActiveAndEnabled && gameInput != null)
             gameInput.SwitchToPlayerMode();
     }

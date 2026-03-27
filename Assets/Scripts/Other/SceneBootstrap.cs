@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class SceneBootstrap : MonoBehaviour
 {
@@ -6,23 +7,34 @@ public class SceneBootstrap : MonoBehaviour
     [SerializeField] private GameObject playerPrefab;
     [SerializeField] private Transform spawnPoint;
     [SerializeField] private bool spawnOnlyIfMissing = true;
+    [SerializeField] private bool moveExistingPlayerToSpawn = true;
 
     [Header("Debug")]
     [SerializeField] private bool showLogs = true;
 
     private void Start()
     {
-        EnsurePlayerExists();
+        EnsurePlayerExistsAndPlaced();
     }
 
-    private void EnsurePlayerExists()
+    private void EnsurePlayerExistsAndPlaced()
     {
         GameObject existingPlayer = GameObject.FindGameObjectWithTag("Player");
 
         if (spawnOnlyIfMissing && existingPlayer != null)
         {
-            if (showLogs)
+            if (moveExistingPlayerToSpawn && spawnPoint != null)
+            {
+                existingPlayer.transform.SetPositionAndRotation(spawnPoint.position, spawnPoint.rotation);
+
+                if (showLogs)
+                    Debug.Log($"[SceneBootstrap] Existing player moved to spawn: {existingPlayer.name}", this);
+            }
+            else if (showLogs)
+            {
                 Debug.Log($"[SceneBootstrap] Player already exists: {existingPlayer.name}", this);
+            }
+
             return;
         }
 
