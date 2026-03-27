@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.Rendering;
 
 public class PauseMenuController : MonoBehaviour
 {
@@ -8,11 +9,20 @@ public class PauseMenuController : MonoBehaviour
     [SerializeField] private GameObject pauseMenuRoot;
     [SerializeField] private Button resumeButton;
 
+    [Header("Pause Visual Effect")]
+    [SerializeField] private Volume pauseGrayScaleVolume;
+    [SerializeField, Range(0f, 1f)] private float pauseGrayScaleWeight = 1f;
+
     private void Start()
     {
         if (pauseMenuRoot != null)
         {
             pauseMenuRoot.SetActive(false);
+        }
+
+        if (pauseGrayScaleVolume != null)
+        {
+            pauseGrayScaleVolume.weight = 0f;
         }
     }
 
@@ -79,6 +89,11 @@ public class PauseMenuController : MonoBehaviour
             pauseMenuRoot.SetActive(isPause);
         }
 
+        if (pauseGrayScaleVolume != null)
+        {
+            pauseGrayScaleVolume.weight = isPause ? pauseGrayScaleWeight : 0f;
+        }
+
         if (isPause && resumeButton != null)
         {
             resumeButton.Select();
@@ -97,6 +112,11 @@ public class PauseMenuController : MonoBehaviour
             pauseMenuRoot.SetActive(false);
         }
 
+        if (pauseGrayScaleVolume != null)
+        {
+            pauseGrayScaleVolume.weight = 0f;
+        }
+
         if (gameInput != null)
         {
             gameInput.SwitchToPlayerMode();
@@ -113,6 +133,11 @@ public class PauseMenuController : MonoBehaviour
         if (pauseMenuRoot != null)
         {
             pauseMenuRoot.SetActive(true);
+        }
+
+        if (pauseGrayScaleVolume != null)
+        {
+            pauseGrayScaleVolume.weight = pauseGrayScaleWeight;
         }
 
         if (gameInput != null)
