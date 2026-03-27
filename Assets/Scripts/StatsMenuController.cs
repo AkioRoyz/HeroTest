@@ -37,8 +37,14 @@ public class StatsMenuController : MonoBehaviour
 
     private void ToggleMenu()
     {
-        if (gameInput.CurrentMode == GameInput.InputMode.Dialogue)
-            return;
+        if (GameStateManager.Instance != null)
+        {
+            if (GameStateManager.Instance.CurrentState == GameState.Dialogue ||
+                GameStateManager.Instance.CurrentState == GameState.Pause)
+            {
+                return;
+            }
+        }
 
         if (isOpened)
             CloseMenu();
@@ -53,6 +59,12 @@ public class StatsMenuController : MonoBehaviour
 
         isOpened = true;
         menuRoot.SetActive(true);
+
+        if (GameStateManager.Instance != null)
+        {
+            GameStateManager.Instance.SetState(GameState.Menu);
+        }
+
         gameInput.SwitchToMenuMode();
 
         if (equipmentMenuUI != null)
@@ -73,6 +85,12 @@ public class StatsMenuController : MonoBehaviour
 
         isOpened = false;
         menuRoot.SetActive(false);
+
+        if (GameStateManager.Instance != null)
+        {
+            GameStateManager.Instance.SetState(GameState.Playing);
+        }
+
         gameInput.SwitchToPlayerMode();
     }
 }

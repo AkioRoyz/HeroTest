@@ -74,7 +74,6 @@ public class DialogueManager : MonoBehaviour
             gameInput.OnDialogueUp += HandleDialogueUp;
             gameInput.OnDialogueDown += HandleDialogueDown;
             gameInput.OnDialogueSelect += HandleDialogueSelect;
-            gameInput.OnDialogueClose += HandleDialogueClose;
         }
     }
 
@@ -85,7 +84,6 @@ public class DialogueManager : MonoBehaviour
             gameInput.OnDialogueUp -= HandleDialogueUp;
             gameInput.OnDialogueDown -= HandleDialogueDown;
             gameInput.OnDialogueSelect -= HandleDialogueSelect;
-            gameInput.OnDialogueClose -= HandleDialogueClose;
         }
     }
 
@@ -163,6 +161,11 @@ public class DialogueManager : MonoBehaviour
         enteredNodeIndices.Clear();
         visibleChoices.Clear();
 
+        if (GameStateManager.Instance != null)
+        {
+            GameStateManager.Instance.SetState(GameState.Dialogue);
+        }
+
         if (gameInput != null)
         {
             gameInput.SwitchToDialogueMode();
@@ -199,6 +202,11 @@ public class DialogueManager : MonoBehaviour
             dialogueUI.SetDialogueText(string.Empty);
             dialogueUI.SetPortrait(null);
             dialogueUI.Hide();
+        }
+
+        if (GameStateManager.Instance != null)
+        {
+            GameStateManager.Instance.SetState(GameState.Playing);
         }
 
         if (gameInput != null)
@@ -592,14 +600,6 @@ public class DialogueManager : MonoBehaviour
             ExecuteActions(selectedEntry.SourceChoice.OnSelectActions);
             GoToNode(selectedEntry.SourceChoice.NextNodeIndex);
         }
-    }
-
-    private void HandleDialogueClose()
-    {
-        if (!isDialogueActive)
-            return;
-
-        CloseDialogue();
     }
 
     private void GoToNode(int nodeIndex)

@@ -95,6 +95,15 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
+                },
+                {
+                    "name": "Pause",
+                    "type": "Button",
+                    "id": "5cd6edd7-147f-4a02-8cfd-abad5356090d",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -339,6 +348,17 @@
                     "action": "QuestJournal",
                     "isComposite": false,
                     "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "7fbcc28f-03fe-4b88-baed-be5fb9e1703e",
+                    "path": "<Keyboard>/escape",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";KeyboardMouse",
+                    "action": "Pause",
+                    "isComposite": false,
+                    "isPartOfComposite": false
                 }
             ]
         },
@@ -368,15 +388,6 @@
                     "name": "SelectChoise",
                     "type": "Button",
                     "id": "d1247956-e8d3-492f-886d-9facf19e1ba2",
-                    "expectedControlType": "",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
-                },
-                {
-                    "name": "CloseUI",
-                    "type": "Button",
-                    "id": "c1d94ed1-1b64-4e23-a49d-f2b1f75cc2bd",
                     "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
@@ -436,17 +447,6 @@
                     "processors": "",
                     "groups": "",
                     "action": "SelectChoise",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "b904615f-faa1-45d8-bf3a-b13b6a1ad880",
-                    "path": "<Keyboard>/escape",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "CloseUI",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }
@@ -917,6 +917,116 @@
                     "processors": "",
                     "groups": ";KeyboardMouse",
                     "action": "PinQuest",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
+        },
+        {
+            "name": "PauseMenu",
+            "id": "8f531400-9eb1-4a4a-a958-6b00a5ed234f",
+            "actions": [
+                {
+                    "name": "UpSelect",
+                    "type": "Button",
+                    "id": "b201ec39-3923-47e7-9c3f-4a684e2b0532",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "DownSelect",
+                    "type": "Button",
+                    "id": "4c311fd2-2092-4e6f-b2c2-06f516552a5f",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "SelectChoise",
+                    "type": "Button",
+                    "id": "14811f8a-fa82-4ac9-b5e6-6d4dd215a9b6",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "TogglePause",
+                    "type": "Button",
+                    "id": "fe0fcdc6-9884-4f16-b57b-c798e234090b",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "e9d6326c-e522-4d68-84a8-bf367d0f29b4",
+                    "path": "<Keyboard>/w",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";KeyboardMouse",
+                    "action": "UpSelect",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "f0c14a58-63f4-40b5-8dd8-098d13ad0cef",
+                    "path": "<Keyboard>/upArrow",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";KeyboardMouse",
+                    "action": "UpSelect",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "cd8986ab-2aa0-4cbc-bbbb-43935737b34c",
+                    "path": "<Keyboard>/s",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";KeyboardMouse",
+                    "action": "DownSelect",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "887eb92c-ae8b-465c-b3d1-60543117442f",
+                    "path": "<Keyboard>/downArrow",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";KeyboardMouse",
+                    "action": "DownSelect",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "042792e3-7f5f-42bd-88e1-0d6e1b843cc4",
+                    "path": "<Keyboard>/enter",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";KeyboardMouse",
+                    "action": "SelectChoise",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "a13227dc-d3fe-409d-92e5-04d80b150848",
+                    "path": "<Keyboard>/escape",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";KeyboardMouse",
+                    "action": "TogglePause",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

@@ -9,7 +9,8 @@ public class GameInput : MonoBehaviour
         Player,
         Dialogue,
         Menu,
-        QuestJournal
+        QuestJournal,
+        PauseMenu
     }
 
     public enum DeviceGroupType
@@ -24,12 +25,12 @@ public class GameInput : MonoBehaviour
     public event Action OnUse;
     public event Action OnStats;
     public event Action OnQuestJournal;
+    public event Action OnPauseToggle;
     public event Action<int> OnQuickSlotPressed;
 
     public event Action OnDialogueUp;
     public event Action OnDialogueDown;
     public event Action OnDialogueSelect;
-    public event Action OnDialogueClose;
 
     public event Action OnMenuUp;
     public event Action OnMenuDown;
@@ -47,6 +48,10 @@ public class GameInput : MonoBehaviour
     public event Action OnQuestJournalSideTab;
     public event Action OnQuestJournalPinQuest;
     public event Action OnQuestJournalClose;
+
+    public event Action OnPauseMenuUp;
+    public event Action OnPauseMenuDown;
+    public event Action OnPauseMenuSelect;
 
     public event Action OnActiveDeviceGroupChanged;
 
@@ -108,6 +113,7 @@ public class GameInput : MonoBehaviour
         inputActions.Player.Use.performed += OnUsePerformed;
         inputActions.Player.Stats.performed += OnStatsPerformed;
         inputActions.Player.QuestJournal.performed += OnQuestJournalPerformed;
+        inputActions.Player.Pause.performed += OnPausePerformed;
 
         inputActions.Player.Item1.performed += OnItem1Performed;
         inputActions.Player.Item2.performed += OnItem2Performed;
@@ -119,7 +125,6 @@ public class GameInput : MonoBehaviour
         inputActions.Dialogue.UpSelect.performed += OnDialogueUpPerformed;
         inputActions.Dialogue.DownSelect.performed += OnDialogueDownPerformed;
         inputActions.Dialogue.SelectChoise.performed += OnDialogueSelectPerformed;
-        inputActions.Dialogue.CloseUI.performed += OnDialogueClosePerformed;
 
         // Menu
         inputActions.Menu.UpSelect.performed += OnMenuUpPerformed;
@@ -139,6 +144,12 @@ public class GameInput : MonoBehaviour
         inputActions.QuestJournal.SideTab.performed += OnQuestJournalSideTabPerformed;
         inputActions.QuestJournal.PinQuest.performed += OnQuestJournalPinQuestPerformed;
         inputActions.QuestJournal.CloseUI.performed += OnQuestJournalClosePerformed;
+
+        // PauseMenu
+        inputActions.PauseMenu.UpSelect.performed += OnPauseMenuUpPerformed;
+        inputActions.PauseMenu.DownSelect.performed += OnPauseMenuDownPerformed;
+        inputActions.PauseMenu.SelectChoise.performed += OnPauseMenuSelectPerformed;
+        inputActions.PauseMenu.TogglePause.performed += OnPauseMenuTogglePerformed;
     }
 
     private void UnsubscribeFromInput()
@@ -148,6 +159,7 @@ public class GameInput : MonoBehaviour
         inputActions.Player.Use.performed -= OnUsePerformed;
         inputActions.Player.Stats.performed -= OnStatsPerformed;
         inputActions.Player.QuestJournal.performed -= OnQuestJournalPerformed;
+        inputActions.Player.Pause.performed -= OnPausePerformed;
 
         inputActions.Player.Item1.performed -= OnItem1Performed;
         inputActions.Player.Item2.performed -= OnItem2Performed;
@@ -159,7 +171,6 @@ public class GameInput : MonoBehaviour
         inputActions.Dialogue.UpSelect.performed -= OnDialogueUpPerformed;
         inputActions.Dialogue.DownSelect.performed -= OnDialogueDownPerformed;
         inputActions.Dialogue.SelectChoise.performed -= OnDialogueSelectPerformed;
-        inputActions.Dialogue.CloseUI.performed -= OnDialogueClosePerformed;
 
         // Menu
         inputActions.Menu.UpSelect.performed -= OnMenuUpPerformed;
@@ -179,6 +190,12 @@ public class GameInput : MonoBehaviour
         inputActions.QuestJournal.SideTab.performed -= OnQuestJournalSideTabPerformed;
         inputActions.QuestJournal.PinQuest.performed -= OnQuestJournalPinQuestPerformed;
         inputActions.QuestJournal.CloseUI.performed -= OnQuestJournalClosePerformed;
+
+        // PauseMenu
+        inputActions.PauseMenu.UpSelect.performed -= OnPauseMenuUpPerformed;
+        inputActions.PauseMenu.DownSelect.performed -= OnPauseMenuDownPerformed;
+        inputActions.PauseMenu.SelectChoise.performed -= OnPauseMenuSelectPerformed;
+        inputActions.PauseMenu.TogglePause.performed -= OnPauseMenuTogglePerformed;
     }
 
     public void SwitchToPlayerMode()
@@ -187,6 +204,7 @@ public class GameInput : MonoBehaviour
         inputActions.Dialogue.Disable();
         inputActions.Menu.Disable();
         inputActions.QuestJournal.Disable();
+        inputActions.PauseMenu.Disable();
 
         MoveVector = Vector2.zero;
         CurrentMode = InputMode.Player;
@@ -198,6 +216,7 @@ public class GameInput : MonoBehaviour
         inputActions.Dialogue.Enable();
         inputActions.Menu.Disable();
         inputActions.QuestJournal.Disable();
+        inputActions.PauseMenu.Disable();
 
         MoveVector = Vector2.zero;
         CurrentMode = InputMode.Dialogue;
@@ -209,6 +228,7 @@ public class GameInput : MonoBehaviour
         inputActions.Dialogue.Disable();
         inputActions.Menu.Enable();
         inputActions.QuestJournal.Disable();
+        inputActions.PauseMenu.Disable();
 
         MoveVector = Vector2.zero;
         CurrentMode = InputMode.Menu;
@@ -220,9 +240,22 @@ public class GameInput : MonoBehaviour
         inputActions.Dialogue.Disable();
         inputActions.Menu.Disable();
         inputActions.QuestJournal.Enable();
+        inputActions.PauseMenu.Disable();
 
         MoveVector = Vector2.zero;
         CurrentMode = InputMode.QuestJournal;
+    }
+
+    public void SwitchToPauseMenuMode()
+    {
+        inputActions.Player.Disable();
+        inputActions.Dialogue.Disable();
+        inputActions.Menu.Disable();
+        inputActions.QuestJournal.Disable();
+        inputActions.PauseMenu.Enable();
+
+        MoveVector = Vector2.zero;
+        CurrentMode = InputMode.PauseMenu;
     }
 
     private void UpdateDeviceGroup(InputAction.CallbackContext context)
@@ -274,7 +307,7 @@ public class GameInput : MonoBehaviour
 
     private void OnStatsPerformed(InputAction.CallbackContext context)
     {
-        if (CurrentMode != InputMode.Player && CurrentMode != InputMode.Menu) return;
+        if (CurrentMode != InputMode.Player) return;
         UpdateDeviceGroup(context);
         OnStats?.Invoke();
     }
@@ -284,6 +317,13 @@ public class GameInput : MonoBehaviour
         if (CurrentMode != InputMode.Player) return;
         UpdateDeviceGroup(context);
         OnQuestJournal?.Invoke();
+    }
+
+    private void OnPausePerformed(InputAction.CallbackContext context)
+    {
+        if (CurrentMode != InputMode.Player) return;
+        UpdateDeviceGroup(context);
+        OnPauseToggle?.Invoke();
     }
 
     private void OnItem1Performed(InputAction.CallbackContext context)
@@ -342,13 +382,6 @@ public class GameInput : MonoBehaviour
         if (CurrentMode != InputMode.Dialogue) return;
         UpdateDeviceGroup(context);
         OnDialogueSelect?.Invoke();
-    }
-
-    private void OnDialogueClosePerformed(InputAction.CallbackContext context)
-    {
-        if (CurrentMode != InputMode.Dialogue) return;
-        UpdateDeviceGroup(context);
-        OnDialogueClose?.Invoke();
     }
 
     // -------------------- Menu --------------------
@@ -458,5 +491,35 @@ public class GameInput : MonoBehaviour
         if (CurrentMode != InputMode.QuestJournal) return;
         UpdateDeviceGroup(context);
         OnQuestJournalClose?.Invoke();
+    }
+
+    // -------------------- PauseMenu --------------------
+
+    private void OnPauseMenuUpPerformed(InputAction.CallbackContext context)
+    {
+        if (CurrentMode != InputMode.PauseMenu) return;
+        UpdateDeviceGroup(context);
+        OnPauseMenuUp?.Invoke();
+    }
+
+    private void OnPauseMenuDownPerformed(InputAction.CallbackContext context)
+    {
+        if (CurrentMode != InputMode.PauseMenu) return;
+        UpdateDeviceGroup(context);
+        OnPauseMenuDown?.Invoke();
+    }
+
+    private void OnPauseMenuSelectPerformed(InputAction.CallbackContext context)
+    {
+        if (CurrentMode != InputMode.PauseMenu) return;
+        UpdateDeviceGroup(context);
+        OnPauseMenuSelect?.Invoke();
+    }
+
+    private void OnPauseMenuTogglePerformed(InputAction.CallbackContext context)
+    {
+        if (CurrentMode != InputMode.PauseMenu) return;
+        UpdateDeviceGroup(context);
+        OnPauseToggle?.Invoke();
     }
 }

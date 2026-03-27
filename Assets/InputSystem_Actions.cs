@@ -181,6 +181,15 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Pause"",
+                    ""type"": ""Button"",
+                    ""id"": ""5cd6edd7-147f-4a02-8cfd-abad5356090d"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -425,6 +434,17 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
                     ""action"": ""QuestJournal"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""7fbcc28f-03fe-4b88-baed-be5fb9e1703e"",
+                    ""path"": ""<Keyboard>/escape"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";KeyboardMouse"",
+                    ""action"": ""Pause"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         },
@@ -454,15 +474,6 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
                     ""name"": ""SelectChoise"",
                     ""type"": ""Button"",
                     ""id"": ""d1247956-e8d3-492f-886d-9facf19e1ba2"",
-                    ""expectedControlType"": """",
-                    ""processors"": """",
-                    ""interactions"": """",
-                    ""initialStateCheck"": false
-                },
-                {
-                    ""name"": ""CloseUI"",
-                    ""type"": ""Button"",
-                    ""id"": ""c1d94ed1-1b64-4e23-a49d-f2b1f75cc2bd"",
                     ""expectedControlType"": """",
                     ""processors"": """",
                     ""interactions"": """",
@@ -522,17 +533,6 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""groups"": """",
                     ""action"": ""SelectChoise"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": """",
-                    ""id"": ""b904615f-faa1-45d8-bf3a-b13b6a1ad880"",
-                    ""path"": ""<Keyboard>/escape"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": """",
-                    ""action"": ""CloseUI"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -1007,6 +1007,116 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
                     ""isPartOfComposite"": false
                 }
             ]
+        },
+        {
+            ""name"": ""PauseMenu"",
+            ""id"": ""8f531400-9eb1-4a4a-a958-6b00a5ed234f"",
+            ""actions"": [
+                {
+                    ""name"": ""UpSelect"",
+                    ""type"": ""Button"",
+                    ""id"": ""b201ec39-3923-47e7-9c3f-4a684e2b0532"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""DownSelect"",
+                    ""type"": ""Button"",
+                    ""id"": ""4c311fd2-2092-4e6f-b2c2-06f516552a5f"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""SelectChoise"",
+                    ""type"": ""Button"",
+                    ""id"": ""14811f8a-fa82-4ac9-b5e6-6d4dd215a9b6"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""TogglePause"",
+                    ""type"": ""Button"",
+                    ""id"": ""fe0fcdc6-9884-4f16-b57b-c798e234090b"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                }
+            ],
+            ""bindings"": [
+                {
+                    ""name"": """",
+                    ""id"": ""e9d6326c-e522-4d68-84a8-bf367d0f29b4"",
+                    ""path"": ""<Keyboard>/w"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";KeyboardMouse"",
+                    ""action"": ""UpSelect"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""f0c14a58-63f4-40b5-8dd8-098d13ad0cef"",
+                    ""path"": ""<Keyboard>/upArrow"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";KeyboardMouse"",
+                    ""action"": ""UpSelect"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""cd8986ab-2aa0-4cbc-bbbb-43935737b34c"",
+                    ""path"": ""<Keyboard>/s"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";KeyboardMouse"",
+                    ""action"": ""DownSelect"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""887eb92c-ae8b-465c-b3d1-60543117442f"",
+                    ""path"": ""<Keyboard>/downArrow"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";KeyboardMouse"",
+                    ""action"": ""DownSelect"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""042792e3-7f5f-42bd-88e1-0d6e1b843cc4"",
+                    ""path"": ""<Keyboard>/enter"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";KeyboardMouse"",
+                    ""action"": ""SelectChoise"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""a13227dc-d3fe-409d-92e5-04d80b150848"",
+                    ""path"": ""<Keyboard>/escape"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";KeyboardMouse"",
+                    ""action"": ""TogglePause"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                }
+            ]
         }
     ],
     ""controlSchemes"": [
@@ -1084,12 +1194,12 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
         m_Player_Item4 = m_Player.FindAction("Item4", throwIfNotFound: true);
         m_Player_Item5 = m_Player.FindAction("Item5", throwIfNotFound: true);
         m_Player_QuestJournal = m_Player.FindAction("QuestJournal", throwIfNotFound: true);
+        m_Player_Pause = m_Player.FindAction("Pause", throwIfNotFound: true);
         // Dialogue
         m_Dialogue = asset.FindActionMap("Dialogue", throwIfNotFound: true);
         m_Dialogue_UpSelect = m_Dialogue.FindAction("UpSelect", throwIfNotFound: true);
         m_Dialogue_DownSelect = m_Dialogue.FindAction("DownSelect", throwIfNotFound: true);
         m_Dialogue_SelectChoise = m_Dialogue.FindAction("SelectChoise", throwIfNotFound: true);
-        m_Dialogue_CloseUI = m_Dialogue.FindAction("CloseUI", throwIfNotFound: true);
         // Menu
         m_Menu = asset.FindActionMap("Menu", throwIfNotFound: true);
         m_Menu_UpSelect = m_Menu.FindAction("UpSelect", throwIfNotFound: true);
@@ -1109,6 +1219,12 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
         m_QuestJournal_SideTab = m_QuestJournal.FindAction("SideTab", throwIfNotFound: true);
         m_QuestJournal_CloseUI = m_QuestJournal.FindAction("CloseUI", throwIfNotFound: true);
         m_QuestJournal_PinQuest = m_QuestJournal.FindAction("PinQuest", throwIfNotFound: true);
+        // PauseMenu
+        m_PauseMenu = asset.FindActionMap("PauseMenu", throwIfNotFound: true);
+        m_PauseMenu_UpSelect = m_PauseMenu.FindAction("UpSelect", throwIfNotFound: true);
+        m_PauseMenu_DownSelect = m_PauseMenu.FindAction("DownSelect", throwIfNotFound: true);
+        m_PauseMenu_SelectChoise = m_PauseMenu.FindAction("SelectChoise", throwIfNotFound: true);
+        m_PauseMenu_TogglePause = m_PauseMenu.FindAction("TogglePause", throwIfNotFound: true);
     }
 
     ~@InputSystem_Actions()
@@ -1117,6 +1233,7 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
         UnityEngine.Debug.Assert(!m_Dialogue.enabled, "This will cause a leak and performance issues, InputSystem_Actions.Dialogue.Disable() has not been called.");
         UnityEngine.Debug.Assert(!m_Menu.enabled, "This will cause a leak and performance issues, InputSystem_Actions.Menu.Disable() has not been called.");
         UnityEngine.Debug.Assert(!m_QuestJournal.enabled, "This will cause a leak and performance issues, InputSystem_Actions.QuestJournal.Disable() has not been called.");
+        UnityEngine.Debug.Assert(!m_PauseMenu.enabled, "This will cause a leak and performance issues, InputSystem_Actions.PauseMenu.Disable() has not been called.");
     }
 
     /// <summary>
@@ -1202,6 +1319,7 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
     private readonly InputAction m_Player_Item4;
     private readonly InputAction m_Player_Item5;
     private readonly InputAction m_Player_QuestJournal;
+    private readonly InputAction m_Player_Pause;
     /// <summary>
     /// Provides access to input actions defined in input action map "Player".
     /// </summary>
@@ -1253,6 +1371,10 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
         /// Provides access to the underlying input action "Player/QuestJournal".
         /// </summary>
         public InputAction @QuestJournal => m_Wrapper.m_Player_QuestJournal;
+        /// <summary>
+        /// Provides access to the underlying input action "Player/Pause".
+        /// </summary>
+        public InputAction @Pause => m_Wrapper.m_Player_Pause;
         /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
@@ -1309,6 +1431,9 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
             @QuestJournal.started += instance.OnQuestJournal;
             @QuestJournal.performed += instance.OnQuestJournal;
             @QuestJournal.canceled += instance.OnQuestJournal;
+            @Pause.started += instance.OnPause;
+            @Pause.performed += instance.OnPause;
+            @Pause.canceled += instance.OnPause;
         }
 
         /// <summary>
@@ -1350,6 +1475,9 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
             @QuestJournal.started -= instance.OnQuestJournal;
             @QuestJournal.performed -= instance.OnQuestJournal;
             @QuestJournal.canceled -= instance.OnQuestJournal;
+            @Pause.started -= instance.OnPause;
+            @Pause.performed -= instance.OnPause;
+            @Pause.canceled -= instance.OnPause;
         }
 
         /// <summary>
@@ -1390,7 +1518,6 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
     private readonly InputAction m_Dialogue_UpSelect;
     private readonly InputAction m_Dialogue_DownSelect;
     private readonly InputAction m_Dialogue_SelectChoise;
-    private readonly InputAction m_Dialogue_CloseUI;
     /// <summary>
     /// Provides access to input actions defined in input action map "Dialogue".
     /// </summary>
@@ -1414,10 +1541,6 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
         /// Provides access to the underlying input action "Dialogue/SelectChoise".
         /// </summary>
         public InputAction @SelectChoise => m_Wrapper.m_Dialogue_SelectChoise;
-        /// <summary>
-        /// Provides access to the underlying input action "Dialogue/CloseUI".
-        /// </summary>
-        public InputAction @CloseUI => m_Wrapper.m_Dialogue_CloseUI;
         /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
@@ -1453,9 +1576,6 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
             @SelectChoise.started += instance.OnSelectChoise;
             @SelectChoise.performed += instance.OnSelectChoise;
             @SelectChoise.canceled += instance.OnSelectChoise;
-            @CloseUI.started += instance.OnCloseUI;
-            @CloseUI.performed += instance.OnCloseUI;
-            @CloseUI.canceled += instance.OnCloseUI;
         }
 
         /// <summary>
@@ -1476,9 +1596,6 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
             @SelectChoise.started -= instance.OnSelectChoise;
             @SelectChoise.performed -= instance.OnSelectChoise;
             @SelectChoise.canceled -= instance.OnSelectChoise;
-            @CloseUI.started -= instance.OnCloseUI;
-            @CloseUI.performed -= instance.OnCloseUI;
-            @CloseUI.canceled -= instance.OnCloseUI;
         }
 
         /// <summary>
@@ -1847,6 +1964,135 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
     /// Provides a new <see cref="QuestJournalActions" /> instance referencing this action map.
     /// </summary>
     public QuestJournalActions @QuestJournal => new QuestJournalActions(this);
+
+    // PauseMenu
+    private readonly InputActionMap m_PauseMenu;
+    private List<IPauseMenuActions> m_PauseMenuActionsCallbackInterfaces = new List<IPauseMenuActions>();
+    private readonly InputAction m_PauseMenu_UpSelect;
+    private readonly InputAction m_PauseMenu_DownSelect;
+    private readonly InputAction m_PauseMenu_SelectChoise;
+    private readonly InputAction m_PauseMenu_TogglePause;
+    /// <summary>
+    /// Provides access to input actions defined in input action map "PauseMenu".
+    /// </summary>
+    public struct PauseMenuActions
+    {
+        private @InputSystem_Actions m_Wrapper;
+
+        /// <summary>
+        /// Construct a new instance of the input action map wrapper class.
+        /// </summary>
+        public PauseMenuActions(@InputSystem_Actions wrapper) { m_Wrapper = wrapper; }
+        /// <summary>
+        /// Provides access to the underlying input action "PauseMenu/UpSelect".
+        /// </summary>
+        public InputAction @UpSelect => m_Wrapper.m_PauseMenu_UpSelect;
+        /// <summary>
+        /// Provides access to the underlying input action "PauseMenu/DownSelect".
+        /// </summary>
+        public InputAction @DownSelect => m_Wrapper.m_PauseMenu_DownSelect;
+        /// <summary>
+        /// Provides access to the underlying input action "PauseMenu/SelectChoise".
+        /// </summary>
+        public InputAction @SelectChoise => m_Wrapper.m_PauseMenu_SelectChoise;
+        /// <summary>
+        /// Provides access to the underlying input action "PauseMenu/TogglePause".
+        /// </summary>
+        public InputAction @TogglePause => m_Wrapper.m_PauseMenu_TogglePause;
+        /// <summary>
+        /// Provides access to the underlying input action map instance.
+        /// </summary>
+        public InputActionMap Get() { return m_Wrapper.m_PauseMenu; }
+        /// <inheritdoc cref="UnityEngine.InputSystem.InputActionMap.Enable()" />
+        public void Enable() { Get().Enable(); }
+        /// <inheritdoc cref="UnityEngine.InputSystem.InputActionMap.Disable()" />
+        public void Disable() { Get().Disable(); }
+        /// <inheritdoc cref="UnityEngine.InputSystem.InputActionMap.enabled" />
+        public bool enabled => Get().enabled;
+        /// <summary>
+        /// Implicitly converts an <see ref="PauseMenuActions" /> to an <see ref="InputActionMap" /> instance.
+        /// </summary>
+        public static implicit operator InputActionMap(PauseMenuActions set) { return set.Get(); }
+        /// <summary>
+        /// Adds <see cref="InputAction.started"/>, <see cref="InputAction.performed"/> and <see cref="InputAction.canceled"/> callbacks provided via <param cref="instance" /> on all input actions contained in this map.
+        /// </summary>
+        /// <param name="instance">Callback instance.</param>
+        /// <remarks>
+        /// If <paramref name="instance" /> is <c>null</c> or <paramref name="instance"/> have already been added this method does nothing.
+        /// </remarks>
+        /// <seealso cref="PauseMenuActions" />
+        public void AddCallbacks(IPauseMenuActions instance)
+        {
+            if (instance == null || m_Wrapper.m_PauseMenuActionsCallbackInterfaces.Contains(instance)) return;
+            m_Wrapper.m_PauseMenuActionsCallbackInterfaces.Add(instance);
+            @UpSelect.started += instance.OnUpSelect;
+            @UpSelect.performed += instance.OnUpSelect;
+            @UpSelect.canceled += instance.OnUpSelect;
+            @DownSelect.started += instance.OnDownSelect;
+            @DownSelect.performed += instance.OnDownSelect;
+            @DownSelect.canceled += instance.OnDownSelect;
+            @SelectChoise.started += instance.OnSelectChoise;
+            @SelectChoise.performed += instance.OnSelectChoise;
+            @SelectChoise.canceled += instance.OnSelectChoise;
+            @TogglePause.started += instance.OnTogglePause;
+            @TogglePause.performed += instance.OnTogglePause;
+            @TogglePause.canceled += instance.OnTogglePause;
+        }
+
+        /// <summary>
+        /// Removes <see cref="InputAction.started"/>, <see cref="InputAction.performed"/> and <see cref="InputAction.canceled"/> callbacks provided via <param cref="instance" /> on all input actions contained in this map.
+        /// </summary>
+        /// <remarks>
+        /// Calling this method when <paramref name="instance" /> have not previously been registered has no side-effects.
+        /// </remarks>
+        /// <seealso cref="PauseMenuActions" />
+        private void UnregisterCallbacks(IPauseMenuActions instance)
+        {
+            @UpSelect.started -= instance.OnUpSelect;
+            @UpSelect.performed -= instance.OnUpSelect;
+            @UpSelect.canceled -= instance.OnUpSelect;
+            @DownSelect.started -= instance.OnDownSelect;
+            @DownSelect.performed -= instance.OnDownSelect;
+            @DownSelect.canceled -= instance.OnDownSelect;
+            @SelectChoise.started -= instance.OnSelectChoise;
+            @SelectChoise.performed -= instance.OnSelectChoise;
+            @SelectChoise.canceled -= instance.OnSelectChoise;
+            @TogglePause.started -= instance.OnTogglePause;
+            @TogglePause.performed -= instance.OnTogglePause;
+            @TogglePause.canceled -= instance.OnTogglePause;
+        }
+
+        /// <summary>
+        /// Unregisters <param cref="instance" /> and unregisters all input action callbacks via <see cref="PauseMenuActions.UnregisterCallbacks(IPauseMenuActions)" />.
+        /// </summary>
+        /// <seealso cref="PauseMenuActions.UnregisterCallbacks(IPauseMenuActions)" />
+        public void RemoveCallbacks(IPauseMenuActions instance)
+        {
+            if (m_Wrapper.m_PauseMenuActionsCallbackInterfaces.Remove(instance))
+                UnregisterCallbacks(instance);
+        }
+
+        /// <summary>
+        /// Replaces all existing callback instances and previously registered input action callbacks associated with them with callbacks provided via <param cref="instance" />.
+        /// </summary>
+        /// <remarks>
+        /// If <paramref name="instance" /> is <c>null</c>, calling this method will only unregister all existing callbacks but not register any new callbacks.
+        /// </remarks>
+        /// <seealso cref="PauseMenuActions.AddCallbacks(IPauseMenuActions)" />
+        /// <seealso cref="PauseMenuActions.RemoveCallbacks(IPauseMenuActions)" />
+        /// <seealso cref="PauseMenuActions.UnregisterCallbacks(IPauseMenuActions)" />
+        public void SetCallbacks(IPauseMenuActions instance)
+        {
+            foreach (var item in m_Wrapper.m_PauseMenuActionsCallbackInterfaces)
+                UnregisterCallbacks(item);
+            m_Wrapper.m_PauseMenuActionsCallbackInterfaces.Clear();
+            AddCallbacks(instance);
+        }
+    }
+    /// <summary>
+    /// Provides a new <see cref="PauseMenuActions" /> instance referencing this action map.
+    /// </summary>
+    public PauseMenuActions @PauseMenu => new PauseMenuActions(this);
     private int m_KeyboardMouseSchemeIndex = -1;
     /// <summary>
     /// Provides access to the input control scheme.
@@ -1989,6 +2235,13 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnQuestJournal(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "Pause" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnPause(InputAction.CallbackContext context);
     }
     /// <summary>
     /// Interface to implement callback methods for all input action callbacks associated with input actions defined by "Dialogue" which allows adding and removing callbacks.
@@ -2018,13 +2271,6 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnSelectChoise(InputAction.CallbackContext context);
-        /// <summary>
-        /// Method invoked when associated input action "CloseUI" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
-        /// </summary>
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
-        void OnCloseUI(InputAction.CallbackContext context);
     }
     /// <summary>
     /// Interface to implement callback methods for all input action callbacks associated with input actions defined by "Menu" which allows adding and removing callbacks.
@@ -2146,5 +2392,41 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnPinQuest(InputAction.CallbackContext context);
+    }
+    /// <summary>
+    /// Interface to implement callback methods for all input action callbacks associated with input actions defined by "PauseMenu" which allows adding and removing callbacks.
+    /// </summary>
+    /// <seealso cref="PauseMenuActions.AddCallbacks(IPauseMenuActions)" />
+    /// <seealso cref="PauseMenuActions.RemoveCallbacks(IPauseMenuActions)" />
+    public interface IPauseMenuActions
+    {
+        /// <summary>
+        /// Method invoked when associated input action "UpSelect" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnUpSelect(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "DownSelect" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnDownSelect(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "SelectChoise" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnSelectChoise(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "TogglePause" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnTogglePause(InputAction.CallbackContext context);
     }
 }

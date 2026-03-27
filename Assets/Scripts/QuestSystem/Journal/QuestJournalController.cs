@@ -54,8 +54,14 @@ public class QuestJournalController : MonoBehaviour
         if (gameInput == null || questJournalUI == null)
             return;
 
-        if (gameInput.CurrentMode == GameInput.InputMode.Dialogue)
-            return;
+        if (GameStateManager.Instance != null)
+        {
+            if (GameStateManager.Instance.CurrentState == GameState.Dialogue ||
+                GameStateManager.Instance.CurrentState == GameState.Pause)
+            {
+                return;
+            }
+        }
 
         if (gameInput.CurrentMode == GameInput.InputMode.Menu)
             return;
@@ -80,6 +86,12 @@ public class QuestJournalController : MonoBehaviour
 
         isOpened = true;
         questJournalUI.Open();
+
+        if (GameStateManager.Instance != null)
+        {
+            GameStateManager.Instance.SetState(GameState.Menu);
+        }
+
         gameInput.SwitchToQuestJournalMode();
     }
 
@@ -93,6 +105,12 @@ public class QuestJournalController : MonoBehaviour
 
         isOpened = false;
         questJournalUI.Close();
+
+        if (GameStateManager.Instance != null)
+        {
+            GameStateManager.Instance.SetState(GameState.Playing);
+        }
+
         gameInput.SwitchToPlayerMode();
     }
 
