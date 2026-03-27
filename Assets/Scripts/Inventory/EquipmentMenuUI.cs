@@ -39,7 +39,7 @@ public class EquipmentMenuUI : MonoBehaviour
 
     private void Start()
     {
-        // Важно: не открываем меню автоматически.
+        // Важно: не открываем автоматически при старте сцены.
         CloseMenu();
     }
 
@@ -119,9 +119,12 @@ public class EquipmentMenuUI : MonoBehaviour
     {
         currentMode = SelectionMode.Slots;
         selectedInventoryIndex = 0;
+
         RefreshSlotsUI();
         RefreshInventoryListVisualOnly();
-        UpdateDescriptionFromCurrentSelection();
+
+        if (descriptionPanel != null)
+            descriptionPanel.Clear();
     }
 
     private void SetupSlotsOnce()
@@ -251,21 +254,16 @@ public class EquipmentMenuUI : MonoBehaviour
                 return;
             }
 
-            InventoryEntry selectedEntry = cachedEquipmentEntries[selectedInventoryIndex];
-            if (selectedEntry == null || selectedEntry.Item == null)
+            InventoryEntry chosenEntry = cachedEquipmentEntries[selectedInventoryIndex];
+            if (chosenEntry != null && chosenEntry.Item != null)
             {
-                SetMenuToSlotsMode();
-                RefreshAllSafe();
-                return;
+                bool equipped = equipmentSystem.EquipItemToSlot(chosenEntry.Item, selectedSlotIndex);
+                if (equipped)
+                {
+                    SetMenuToSlotsMode();
+                    RefreshAllSafe();
+                }
             }
-
-            bool equipped = equipmentSystem.EquipItemToSlot(selectedEntry.Item, selectedSlotIndex);
-
-            SetMenuToSlotsMode();
-            RefreshAllSafe();
-
-            if (!equipped)
-                return;
         }
     }
 
@@ -274,11 +272,7 @@ public class EquipmentMenuUI : MonoBehaviour
         ResolveReferences();
 
         if (currentMode != SelectionMode.Slots)
-        {
-            SetMenuToSlotsMode();
-            RefreshAllSafe();
             return;
-        }
 
         if (equipmentSystem == null)
         {
@@ -286,36 +280,64 @@ public class EquipmentMenuUI : MonoBehaviour
             return;
         }
 
-        equipmentSystem.UnequipSlot(selectedSlotIndex);
-        RefreshAllSafe();
-    }
-
-    private void SetMenuToSlotsMode()
-    {
-        currentMode = SelectionMode.Slots;
-        selectedInventoryIndex = 0;
-        BuildInventoryEquipmentList();
-        RebuildInventoryListUI();
-        RefreshSlotsUI();
-        RefreshInventoryListVisualOnly();
-        UpdateDescriptionFromCurrentSelection();
+        bool unequipped = equipmentSystem.UnequipSlot(selectedSlotIndex);
+        if (unequipped)
+            RefreshAllSafe();
     }
 
     private void MoveSlotSelection(int delta)
     {
-        if (slotUIs == null || slotUIs.Length == 0)
+        int count = slotUIs.Length;
+        if (count == 0)
             return;
 
-        selectedSlotIndex += delta;
-
-        while (selectedSlotIndex < 0)
-            selectedSlotIndex += slotUIs.Length;
-
-        while (selectedSlotIndex >= slotUIs.Length)
-            selectedSlotIndex -= slotUIs.Length;
+        selectedSlotIndex = (selectedSlotIndex + delta) % count;
+        if (selectedSlotIndex < 0)
+            selectedSlotIndex += count;
 
         RefreshSlotsUI();
         UpdateDescriptionFromCurrentSelection();
+    }
+
+    private void RefreshAllSafe()
+    {
+        ResolveReferences();
+
+        BuildInventoryEquipmentList();
+        RefreshSlotsUI();
+        RebuildInventoryListUI();
+        RefreshInventoryListVisualOnly();
+        UpdateDescriptionFromCurrentSelection();
+    }
+
+    private void RefreshSlotsUI()
+    {
+        for (int i = 0; i < slotUIs.Length; i++)
+        {
+            if (slotUIs[i] == null)
+                continue;
+
+            ItemData equippedItem = equipmentSystem != null ? equipmentSystem.GetItemInSlot(i) : null;
+            bool selected = currentMode == SelectionMode.Slots && i == selectedSlotIndex;
+            slotUIs[i].Refresh(equippedItem, selected);
+        }
+    }
+
+    private void RebuildInventoryListUI()
+    {
+        if (inventoryTextListUI == null)
+            return;
+
+        inventoryTextListUI.SetData(cachedEquipmentEntries);
+    }
+
+    private void RefreshInventoryListVisualOnly()
+    {
+        if (inventoryTextListUI == null)
+            return;
+
+        bool listIsActive = currentMode == SelectionMode.InventoryList;
+        inventoryTextListUI.SetVisualState(listIsActive, selectedInventoryIndex);
     }
 
     private void BuildInventoryEquipmentList()
@@ -328,47 +350,12 @@ public class EquipmentMenuUI : MonoBehaviour
         for (int i = 0; i < inventorySystem.EquipmentItems.Count; i++)
         {
             InventoryEntry entry = inventorySystem.EquipmentItems[i];
-            if (entry == null || entry.Item == null || entry.Amount <= 0)
-                continue;
-
-            cachedEquipmentEntries.Add(entry);
+            if (entry != null && entry.Item != null && entry.Amount > 0)
+                cachedEquipmentEntries.Add(entry);
         }
 
         if (selectedInventoryIndex >= cachedEquipmentEntries.Count)
             selectedInventoryIndex = Mathf.Max(0, cachedEquipmentEntries.Count - 1);
-    }
-
-    private void RebuildInventoryListUI()
-    {
-        if (inventoryTextListUI == null)
-            return;
-
-        inventoryTextListUI.SetEntries(cachedEquipmentEntries);
-    }
-
-    private void RefreshSlotsUI()
-    {
-        if (slotUIs == null)
-            return;
-
-        for (int i = 0; i < slotUIs.Length; i++)
-        {
-            if (slotUIs[i] == null)
-                continue;
-
-            ItemData item = equipmentSystem != null ? equipmentSystem.GetItemInSlot(i) : null;
-            bool isSelected = currentMode == SelectionMode.Slots && i == selectedSlotIndex;
-            slotUIs[i].SetItem(item, isSelected);
-        }
-    }
-
-    private void RefreshInventoryListVisualOnly()
-    {
-        if (inventoryTextListUI == null)
-            return;
-
-        bool inventoryMode = currentMode == SelectionMode.InventoryList;
-        inventoryTextListUI.SetSelection(inventoryMode ? selectedInventoryIndex : -1);
     }
 
     private void UpdateDescriptionFromCurrentSelection()
@@ -378,28 +365,29 @@ public class EquipmentMenuUI : MonoBehaviour
 
         if (currentMode == SelectionMode.Slots)
         {
-            ItemData slotItem = equipmentSystem != null ? equipmentSystem.GetItemInSlot(selectedSlotIndex) : null;
-            descriptionPanel.SetItem(slotItem);
+            ItemData equippedItem = equipmentSystem != null ? equipmentSystem.GetItemInSlot(selectedSlotIndex) : null;
+            if (equippedItem == null) descriptionPanel.Clear();
+            else descriptionPanel.ShowItem(equippedItem);
         }
         else
         {
-            if (selectedInventoryIndex < 0 || selectedInventoryIndex >= cachedEquipmentEntries.Count)
+            if (cachedEquipmentEntries.Count == 0 ||
+                selectedInventoryIndex < 0 ||
+                selectedInventoryIndex >= cachedEquipmentEntries.Count)
             {
-                descriptionPanel.SetItem(null);
+                descriptionPanel.Clear();
                 return;
             }
 
-            descriptionPanel.SetItem(cachedEquipmentEntries[selectedInventoryIndex]?.Item);
+            InventoryEntry entry = cachedEquipmentEntries[selectedInventoryIndex];
+            if (entry == null || entry.Item == null) descriptionPanel.Clear();
+            else descriptionPanel.ShowItem(entry.Item);
         }
     }
 
-    private void RefreshAllSafe()
+    private void SetMenuToSlotsMode()
     {
-        ResolveReferences();
-        SetupSlotsOnce();
-
-        BuildInventoryEquipmentList();
-        RebuildInventoryListUI();
+        currentMode = SelectionMode.Slots;
         RefreshSlotsUI();
         RefreshInventoryListVisualOnly();
         UpdateDescriptionFromCurrentSelection();

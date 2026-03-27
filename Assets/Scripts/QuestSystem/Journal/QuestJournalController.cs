@@ -11,7 +11,13 @@ public class QuestJournalController : MonoBehaviour
     private void Awake()
     {
         ResolveReferences();
-        ForceCloseJournalVisual();
+
+        isOpened = false;
+        if (questJournalUI != null)
+            questJournalUI.Close();
+
+        // Важно: здесь НЕ трогаем gameInput.SwitchToPlayerMode()
+        // чтобы не упасть по порядку инициализации.
     }
 
     private void OnEnable()
@@ -75,7 +81,9 @@ public class QuestJournalController : MonoBehaviour
         if (GameStateManager.Instance != null && GameStateManager.Instance.CurrentState == GameState.Menu)
             GameStateManager.Instance.SetState(GameState.Playing);
 
-        if (gameInput != null)
+        // Переключаем режим только когда контроллер уже активен
+        // и ссылки точно резолвнуты.
+        if (isActiveAndEnabled && gameInput != null)
             gameInput.SwitchToPlayerMode();
     }
 

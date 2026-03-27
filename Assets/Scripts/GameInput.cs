@@ -63,8 +63,7 @@ public class GameInput : MonoBehaviour
 
     private void Awake()
     {
-        inputActions = new InputSystem_Actions();
-        SubscribeToInput();
+        EnsureInitialized();
         SwitchToPlayerMode();
     }
 
@@ -84,6 +83,15 @@ public class GameInput : MonoBehaviour
         {
             MoveVector = Vector2.zero;
         }
+    }
+
+    private void EnsureInitialized()
+    {
+        if (inputActions != null)
+            return;
+
+        inputActions = new InputSystem_Actions();
+        SubscribeToInput();
     }
 
     public string GetCurrentBindingGroupName()
@@ -200,6 +208,8 @@ public class GameInput : MonoBehaviour
 
     public void SwitchToPlayerMode()
     {
+        EnsureInitialized();
+
         inputActions.Player.Enable();
         inputActions.Dialogue.Disable();
         inputActions.Menu.Disable();
@@ -212,6 +222,8 @@ public class GameInput : MonoBehaviour
 
     public void SwitchToDialogueMode()
     {
+        EnsureInitialized();
+
         inputActions.Player.Disable();
         inputActions.Dialogue.Enable();
         inputActions.Menu.Disable();
@@ -224,6 +236,8 @@ public class GameInput : MonoBehaviour
 
     public void SwitchToMenuMode()
     {
+        EnsureInitialized();
+
         inputActions.Player.Disable();
         inputActions.Dialogue.Disable();
         inputActions.Menu.Enable();
@@ -236,6 +250,8 @@ public class GameInput : MonoBehaviour
 
     public void SwitchToQuestJournalMode()
     {
+        EnsureInitialized();
+
         inputActions.Player.Disable();
         inputActions.Dialogue.Disable();
         inputActions.Menu.Disable();
@@ -248,6 +264,8 @@ public class GameInput : MonoBehaviour
 
     public void SwitchToPauseMenuMode()
     {
+        EnsureInitialized();
+
         inputActions.Player.Disable();
         inputActions.Dialogue.Disable();
         inputActions.Menu.Disable();
