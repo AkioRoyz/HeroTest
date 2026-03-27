@@ -259,12 +259,11 @@ public class PinnedQuestTrackerUI : MonoBehaviour
             return fallback ?? string.Empty;
 
         var handle = localizedString.GetLocalizedStringAsync();
-        string result = handle.WaitForCompletion();
+        if (!handle.IsDone)
+            return fallback ?? string.Empty;
 
-        if (!string.IsNullOrEmpty(result))
-            return result;
-
-        return fallback ?? string.Empty;
+        string result = handle.Result;
+        return !string.IsNullOrEmpty(result) ? result : (fallback ?? string.Empty);
     }
 
     private void HideAllRows()

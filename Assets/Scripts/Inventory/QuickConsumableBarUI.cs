@@ -1,5 +1,6 @@
 using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class QuickConsumableBarUI : MonoBehaviour
@@ -15,29 +16,56 @@ public class QuickConsumableBarUI : MonoBehaviour
     [SerializeField] private InventorySystem inventorySystem;
     [SerializeField] private QuickSlotUI[] slots = new QuickSlotUI[5];
 
-    private void Start()
+    private void Awake()
     {
-        UpdateUI();
+        ResolveReferences();
     }
 
     private void OnEnable()
     {
-        if (inventorySystem != null)
-        {
-            inventorySystem.OnInventoryChanged += UpdateUI;
-        }
+        SceneManager.sceneLoaded += HandleSceneLoaded;
+        Rebind();
+        UpdateUI();
     }
 
     private void OnDisable()
     {
+        SceneManager.sceneLoaded -= HandleSceneLoaded;
+        Unbind();
+    }
+
+    private void HandleSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        Rebind();
+        UpdateUI();
+    }
+
+    private void Rebind()
+    {
+        Unbind();
+        ResolveReferences();
+
         if (inventorySystem != null)
-        {
+            inventorySystem.OnInventoryChanged += UpdateUI;
+    }
+
+    private void Unbind()
+    {
+        if (inventorySystem != null)
             inventorySystem.OnInventoryChanged -= UpdateUI;
-        }
+    }
+
+    private void ResolveReferences()
+    {
+        if (inventorySystem == null)
+            inventorySystem = InventorySystem.Instance ?? FindFirstObjectByType<InventorySystem>();
     }
 
     private void UpdateUI()
     {
+        if (slots == null || slots.Length == 0)
+            return;
+
         for (int i = 0; i < slots.Length; i++)
         {
             QuickSlotUI slot = slots[i];
@@ -45,7 +73,7 @@ public class QuickConsumableBarUI : MonoBehaviour
             if (slot == null || slot.IconImage == null || slot.CountText == null)
                 continue;
 
-            if (slot.Item == null)
+            if (slot.Item == null || inventorySystem == null)
             {
                 slot.IconImage.enabled = false;
                 slot.CountText.text = "0";

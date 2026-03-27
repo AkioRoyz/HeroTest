@@ -8,36 +8,56 @@ public class PlayerAnimation : MonoBehaviour
     [SerializeField] private GameInput gameInput;
     [SerializeField] private PlayerAttackSystem playerAttackSystem;
 
-    private void Update()
+    private void Awake()
     {
-        FlipSprite();
-        RunningAnimation();
+        ResolveReferences();
     }
 
     private void OnEnable()
     {
+        ResolveReferences();
+
         if (playerHealth != null)
-        {
             playerHealth.OnTakeDamage += TakeDamage;
-        }
 
         if (playerAttackSystem != null)
-        {
             playerAttackSystem.OnAttackCombo += AttackAnimation;
-        }
     }
 
     private void OnDisable()
     {
         if (playerHealth != null)
-        {
             playerHealth.OnTakeDamage -= TakeDamage;
-        }
 
         if (playerAttackSystem != null)
-        {
             playerAttackSystem.OnAttackCombo -= AttackAnimation;
-        }
+    }
+
+    private void Update()
+    {
+        if (gameInput == null || animator == null || spriteRenderer == null)
+            return;
+
+        FlipSprite();
+        RunningAnimation();
+    }
+
+    private void ResolveReferences()
+    {
+        if (animator == null)
+            animator = GetComponent<Animator>();
+
+        if (spriteRenderer == null)
+            spriteRenderer = GetComponent<SpriteRenderer>();
+
+        if (gameInput == null)
+            gameInput = FindFirstObjectByType<GameInput>();
+
+        if (playerAttackSystem == null)
+            playerAttackSystem = GetComponentInChildren<PlayerAttackSystem>();
+
+        if (playerHealth == null)
+            playerHealth = FindFirstObjectByType<PlayerHealth>();
     }
 
     private void TakeDamage()

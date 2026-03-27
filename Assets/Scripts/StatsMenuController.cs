@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class StatsMenuController : MonoBehaviour
 {
@@ -9,30 +10,65 @@ public class StatsMenuController : MonoBehaviour
 
     private bool isOpened;
 
-    private void Start()
+    private void Awake()
     {
-        if (menuRoot != null)
-        {
-            menuRoot.SetActive(false);
-        }
+        ResolveReferences();
+        ForceClosedVisual();
     }
 
     private void OnEnable()
     {
+        SceneManager.sceneLoaded += HandleSceneLoaded;
+
+        ResolveReferences();
+
         if (gameInput != null)
         {
             gameInput.OnStats += ToggleMenu;
             gameInput.OnMenuClose += CloseMenu;
         }
+
+        ForceClosedVisual();
     }
 
     private void OnDisable()
     {
+        SceneManager.sceneLoaded -= HandleSceneLoaded;
+
         if (gameInput != null)
         {
             gameInput.OnStats -= ToggleMenu;
             gameInput.OnMenuClose -= CloseMenu;
         }
+    }
+
+    private void HandleSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        ResolveReferences();
+        ForceClosedVisual();
+    }
+
+    private void ResolveReferences()
+    {
+        if (gameInput == null)
+            gameInput = FindFirstObjectByType<GameInput>();
+    }
+
+    private void ForceClosedVisual()
+    {
+        isOpened = false;
+
+        if (menuRoot != null)
+            menuRoot.SetActive(false);
+
+        if (equipmentMenuUI != null)
+            equipmentMenuUI.CloseMenu();
+
+        if (GameStateManager.Instance != null && GameStateManager.Instance.CurrentState == GameState.Menu)
+            GameStateManager.Instance.SetState(GameState.Playing);
+
+        if (gameInput != null)
+            gameInput.SwitchToPlayerMode();
     }
 
     private void ToggleMenu()
@@ -46,14 +82,14 @@ public class StatsMenuController : MonoBehaviour
             }
         }
 
-        if (isOpened)
-            CloseMenu();
-        else
-            OpenMenu();
+        if (isOpened) CloseMenu();
+        else OpenMenu();
     }
 
     public void OpenMenu()
     {
+        ResolveReferences();
+
         if (menuRoot == null || gameInput == null)
             return;
 
@@ -61,35 +97,32 @@ public class StatsMenuController : MonoBehaviour
         menuRoot.SetActive(true);
 
         if (GameStateManager.Instance != null)
-        {
             GameStateManager.Instance.SetState(GameState.Menu);
-        }
 
         gameInput.SwitchToMenuMode();
 
         if (equipmentMenuUI != null)
-        {
             equipmentMenuUI.OpenMenu();
-        }
 
         if (statsControlsHintUI != null)
-        {
             statsControlsHintUI.Refresh();
-        }
     }
 
     public void CloseMenu()
     {
+        ResolveReferences();
+
         if (menuRoot == null || gameInput == null)
             return;
 
         isOpened = false;
         menuRoot.SetActive(false);
 
+        if (equipmentMenuUI != null)
+            equipmentMenuUI.CloseMenu();
+
         if (GameStateManager.Instance != null)
-        {
             GameStateManager.Instance.SetState(GameState.Playing);
-        }
 
         gameInput.SwitchToPlayerMode();
     }

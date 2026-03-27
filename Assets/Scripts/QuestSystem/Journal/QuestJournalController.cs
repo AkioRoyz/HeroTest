@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class QuestJournalController : MonoBehaviour
 {
@@ -9,16 +10,15 @@ public class QuestJournalController : MonoBehaviour
 
     private void Awake()
     {
-        if (questJournalUI != null)
-        {
-            questJournalUI.Close();
-        }
-
-        isOpened = false;
+        ResolveReferences();
+        ForceCloseJournalVisual();
     }
 
     private void OnEnable()
     {
+        SceneManager.sceneLoaded += HandleSceneLoaded;
+        ResolveReferences();
+
         if (gameInput == null)
             return;
 
@@ -31,10 +31,14 @@ public class QuestJournalController : MonoBehaviour
         gameInput.OnQuestJournalSideTab += HandleSideTab;
         gameInput.OnQuestJournalPinQuest += HandlePinQuest;
         gameInput.OnQuestJournalClose += HandleJournalClose;
+
+        ForceCloseJournalVisual();
     }
 
     private void OnDisable()
     {
+        SceneManager.sceneLoaded -= HandleSceneLoaded;
+
         if (gameInput == null)
             return;
 
@@ -47,6 +51,32 @@ public class QuestJournalController : MonoBehaviour
         gameInput.OnQuestJournalSideTab -= HandleSideTab;
         gameInput.OnQuestJournalPinQuest -= HandlePinQuest;
         gameInput.OnQuestJournalClose -= HandleJournalClose;
+    }
+
+    private void HandleSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        ResolveReferences();
+        ForceCloseJournalVisual();
+    }
+
+    private void ResolveReferences()
+    {
+        if (gameInput == null)
+            gameInput = FindFirstObjectByType<GameInput>();
+    }
+
+    private void ForceCloseJournalVisual()
+    {
+        isOpened = false;
+
+        if (questJournalUI != null)
+            questJournalUI.Close();
+
+        if (GameStateManager.Instance != null && GameStateManager.Instance.CurrentState == GameState.Menu)
+            GameStateManager.Instance.SetState(GameState.Playing);
+
+        if (gameInput != null)
+            gameInput.SwitchToPlayerMode();
     }
 
     private void ToggleJournalFromPlayer()
@@ -66,14 +96,8 @@ public class QuestJournalController : MonoBehaviour
         if (gameInput.CurrentMode == GameInput.InputMode.Menu)
             return;
 
-        if (isOpened)
-        {
-            CloseJournal();
-        }
-        else
-        {
-            OpenJournal();
-        }
+        if (isOpened) CloseJournal();
+        else OpenJournal();
     }
 
     public void OpenJournal()
@@ -88,9 +112,7 @@ public class QuestJournalController : MonoBehaviour
         questJournalUI.Open();
 
         if (GameStateManager.Instance != null)
-        {
             GameStateManager.Instance.SetState(GameState.Menu);
-        }
 
         gameInput.SwitchToQuestJournalMode();
     }
@@ -107,74 +129,17 @@ public class QuestJournalController : MonoBehaviour
         questJournalUI.Close();
 
         if (GameStateManager.Instance != null)
-        {
             GameStateManager.Instance.SetState(GameState.Playing);
-        }
 
         gameInput.SwitchToPlayerMode();
     }
 
-    private void HandleJournalUp()
-    {
-        if (!isOpened || questJournalUI == null)
-            return;
-
-        questJournalUI.MoveSelectionUp();
-    }
-
-    private void HandleJournalDown()
-    {
-        if (!isOpened || questJournalUI == null)
-            return;
-
-        questJournalUI.MoveSelectionDown();
-    }
-
-    private void HandleJournalSelect()
-    {
-        if (!isOpened || questJournalUI == null)
-            return;
-
-        questJournalUI.HandleJournalSelectInput();
-    }
-
-    private void HandleJournalBack()
-    {
-        if (!isOpened || questJournalUI == null)
-            return;
-
-        questJournalUI.HandleJournalBackInput();
-    }
-
-    private void HandleMainTab()
-    {
-        if (!isOpened || questJournalUI == null)
-            return;
-
-        questJournalUI.SelectMainTab();
-    }
-
-    private void HandleSideTab()
-    {
-        if (!isOpened || questJournalUI == null)
-            return;
-
-        questJournalUI.SelectSideTab();
-    }
-
-    private void HandlePinQuest()
-    {
-        if (!isOpened || questJournalUI == null)
-            return;
-
-        questJournalUI.TogglePinForSelectedQuest();
-    }
-
-    private void HandleJournalClose()
-    {
-        if (!isOpened)
-            return;
-
-        CloseJournal();
-    }
+    private void HandleJournalUp() { if (isOpened && questJournalUI != null) questJournalUI.MoveSelectionUp(); }
+    private void HandleJournalDown() { if (isOpened && questJournalUI != null) questJournalUI.MoveSelectionDown(); }
+    private void HandleJournalSelect() { if (isOpened && questJournalUI != null) questJournalUI.HandleJournalSelectInput(); }
+    private void HandleJournalBack() { if (isOpened && questJournalUI != null) questJournalUI.HandleJournalBackInput(); }
+    private void HandleMainTab() { if (isOpened && questJournalUI != null) questJournalUI.SelectMainTab(); }
+    private void HandleSideTab() { if (isOpened && questJournalUI != null) questJournalUI.SelectSideTab(); }
+    private void HandlePinQuest() { if (isOpened && questJournalUI != null) questJournalUI.TogglePinForSelectedQuest(); }
+    private void HandleJournalClose() { if (isOpened) CloseJournal(); }
 }

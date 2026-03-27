@@ -3,6 +3,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.Localization;
 using UnityEngine.UI;
+using UnityEngine.Localization.Settings;
 
 public class QuestJournalUI : MonoBehaviour
 {
@@ -71,12 +72,26 @@ public class QuestJournalUI : MonoBehaviour
     private void OnEnable()
     {
         SubscribeQuestManagerEvents();
+        LocalizationSettings.InitializationOperation.Completed += HandleLocalizationInitialized;
+        LocalizationSettings.SelectedLocaleChanged += HandleSelectedLocaleChanged;
         RefreshUI();
     }
 
     private void OnDisable()
     {
+        LocalizationSettings.InitializationOperation.Completed -= HandleLocalizationInitialized;
+        LocalizationSettings.SelectedLocaleChanged -= HandleSelectedLocaleChanged;
         UnsubscribeQuestManagerEvents();
+    }
+
+    private void HandleLocalizationInitialized(UnityEngine.ResourceManagement.AsyncOperations.AsyncOperationHandle<UnityEngine.Localization.Settings.LocalizationSettings> _)
+    {
+        RefreshUI();
+    }
+
+    private void HandleSelectedLocaleChanged(UnityEngine.Localization.Locale _)
+    {
+        RefreshUI();
     }
 
     private void Start()
@@ -696,11 +711,11 @@ public class QuestJournalUI : MonoBehaviour
             return fallback ?? string.Empty;
 
         var handle = localizedString.GetLocalizedStringAsync();
-        string result = handle.WaitForCompletion();
 
-        if (!string.IsNullOrEmpty(result))
-            return result;
+        if (!handle.IsDone)
+            return fallback ?? string.Empty;
 
-        return fallback ?? string.Empty;
+        string result = handle.Result;
+        return !string.IsNullOrEmpty(result) ? result : (fallback ?? string.Empty);
     }
 }

@@ -230,11 +230,10 @@ public class QuestNotificationController : MonoBehaviour
             return questData.QuestId;
 
         var handle = questData.QuestTitle.GetLocalizedStringAsync();
-        string result = handle.WaitForCompletion();
+        if (!handle.IsDone)
+            return questData.QuestId;
 
-        if (!string.IsNullOrEmpty(result))
-            return result;
-
-        return questData.QuestId;
+        string result = handle.Result;
+        return !string.IsNullOrEmpty(result) ? result : questData.QuestId;
     }
 }

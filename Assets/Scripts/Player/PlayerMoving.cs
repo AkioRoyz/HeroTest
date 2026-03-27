@@ -12,20 +12,23 @@ public class PlayerMoving : MonoBehaviour
     private bool isMovementBlocked;
     private Coroutine blockCoroutine;
 
+    private void Awake()
+    {
+        ResolveReferences();
+    }
+
     private void OnEnable()
     {
+        ResolveReferences();
+
         if (playerHealth != null)
-        {
             playerHealth.OnTakeDamage += BlockMovement;
-        }
     }
 
     private void OnDisable()
     {
         if (playerHealth != null)
-        {
             playerHealth.OnTakeDamage -= BlockMovement;
-        }
     }
 
     private void FixedUpdate()
@@ -33,9 +36,21 @@ public class PlayerMoving : MonoBehaviour
         Move();
     }
 
+    private void ResolveReferences()
+    {
+        if (gameInput == null)
+            gameInput = FindFirstObjectByType<GameInput>();
+
+        if (rb == null)
+            rb = GetComponent<Rigidbody2D>();
+
+        if (playerHealth == null)
+            playerHealth = FindFirstObjectByType<PlayerHealth>();
+    }
+
     private void Move()
     {
-        if (isMovementBlocked)
+        if (isMovementBlocked || rb == null || gameInput == null)
             return;
 
         Vector2 move = gameInput.MoveVector;
@@ -44,15 +59,8 @@ public class PlayerMoving : MonoBehaviour
         rb.MovePosition(rb.position + move * currentSpeed * Time.fixedDeltaTime);
     }
 
-    public void AddSpeedBonus(float amount)
-    {
-        bonusSpeed += amount;
-    }
-
-    public void RemoveSpeedBonus(float amount)
-    {
-        bonusSpeed -= amount;
-    }
+    public void AddSpeedBonus(float amount) => bonusSpeed += amount;
+    public void RemoveSpeedBonus(float amount) => bonusSpeed -= amount;
 
     public void AddTemporarySpeedBonus(float amount, float duration)
     {
@@ -69,9 +77,7 @@ public class PlayerMoving : MonoBehaviour
     private void BlockMovement()
     {
         if (blockCoroutine != null)
-        {
             StopCoroutine(blockCoroutine);
-        }
 
         blockCoroutine = StartCoroutine(BlockMovementCoroutine());
     }

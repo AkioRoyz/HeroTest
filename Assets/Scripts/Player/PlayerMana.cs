@@ -12,6 +12,11 @@ public class PlayerMana : MonoBehaviour
 
     public event Action OnManaChange;
 
+    private void Awake()
+    {
+        ResolveReferences();
+    }
+
     private void Start()
     {
         RefreshManaFromStats(true);
@@ -19,6 +24,8 @@ public class PlayerMana : MonoBehaviour
 
     private void OnEnable()
     {
+        ResolveReferences();
+
         if (statsSystem != null)
         {
             statsSystem.OnStatsUpdate += OnStatsUpdated;
@@ -33,6 +40,12 @@ public class PlayerMana : MonoBehaviour
             statsSystem.OnStatsUpdate -= OnStatsUpdated;
             statsSystem.OnLevelStatsUpdated -= OnLevelStatsUpdated;
         }
+    }
+
+    private void ResolveReferences()
+    {
+        if (statsSystem == null)
+            statsSystem = FindFirstObjectByType<StatsSystem>();
     }
 
     public bool SpendMana(int amount)
@@ -76,8 +89,16 @@ public class PlayerMana : MonoBehaviour
 
     private void RefreshManaFromStats(bool firstInit)
     {
+        if (statsSystem == null)
+        {
+            maxMana = Mathf.Max(maxMana, 1);
+            currentMana = Mathf.Clamp(currentMana, 0, maxMana);
+            OnManaChange?.Invoke();
+            return;
+        }
+
         int oldMaxMana = maxMana;
-        maxMana = statsSystem.Mana * 10;
+        maxMana = Mathf.Max(1, statsSystem.Mana * 10);
 
         if (firstInit || oldMaxMana <= 0)
         {

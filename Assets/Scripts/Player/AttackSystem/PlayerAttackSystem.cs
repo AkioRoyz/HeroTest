@@ -16,34 +16,52 @@ public class PlayerAttackSystem : MonoBehaviour
     [SerializeField] private Transform attackLeft;
     [SerializeField] private Transform attackRight;
 
-    private Vector2 lastMoveDirection = Vector2.down;
-
     private void Awake()
     {
+        ResolveReferences();
         DisableCollider(attackLeft);
         DisableCollider(attackRight);
     }
 
     private void OnEnable()
     {
-        gameInput.OnAttack += Attack;
+        ResolveReferences();
+
+        if (gameInput != null)
+            gameInput.OnAttack += Attack;
     }
 
     private void OnDisable()
     {
-        gameInput.OnAttack -= Attack;
+        if (gameInput != null)
+            gameInput.OnAttack -= Attack;
     }
 
     private void Update()
     {
-        Vector2 move = gameInput.MoveVector;
+        if (gameInput == null)
+            return;
 
-        if (move != Vector2.zero)
-            lastMoveDirection = move;
+        _ = gameInput.MoveVector;
+    }
+
+    private void ResolveReferences()
+    {
+        if (gameInput == null)
+            gameInput = FindFirstObjectByType<GameInput>();
+
+        if (spriteRenderer == null)
+            spriteRenderer = GetComponentInParent<SpriteRenderer>();
+
+        if (playerAnimation == null)
+            playerAnimation = GetComponentInParent<PlayerAnimation>();
     }
 
     private void Attack()
     {
+        if (attackLeft == null || attackRight == null || spriteRenderer == null)
+            return;
+
         UpdateCombo();
         ActivateAttackTrigger();
         OnAttackCombo?.Invoke();
@@ -51,27 +69,23 @@ public class PlayerAttackSystem : MonoBehaviour
 
     private void UpdateCombo()
     {
-        if (attackCombo == 1)
-            attackCombo++;
-        else
-            attackCombo = 1;
+        attackCombo = attackCombo == 1 ? 2 : 1;
     }
 
     private void ActivateAttackTrigger()
     {
-        Transform trigger = null;
-
-        if (spriteRenderer.flipX)
-            trigger = attackLeft;
-        else
-            trigger = attackRight;
-
+        Transform trigger = spriteRenderer.flipX ? attackLeft : attackRight;
         StartCoroutine(AttackRoutine(trigger));
     }
 
     private IEnumerator AttackRoutine(Transform trigger)
     {
+        if (trigger == null)
+            yield break;
+
         Collider2D col = trigger.GetComponent<Collider2D>();
+        if (col == null)
+            yield break;
 
         col.enabled = true;
         yield return new WaitForSeconds(0.15f);
@@ -80,6 +94,9 @@ public class PlayerAttackSystem : MonoBehaviour
 
     private void DisableCollider(Transform obj)
     {
+        if (obj == null)
+            return;
+
         Collider2D col = obj.GetComponent<Collider2D>();
         if (col != null)
             col.enabled = false;

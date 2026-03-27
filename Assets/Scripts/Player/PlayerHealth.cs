@@ -13,6 +13,11 @@ public class PlayerHealth : MonoBehaviour
     public event Action OnHealthChange;
     public event Action OnTakeDamage;
 
+    private void Awake()
+    {
+        ResolveReferences();
+    }
+
     private void Start()
     {
         RefreshHealthFromStats(true);
@@ -20,6 +25,8 @@ public class PlayerHealth : MonoBehaviour
 
     private void OnEnable()
     {
+        ResolveReferences();
+
         if (statsSystem != null)
         {
             statsSystem.OnStatsUpdate += OnStatsUpdated;
@@ -34,6 +41,12 @@ public class PlayerHealth : MonoBehaviour
             statsSystem.OnStatsUpdate -= OnStatsUpdated;
             statsSystem.OnLevelStatsUpdated -= OnLevelStatsUpdated;
         }
+    }
+
+    private void ResolveReferences()
+    {
+        if (statsSystem == null)
+            statsSystem = FindFirstObjectByType<StatsSystem>();
     }
 
     public void TakeDamage(int amount)
@@ -70,16 +83,22 @@ public class PlayerHealth : MonoBehaviour
 
     private void OnLevelStatsUpdated()
     {
-        // После повышения уровня статы уже пересчитаны,
-        // поэтому просто заполняем здоровье до нового максимума.
         currentHealth = maxHealth;
         OnHealthChange?.Invoke();
     }
 
     private void RefreshHealthFromStats(bool firstInit)
     {
+        if (statsSystem == null)
+        {
+            maxHealth = Mathf.Max(maxHealth, 1);
+            currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth);
+            OnHealthChange?.Invoke();
+            return;
+        }
+
         int oldMaxHealth = maxHealth;
-        maxHealth = statsSystem.Strength * 10;
+        maxHealth = Mathf.Max(1, statsSystem.Strength * 10);
 
         if (firstInit || oldMaxHealth <= 0)
         {
