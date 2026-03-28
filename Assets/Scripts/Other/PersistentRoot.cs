@@ -4,6 +4,12 @@ public class PersistentRoot : MonoBehaviour
 {
     public static PersistentRoot Instance { get; private set; }
 
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+    private static void ResetStaticState()
+    {
+        Instance = null;
+    }
+
     private void Awake()
     {
         if (Instance != null && Instance != this)
@@ -13,7 +19,19 @@ public class PersistentRoot : MonoBehaviour
         }
 
         Instance = this;
-        DontDestroyOnLoad(gameObject);
+
+        // Если объект уже находится в специальной DontDestroyOnLoad-сцене,
+        // повторно переносить его не нужно.
+        if (gameObject.scene.name != "DontDestroyOnLoad")
+        {
+            DontDestroyOnLoad(gameObject);
+        }
+    }
+
+    private void OnApplicationQuit()
+    {
+        if (Instance == this)
+            Instance = null;
     }
 
     private void OnDestroy()

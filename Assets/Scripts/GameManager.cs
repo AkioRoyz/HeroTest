@@ -22,7 +22,9 @@ public class GameManager : MonoBehaviour
         }
 
         Instance = this;
-        DontDestroyOnLoad(gameObject);
+
+        if (showLogs)
+            Debug.Log("[GameManager] Instance initialized. Persistence is handled by PersistentRoot.", gameObject);
     }
 
     private void OnDestroy()

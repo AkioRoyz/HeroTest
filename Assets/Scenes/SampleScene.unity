@@ -1670,7 +1670,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7789656772874683833, guid: e7ba12a807d69b342aad8644e3c5b729, type: 3}
       propertyPath: itemRewards.Array.size
-      value: 18
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7789656772874683833, guid: e7ba12a807d69b342aad8644e3c5b729, type: 3}
       propertyPath: itemRewards.Array.data[0].Item
