@@ -19,11 +19,13 @@ public class NpcDialogueInteractable : MonoBehaviour, IDialogueSource
     [SerializeField] private bool notifyQuestTalkOnDialogueStart = false;
 
     [Header("Interaction")]
-    [SerializeField] private GameInput gameInput;
     [SerializeField] private GameObject interactionHintObject;
 
     private bool isPlayerInside;
     private int playerLayer;
+
+    private GameInput gameInput;
+    private GameInput subscribedInput;
 
     public DialogueNpcRole NpcRole => npcRole;
     public string NpcId => npcId;
@@ -33,25 +35,21 @@ public class NpcDialogueInteractable : MonoBehaviour, IDialogueSource
         playerLayer = LayerMask.NameToLayer("Player");
     }
 
+    private void Start()
+    {
+        RefreshHint();
+    }
+
     private void OnEnable()
     {
-        if (gameInput != null)
-        {
-            gameInput.OnUse += HandleUsePressed;
-        }
+        ResolveReferences();
+        SubscribeToInput();
+        RefreshHint();
     }
 
     private void OnDisable()
     {
-        if (gameInput != null)
-        {
-            gameInput.OnUse -= HandleUsePressed;
-        }
-    }
-
-    private void Start()
-    {
-        RefreshHint();
+        UnsubscribeFromInput();
     }
 
     private void Update()
@@ -60,6 +58,38 @@ public class NpcDialogueInteractable : MonoBehaviour, IDialogueSource
         {
             RefreshHint();
         }
+    }
+
+    private void ResolveReferences()
+    {
+        gameInput = GameInput.Instance != null
+            ? GameInput.Instance
+            : FindFirstObjectByType<GameInput>();
+
+        if (gameInput == null)
+        {
+            Debug.LogWarning($"[NpcDialogueInteractable] GameInput not found on '{name}'. NPC interaction will not work until GameInput exists.", this);
+        }
+    }
+
+    private void SubscribeToInput()
+    {
+        UnsubscribeFromInput();
+
+        if (gameInput == null)
+            return;
+
+        gameInput.OnUse += HandleUsePressed;
+        subscribedInput = gameInput;
+    }
+
+    private void UnsubscribeFromInput()
+    {
+        if (subscribedInput == null)
+            return;
+
+        subscribedInput.OnUse -= HandleUsePressed;
+        subscribedInput = null;
     }
 
     private void OnTriggerEnter2D(Collider2D other)
@@ -87,13 +117,13 @@ public class NpcDialogueInteractable : MonoBehaviour, IDialogueSource
 
         if (dialogueData == null)
         {
-            Debug.LogWarning($"{name}: dialogueData is missing.");
+            Debug.LogWarning($"{name}: dialogueData is missing.", this);
             return;
         }
 
         if (DialogueManager.Instance == null)
         {
-            Debug.LogWarning("DialogueManager.Instance is missing.");
+            Debug.LogWarning($"{name}: DialogueManager.Instance is missing.", this);
             return;
         }
 
@@ -105,17 +135,20 @@ public class NpcDialogueInteractable : MonoBehaviour, IDialogueSource
 
         bool started = DialogueManager.Instance.StartDialogue(dialogueData, this);
 
-        if (started)
+        if (!started)
         {
-            if (notifyQuestTalkOnDialogueStart &&
-                QuestManager.Instance != null &&
-                !string.IsNullOrWhiteSpace(npcId))
-            {
-                QuestManager.Instance.NotifyNpcTalked(npcId);
-            }
-
             RefreshHint();
+            return;
         }
+
+        if (notifyQuestTalkOnDialogueStart &&
+            QuestManager.Instance != null &&
+            !string.IsNullOrWhiteSpace(npcId))
+        {
+            QuestManager.Instance.NotifyNpcTalked(npcId);
+        }
+
+        RefreshHint();
     }
 
     private void RefreshHint()

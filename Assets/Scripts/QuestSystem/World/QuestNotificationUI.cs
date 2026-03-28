@@ -1,7 +1,10 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Localization;
+using UnityEngine.Localization.Settings;
+using UnityEngine.ResourceManagement.AsyncOperations;
 
 public class QuestNotificationUI : MonoBehaviour
 {
@@ -32,6 +35,7 @@ public class QuestNotificationUI : MonoBehaviour
     [SerializeField] private float fadeOutDuration = 0.35f;
 
     private Coroutine currentRoutine;
+    private int showRequestVersion;
 
     private void Awake()
     {
@@ -48,17 +52,42 @@ public class QuestNotificationUI : MonoBehaviour
         Show(NotificationType.Completed, questTitle);
     }
 
+    public void ShowAccepted(LocalizedString localizedQuestTitle, string fallback = "")
+    {
+        Show(NotificationType.Accepted, localizedQuestTitle, fallback);
+    }
+
+    public void ShowCompleted(LocalizedString localizedQuestTitle, string fallback = "")
+    {
+        Show(NotificationType.Completed, localizedQuestTitle, fallback);
+    }
+
     public void Show(NotificationType type, string questTitle)
     {
         if (!gameObject.activeInHierarchy)
             return;
 
-        if (currentRoutine != null)
-        {
-            StopCoroutine(currentRoutine);
-        }
+        showRequestVersion++;
 
-        currentRoutine = StartCoroutine(ShowRoutine(type, questTitle));
+        if (currentRoutine != null)
+            StopCoroutine(currentRoutine);
+
+        currentRoutine = StartCoroutine(
+            ShowRoutineWithPlainTitle(type, questTitle ?? string.Empty, showRequestVersion));
+    }
+
+    public void Show(NotificationType type, LocalizedString localizedQuestTitle, string fallback = "")
+    {
+        if (!gameObject.activeInHierarchy)
+            return;
+
+        showRequestVersion++;
+
+        if (currentRoutine != null)
+            StopCoroutine(currentRoutine);
+
+        currentRoutine = StartCoroutine(
+            ShowRoutineWithLocalizedTitle(type, localizedQuestTitle, fallback ?? string.Empty, showRequestVersion));
     }
 
     public float GetTotalDisplayDuration()
@@ -87,29 +116,80 @@ public class QuestNotificationUI : MonoBehaviour
         }
     }
 
-    private IEnumerator ShowRoutine(NotificationType type, string questTitle)
+    private IEnumerator ShowRoutineWithPlainTitle(NotificationType type, string questTitle, int requestVersion)
     {
-        // ЗАДЕРЖКА ПЕРЕД ПОКАЗОМ
+        yield return LocalizationSettings.InitializationOperation;
+
+        if (requestVersion != showRequestVersion)
+            yield break;
+
+        LocalizedString headerLocalized =
+            type == NotificationType.Accepted ? acceptedHeaderText : completedHeaderText;
+
+        string headerFallback =
+            type == NotificationType.Accepted ? "Новый квест" : "Квест завершён";
+
+        string headerResult = null;
+        yield return GetLocalizedStringCoroutine(
+            headerLocalized,
+            headerFallback,
+            result => headerResult = result);
+
+        if (requestVersion != showRequestVersion)
+            yield break;
+
+        yield return RunVisualSequence(headerResult, questTitle ?? string.Empty, requestVersion);
+    }
+
+    private IEnumerator ShowRoutineWithLocalizedTitle(NotificationType type, LocalizedString localizedQuestTitle, string fallback, int requestVersion)
+    {
+        yield return LocalizationSettings.InitializationOperation;
+
+        if (requestVersion != showRequestVersion)
+            yield break;
+
+        LocalizedString headerLocalized =
+            type == NotificationType.Accepted ? acceptedHeaderText : completedHeaderText;
+
+        string headerFallback =
+            type == NotificationType.Accepted ? "Новый квест" : "Квест завершён";
+
+        string headerResult = null;
+        yield return GetLocalizedStringCoroutine(
+            headerLocalized,
+            headerFallback,
+            result => headerResult = result);
+
+        if (requestVersion != showRequestVersion)
+            yield break;
+
+        string questTitleResult = null;
+        yield return GetLocalizedStringCoroutine(
+            localizedQuestTitle,
+            fallback,
+            result => questTitleResult = result);
+
+        if (requestVersion != showRequestVersion)
+            yield break;
+
+        yield return RunVisualSequence(headerResult, questTitleResult, requestVersion);
+    }
+
+    private IEnumerator RunVisualSequence(string header, string questTitle, int requestVersion)
+    {
         yield return WaitUnscaled(delayBeforeShow);
 
-        string header = type == NotificationType.Accepted
-            ? GetLocalizedString(acceptedHeaderText, "Новый квест")
-            : GetLocalizedString(completedHeaderText, "Квест завершён");
+        if (requestVersion != showRequestVersion)
+            yield break;
 
         if (headerText != null)
-        {
-            headerText.text = header;
-        }
+            headerText.text = header ?? string.Empty;
 
         if (questTitleText != null)
-        {
             questTitleText.text = questTitle ?? string.Empty;
-        }
 
         if (visualRoot != null)
-        {
             visualRoot.SetActive(true);
-        }
 
         if (canvasGroup != null)
         {
@@ -118,16 +198,45 @@ public class QuestNotificationUI : MonoBehaviour
             canvasGroup.blocksRaycasts = false;
         }
 
+        if (requestVersion != showRequestVersion)
+            yield break;
+
         yield return FadeCanvasGroup(0f, 1f, fadeInDuration);
+
+        if (requestVersion != showRequestVersion)
+            yield break;
+
         yield return WaitUnscaled(visibleDuration);
+
+        if (requestVersion != showRequestVersion)
+            yield break;
+
         yield return FadeCanvasGroup(1f, 0f, fadeOutDuration);
 
         if (visualRoot != null)
-        {
             visualRoot.SetActive(false);
+
+        if (requestVersion == showRequestVersion)
+            currentRoutine = null;
+    }
+
+    private IEnumerator GetLocalizedStringCoroutine(LocalizedString localizedString, string fallback, Action<string> onComplete)
+    {
+        if (localizedString == null || localizedString.IsEmpty)
+        {
+            onComplete?.Invoke(fallback ?? string.Empty);
+            yield break;
         }
 
-        currentRoutine = null;
+        AsyncOperationHandle<string> handle = localizedString.GetLocalizedStringAsync();
+        yield return handle;
+
+        string result = null;
+
+        if (handle.Status == AsyncOperationStatus.Succeeded)
+            result = handle.Result;
+
+        onComplete?.Invoke(!string.IsNullOrEmpty(result) ? result : (fallback ?? string.Empty));
     }
 
     private IEnumerator FadeCanvasGroup(float from, float to, float duration)
@@ -167,18 +276,5 @@ public class QuestNotificationUI : MonoBehaviour
             timer += Time.unscaledDeltaTime;
             yield return null;
         }
-    }
-
-    private string GetLocalizedString(LocalizedString localizedString, string fallback)
-    {
-        if (localizedString == null || localizedString.IsEmpty)
-            return fallback ?? string.Empty;
-
-        var handle = localizedString.GetLocalizedStringAsync();
-        if (!handle.IsDone)
-            return fallback ?? string.Empty;
-
-        string result = handle.Result;
-        return !string.IsNullOrEmpty(result) ? result : (fallback ?? string.Empty);
     }
 }

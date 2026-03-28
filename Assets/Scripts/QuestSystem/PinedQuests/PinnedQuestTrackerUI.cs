@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Localization;
+using UnityEngine.Localization.Settings;
 
 public class PinnedQuestTrackerUI : MonoBehaviour
 {
@@ -34,8 +35,14 @@ public class PinnedQuestTrackerUI : MonoBehaviour
 
     private bool isSubscribed;
 
+    private void Awake()
+    {
+        EnsureLocalizationReady();
+    }
+
     private void OnEnable()
     {
+        LocalizationSettings.SelectedLocaleChanged += HandleSelectedLocaleChanged;
         TrySubscribeQuestManager();
         RefreshUI();
     }
@@ -48,12 +55,19 @@ public class PinnedQuestTrackerUI : MonoBehaviour
 
     private void OnDisable()
     {
+        LocalizationSettings.SelectedLocaleChanged -= HandleSelectedLocaleChanged;
         UnsubscribeQuestManager();
+    }
+
+    private void HandleSelectedLocaleChanged(Locale locale)
+    {
+        RefreshUI();
     }
 
     [ContextMenu("Force Refresh")]
     public void RefreshUI()
     {
+        EnsureLocalizationReady();
         TrySubscribeQuestManager();
 
         HideAllRows();
@@ -253,14 +267,27 @@ public class PinnedQuestTrackerUI : MonoBehaviour
         return stepData.Objectives[objectiveIndex];
     }
 
+    private void EnsureLocalizationReady()
+    {
+        var initOperation = LocalizationSettings.InitializationOperation;
+        if (!initOperation.IsDone)
+        {
+            initOperation.WaitForCompletion();
+        }
+    }
+
     private string GetLocalizedString(LocalizedString localizedString, string fallback)
     {
         if (localizedString == null || localizedString.IsEmpty)
             return fallback ?? string.Empty;
 
+        EnsureLocalizationReady();
+
         var handle = localizedString.GetLocalizedStringAsync();
         if (!handle.IsDone)
-            return fallback ?? string.Empty;
+        {
+            handle.WaitForCompletion();
+        }
 
         string result = handle.Result;
         return !string.IsNullOrEmpty(result) ? result : (fallback ?? string.Empty);

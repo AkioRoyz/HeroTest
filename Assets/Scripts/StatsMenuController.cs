@@ -9,6 +9,7 @@ public class StatsMenuController : MonoBehaviour
     [SerializeField] private StatsControlsHintUI statsControlsHintUI;
 
     private bool isOpened;
+    private GameInput subscribedInput;
 
     private void Awake()
     {
@@ -21,37 +22,51 @@ public class StatsMenuController : MonoBehaviour
         SceneManager.sceneLoaded += HandleSceneLoaded;
 
         ResolveReferences();
-
-        if (gameInput != null)
-        {
-            gameInput.OnStats += ToggleMenu;
-            gameInput.OnMenuClose += CloseMenu;
-        }
-
+        RebindInput();
         ForceClosedVisual();
     }
 
     private void OnDisable()
     {
         SceneManager.sceneLoaded -= HandleSceneLoaded;
-
-        if (gameInput != null)
-        {
-            gameInput.OnStats -= ToggleMenu;
-            gameInput.OnMenuClose -= CloseMenu;
-        }
+        UnbindInput();
     }
 
     private void HandleSceneLoaded(Scene scene, LoadSceneMode mode)
     {
         ResolveReferences();
+        RebindInput();
         ForceClosedVisual();
     }
 
     private void ResolveReferences()
     {
+        gameInput = GameInput.Instance != null
+            ? GameInput.Instance
+            : FindFirstObjectByType<GameInput>();
+    }
+
+    private void RebindInput()
+    {
+        UnbindInput();
+
         if (gameInput == null)
-            gameInput = FindFirstObjectByType<GameInput>();
+            return;
+
+        gameInput.OnStats += ToggleMenu;
+        gameInput.OnMenuClose += CloseMenu;
+
+        subscribedInput = gameInput;
+    }
+
+    private void UnbindInput()
+    {
+        if (subscribedInput == null)
+            return;
+
+        subscribedInput.OnStats -= ToggleMenu;
+        subscribedInput.OnMenuClose -= CloseMenu;
+        subscribedInput = null;
     }
 
     private void ForceClosedVisual()
@@ -64,8 +79,11 @@ public class StatsMenuController : MonoBehaviour
         if (equipmentMenuUI != null)
             equipmentMenuUI.CloseMenu();
 
-        if (GameStateManager.Instance != null && GameStateManager.Instance.CurrentState == GameState.Menu)
+        if (GameStateManager.Instance != null &&
+            GameStateManager.Instance.CurrentState == GameState.Menu)
+        {
             GameStateManager.Instance.SetState(GameState.Playing);
+        }
 
         if (gameInput != null)
             gameInput.SwitchToPlayerMode();
@@ -82,8 +100,10 @@ public class StatsMenuController : MonoBehaviour
             }
         }
 
-        if (isOpened) CloseMenu();
-        else OpenMenu();
+        if (isOpened)
+            CloseMenu();
+        else
+            OpenMenu();
     }
 
     public void OpenMenu()

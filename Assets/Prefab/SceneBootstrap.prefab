@@ -45,6 +45,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SceneBootstrap
   playerPrefab: {fileID: 6618549971089868490, guid: 263d7497a62fca946b15af95a26bffea, type: 3}
-  spawnPoint: {fileID: 0}
+  spawnPoint: {fileID: 1598777681417408470}
   spawnOnlyIfMissing: 1
+  moveExistingPlayerToSpawn: 1
   showLogs: 1

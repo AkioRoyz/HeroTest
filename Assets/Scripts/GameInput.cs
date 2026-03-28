@@ -4,6 +4,8 @@ using UnityEngine.InputSystem;
 
 public class GameInput : MonoBehaviour
 {
+    public static GameInput Instance { get; private set; }
+
     public enum InputMode
     {
         Player,
@@ -63,26 +65,43 @@ public class GameInput : MonoBehaviour
 
     private void Awake()
     {
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
+
+        Instance = this;
+
         EnsureInitialized();
         SwitchToPlayerMode();
     }
 
     private void OnDestroy()
     {
-        UnsubscribeFromInput();
-        inputActions.Dispose();
+        if (Instance == this)
+        {
+            UnsubscribeFromInput();
+
+            if (inputActions != null)
+                inputActions.Dispose();
+
+            Instance = null;
+        }
     }
 
     private void Update()
     {
-        if (CurrentMode == InputMode.Player)
-        {
-            MoveVector = inputActions.Player.Moving.ReadValue<Vector2>().normalized;
-        }
-        else
+        if (inputActions == null)
         {
             MoveVector = Vector2.zero;
+            return;
         }
+
+        if (CurrentMode == InputMode.Player)
+            MoveVector = inputActions.Player.Moving.ReadValue<Vector2>().normalized;
+        else
+            MoveVector = Vector2.zero;
     }
 
     private void EnsureInitialized()
@@ -106,11 +125,13 @@ public class GameInput : MonoBehaviour
 
     public InputAction GetMenuAction_Select()
     {
+        EnsureInitialized();
         return inputActions.Menu.SelectChoise;
     }
 
     public InputAction GetMenuAction_Unequip()
     {
+        EnsureInitialized();
         return inputActions.Menu.UnequipItem;
     }
 
@@ -122,7 +143,6 @@ public class GameInput : MonoBehaviour
         inputActions.Player.Stats.performed += OnStatsPerformed;
         inputActions.Player.QuestJournal.performed += OnQuestJournalPerformed;
         inputActions.Player.Pause.performed += OnPausePerformed;
-
         inputActions.Player.Item1.performed += OnItem1Performed;
         inputActions.Player.Item2.performed += OnItem2Performed;
         inputActions.Player.Item3.performed += OnItem3Performed;
@@ -143,7 +163,7 @@ public class GameInput : MonoBehaviour
         inputActions.Menu.UnequipItem.performed += OnMenuUnequipPerformed;
         inputActions.Menu.CloseUI.performed += OnMenuClosePerformed;
 
-        // QuestJournal
+        // Quest Journal
         inputActions.QuestJournal.UpSelect.performed += OnQuestJournalUpPerformed;
         inputActions.QuestJournal.DownSelect.performed += OnQuestJournalDownPerformed;
         inputActions.QuestJournal.Select.performed += OnQuestJournalSelectPerformed;
@@ -153,7 +173,7 @@ public class GameInput : MonoBehaviour
         inputActions.QuestJournal.PinQuest.performed += OnQuestJournalPinQuestPerformed;
         inputActions.QuestJournal.CloseUI.performed += OnQuestJournalClosePerformed;
 
-        // PauseMenu
+        // Pause Menu
         inputActions.PauseMenu.UpSelect.performed += OnPauseMenuUpPerformed;
         inputActions.PauseMenu.DownSelect.performed += OnPauseMenuDownPerformed;
         inputActions.PauseMenu.SelectChoise.performed += OnPauseMenuSelectPerformed;
@@ -162,13 +182,15 @@ public class GameInput : MonoBehaviour
 
     private void UnsubscribeFromInput()
     {
+        if (inputActions == null)
+            return;
+
         // Player
         inputActions.Player.Attack.performed -= OnAttackPerformed;
         inputActions.Player.Use.performed -= OnUsePerformed;
         inputActions.Player.Stats.performed -= OnStatsPerformed;
         inputActions.Player.QuestJournal.performed -= OnQuestJournalPerformed;
         inputActions.Player.Pause.performed -= OnPausePerformed;
-
         inputActions.Player.Item1.performed -= OnItem1Performed;
         inputActions.Player.Item2.performed -= OnItem2Performed;
         inputActions.Player.Item3.performed -= OnItem3Performed;
@@ -189,7 +211,7 @@ public class GameInput : MonoBehaviour
         inputActions.Menu.UnequipItem.performed -= OnMenuUnequipPerformed;
         inputActions.Menu.CloseUI.performed -= OnMenuClosePerformed;
 
-        // QuestJournal
+        // Quest Journal
         inputActions.QuestJournal.UpSelect.performed -= OnQuestJournalUpPerformed;
         inputActions.QuestJournal.DownSelect.performed -= OnQuestJournalDownPerformed;
         inputActions.QuestJournal.Select.performed -= OnQuestJournalSelectPerformed;
@@ -199,7 +221,7 @@ public class GameInput : MonoBehaviour
         inputActions.QuestJournal.PinQuest.performed -= OnQuestJournalPinQuestPerformed;
         inputActions.QuestJournal.CloseUI.performed -= OnQuestJournalClosePerformed;
 
-        // PauseMenu
+        // Pause Menu
         inputActions.PauseMenu.UpSelect.performed -= OnPauseMenuUpPerformed;
         inputActions.PauseMenu.DownSelect.performed -= OnPauseMenuDownPerformed;
         inputActions.PauseMenu.SelectChoise.performed -= OnPauseMenuSelectPerformed;
@@ -281,17 +303,13 @@ public class GameInput : MonoBehaviour
         if (context.control == null || context.control.device == null)
             return;
 
-        var device = context.control.device;
-        DeviceGroupType newGroup;
+        InputDevice device = context.control.device;
 
+        DeviceGroupType newGroup;
         if (device is Keyboard || device is Mouse)
-        {
             newGroup = DeviceGroupType.KeyboardMouse;
-        }
         else
-        {
             newGroup = DeviceGroupType.Gamepad;
-        }
 
         bool groupChanged = newGroup != CurrentDeviceGroup;
         bool layoutChanged = CurrentDeviceLayoutName != device.layout;
@@ -300,9 +318,7 @@ public class GameInput : MonoBehaviour
         CurrentDeviceLayoutName = device.layout;
 
         if (groupChanged || layoutChanged)
-        {
             OnActiveDeviceGroupChanged?.Invoke();
-        }
 
         Debug.Log($"Active input device: {device.displayName}, layout: {device.layout}, group: {CurrentDeviceGroup}");
     }

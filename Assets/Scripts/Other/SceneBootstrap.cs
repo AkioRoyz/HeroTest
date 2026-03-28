@@ -1,5 +1,4 @@
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 public class SceneBootstrap : MonoBehaviour
 {
@@ -8,6 +7,7 @@ public class SceneBootstrap : MonoBehaviour
     [SerializeField] private Transform spawnPoint;
     [SerializeField] private bool spawnOnlyIfMissing = true;
     [SerializeField] private bool moveExistingPlayerToSpawn = true;
+    [SerializeField] private bool resetPlayerVelocityOnTeleport = true;
 
     [Header("Debug")]
     [SerializeField] private bool showLogs = true;
@@ -19,13 +19,20 @@ public class SceneBootstrap : MonoBehaviour
 
     private void EnsurePlayerExistsAndPlaced()
     {
-        GameObject existingPlayer = GameObject.FindGameObjectWithTag("Player");
+        GameObject[] players = GameObject.FindGameObjectsWithTag("Player");
+        GameObject existingPlayer = players.Length > 0 ? players[0] : null;
+
+        if (players.Length > 1)
+        {
+            Debug.LogError($"[SceneBootstrap] Found {players.Length} objects with Player tag. There must be exactly one player.", this);
+        }
 
         if (spawnOnlyIfMissing && existingPlayer != null)
         {
             if (moveExistingPlayerToSpawn && spawnPoint != null)
             {
                 existingPlayer.transform.SetPositionAndRotation(spawnPoint.position, spawnPoint.rotation);
+                ResetPlayerPhysics(existingPlayer);
 
                 if (showLogs)
                     Debug.Log($"[SceneBootstrap] Existing player moved to spawn: {existingPlayer.name}", this);
@@ -51,5 +58,18 @@ public class SceneBootstrap : MonoBehaviour
 
         if (showLogs)
             Debug.Log($"[SceneBootstrap] Spawned player: {player.name}", this);
+    }
+
+    private void ResetPlayerPhysics(GameObject player)
+    {
+        if (!resetPlayerVelocityOnTeleport || player == null)
+            return;
+
+        Rigidbody2D rb = player.GetComponent<Rigidbody2D>();
+        if (rb == null)
+            return;
+
+        rb.linearVelocity = Vector2.zero;
+        rb.angularVelocity = 0f;
     }
 }

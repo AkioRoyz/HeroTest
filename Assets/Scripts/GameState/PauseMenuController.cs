@@ -1,6 +1,7 @@
 using UnityEngine;
-using UnityEngine.UI;
 using UnityEngine.Rendering;
+using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class PauseMenuController : MonoBehaviour
 {
@@ -13,45 +14,90 @@ public class PauseMenuController : MonoBehaviour
     [SerializeField] private Volume pauseGrayScaleVolume;
     [SerializeField, Range(0f, 1f)] private float pauseGrayScaleWeight = 1f;
 
-    private void Start()
-    {
-        if (pauseMenuRoot != null)
-        {
-            pauseMenuRoot.SetActive(false);
-        }
+    private GameInput subscribedInput;
 
-        if (pauseGrayScaleVolume != null)
-        {
-            pauseGrayScaleVolume.weight = 0f;
-        }
+    private void Awake()
+    {
+        ResolveReferences();
+        ForceClosedVisual();
     }
 
     private void OnEnable()
     {
-        if (gameInput != null)
-        {
-            gameInput.OnPauseToggle += HandlePauseToggle;
-            gameInput.OnPauseMenuSelect += HandlePauseMenuSelect;
-        }
+        SceneManager.sceneLoaded += HandleSceneLoaded;
+
+        ResolveReferences();
+        RebindInput();
 
         if (GameStateManager.Instance != null)
-        {
             GameStateManager.Instance.OnGameStateChanged += HandleGameStateChanged;
-        }
+
+        ForceClosedVisual();
     }
 
     private void OnDisable()
     {
-        if (gameInput != null)
-        {
-            gameInput.OnPauseToggle -= HandlePauseToggle;
-            gameInput.OnPauseMenuSelect -= HandlePauseMenuSelect;
-        }
+        SceneManager.sceneLoaded -= HandleSceneLoaded;
+
+        UnbindInput();
 
         if (GameStateManager.Instance != null)
-        {
             GameStateManager.Instance.OnGameStateChanged -= HandleGameStateChanged;
+    }
+
+    private void HandleSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        ResolveReferences();
+        RebindInput();
+        ForceClosedVisual();
+    }
+
+    private void ResolveReferences()
+    {
+        gameInput = GameInput.Instance != null
+            ? GameInput.Instance
+            : FindFirstObjectByType<GameInput>();
+    }
+
+    private void RebindInput()
+    {
+        UnbindInput();
+
+        if (gameInput == null)
+            return;
+
+        gameInput.OnPauseToggle += HandlePauseToggle;
+        gameInput.OnPauseMenuSelect += HandlePauseMenuSelect;
+
+        subscribedInput = gameInput;
+    }
+
+    private void UnbindInput()
+    {
+        if (subscribedInput == null)
+            return;
+
+        subscribedInput.OnPauseToggle -= HandlePauseToggle;
+        subscribedInput.OnPauseMenuSelect -= HandlePauseMenuSelect;
+        subscribedInput = null;
+    }
+
+    private void ForceClosedVisual()
+    {
+        if (pauseMenuRoot != null)
+            pauseMenuRoot.SetActive(false);
+
+        if (pauseGrayScaleVolume != null)
+            pauseGrayScaleVolume.weight = 0f;
+
+        if (GameStateManager.Instance != null &&
+            GameStateManager.Instance.CurrentState == GameState.Pause)
+        {
+            GameStateManager.Instance.SetState(GameState.Playing);
         }
+
+        if (gameInput != null)
+            gameInput.SwitchToPlayerMode();
     }
 
     private void HandlePauseToggle()
@@ -85,69 +131,45 @@ public class PauseMenuController : MonoBehaviour
         bool isPause = newState == GameState.Pause;
 
         if (pauseMenuRoot != null)
-        {
             pauseMenuRoot.SetActive(isPause);
-        }
 
         if (pauseGrayScaleVolume != null)
-        {
             pauseGrayScaleVolume.weight = isPause ? pauseGrayScaleWeight : 0f;
-        }
 
         if (isPause && resumeButton != null)
-        {
             resumeButton.Select();
-        }
     }
 
     public void ResumeGame()
     {
         if (GameStateManager.Instance != null)
-        {
             GameStateManager.Instance.SetState(GameState.Playing);
-        }
 
         if (pauseMenuRoot != null)
-        {
             pauseMenuRoot.SetActive(false);
-        }
 
         if (pauseGrayScaleVolume != null)
-        {
             pauseGrayScaleVolume.weight = 0f;
-        }
 
         if (gameInput != null)
-        {
             gameInput.SwitchToPlayerMode();
-        }
     }
 
     private void OpenPauseMenu()
     {
         if (GameStateManager.Instance != null)
-        {
             GameStateManager.Instance.SetState(GameState.Pause);
-        }
 
         if (pauseMenuRoot != null)
-        {
             pauseMenuRoot.SetActive(true);
-        }
 
         if (pauseGrayScaleVolume != null)
-        {
             pauseGrayScaleVolume.weight = pauseGrayScaleWeight;
-        }
 
         if (gameInput != null)
-        {
             gameInput.SwitchToPauseMenuMode();
-        }
 
         if (resumeButton != null)
-        {
             resumeButton.Select();
-        }
     }
 }
