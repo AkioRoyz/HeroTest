@@ -1,39 +1,31 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Localization;
 
 public class QuestNotificationController : MonoBehaviour
 {
     private class NotificationRequest
     {
         public QuestNotificationUI.NotificationType Type;
-        public string QuestTitle;
-
-        public NotificationRequest(QuestNotificationUI.NotificationType type, string questTitle)
-        {
-            Type = type;
-            QuestTitle = questTitle;
-        }
+        public bool UseLocalizedTitle;
+        public string PlainTitle;
+        public LocalizedString LocalizedTitle;
+        public string FallbackTitle;
     }
 
-    [Header("References")]
+    [Header("UI")]
     [SerializeField] private QuestNotificationUI notificationUI;
 
-    private readonly Queue<NotificationRequest> queue = new();
-    private Coroutine queueRoutine;
-    private bool isSubscribedToQuestManager;
-    private bool isSubscribedToGameState;
+    private readonly Queue<NotificationRequest> notificationQueue = new();
+    private Coroutine processRoutine;
 
-    private void OnEnable()
+    private void Awake()
     {
-        TrySubscribeQuestManager();
-        TrySubscribeGameStateManager();
-    }
-
-    private void Start()
-    {
-        TrySubscribeQuestManager();
-        TrySubscribeGameStateManager();
+        if (notificationUI == null)
+        {
+            notificationUI = GetComponentInChildren<QuestNotificationUI>(true);
+        }
 
         if (notificationUI != null)
         {
@@ -43,175 +35,148 @@ public class QuestNotificationController : MonoBehaviour
 
     private void OnDisable()
     {
-        UnsubscribeQuestManager();
-        UnsubscribeGameStateManager();
-    }
-
-    private void TrySubscribeQuestManager()
-    {
-        if (isSubscribedToQuestManager)
-            return;
-
-        if (QuestManager.Instance == null)
-            return;
-
-        QuestManager.Instance.OnQuestAccepted += HandleQuestAccepted;
-        QuestManager.Instance.OnQuestCompleted += HandleQuestCompleted;
-        isSubscribedToQuestManager = true;
-    }
-
-    private void UnsubscribeQuestManager()
-    {
-        if (!isSubscribedToQuestManager)
-            return;
-
-        if (QuestManager.Instance != null)
+        if (processRoutine != null)
         {
-            QuestManager.Instance.OnQuestAccepted -= HandleQuestAccepted;
-            QuestManager.Instance.OnQuestCompleted -= HandleQuestCompleted;
+            StopCoroutine(processRoutine);
+            processRoutine = null;
         }
-
-        isSubscribedToQuestManager = false;
     }
 
-    private void TrySubscribeGameStateManager()
+    public void QueueAccepted(string questTitle)
     {
-        if (isSubscribedToGameState)
-            return;
-
-        if (GameStateManager.Instance == null)
-            return;
-
-        GameStateManager.Instance.OnGameStateChanged += HandleGameStateChanged;
-        isSubscribedToGameState = true;
-    }
-
-    private void UnsubscribeGameStateManager()
-    {
-        if (!isSubscribedToGameState)
-            return;
-
-        if (GameStateManager.Instance != null)
+        Enqueue(new NotificationRequest
         {
-            GameStateManager.Instance.OnGameStateChanged -= HandleGameStateChanged;
+            Type = QuestNotificationUI.NotificationType.Accepted,
+            UseLocalizedTitle = false,
+            PlainTitle = questTitle ?? string.Empty,
+            FallbackTitle = questTitle ?? string.Empty
+        });
+    }
+
+    public void QueueCompleted(string questTitle)
+    {
+        Enqueue(new NotificationRequest
+        {
+            Type = QuestNotificationUI.NotificationType.Completed,
+            UseLocalizedTitle = false,
+            PlainTitle = questTitle ?? string.Empty,
+            FallbackTitle = questTitle ?? string.Empty
+        });
+    }
+
+    public void QueueAccepted(LocalizedString localizedQuestTitle, string fallbackTitle = "")
+    {
+        Enqueue(new NotificationRequest
+        {
+            Type = QuestNotificationUI.NotificationType.Accepted,
+            UseLocalizedTitle = true,
+            LocalizedTitle = localizedQuestTitle,
+            FallbackTitle = fallbackTitle ?? string.Empty
+        });
+    }
+
+    public void QueueCompleted(LocalizedString localizedQuestTitle, string fallbackTitle = "")
+    {
+        Enqueue(new NotificationRequest
+        {
+            Type = QuestNotificationUI.NotificationType.Completed,
+            UseLocalizedTitle = true,
+            LocalizedTitle = localizedQuestTitle,
+            FallbackTitle = fallbackTitle ?? string.Empty
+        });
+    }
+
+    public void Queue(QuestNotificationUI.NotificationType type, string questTitle)
+    {
+        Enqueue(new NotificationRequest
+        {
+            Type = type,
+            UseLocalizedTitle = false,
+            PlainTitle = questTitle ?? string.Empty,
+            FallbackTitle = questTitle ?? string.Empty
+        });
+    }
+
+    public void Queue(QuestNotificationUI.NotificationType type, LocalizedString localizedQuestTitle, string fallbackTitle = "")
+    {
+        Enqueue(new NotificationRequest
+        {
+            Type = type,
+            UseLocalizedTitle = true,
+            LocalizedTitle = localizedQuestTitle,
+            FallbackTitle = fallbackTitle ?? string.Empty
+        });
+    }
+
+    // Алиасы на случай, если старый код вызывал похожие методы
+    public void EnqueueAccepted(string questTitle) => QueueAccepted(questTitle);
+    public void EnqueueCompleted(string questTitle) => QueueCompleted(questTitle);
+
+    public void EnqueueAccepted(LocalizedString localizedQuestTitle, string fallbackTitle = "")
+        => QueueAccepted(localizedQuestTitle, fallbackTitle);
+
+    public void EnqueueCompleted(LocalizedString localizedQuestTitle, string fallbackTitle = "")
+        => QueueCompleted(localizedQuestTitle, fallbackTitle);
+
+    public void EnqueueNotification(QuestNotificationUI.NotificationType type, string questTitle)
+        => Queue(type, questTitle);
+
+    public void EnqueueNotification(QuestNotificationUI.NotificationType type, LocalizedString localizedQuestTitle, string fallbackTitle = "")
+        => Queue(type, localizedQuestTitle, fallbackTitle);
+
+    private void Enqueue(NotificationRequest request)
+    {
+        if (request == null)
+            return;
+
+        notificationQueue.Enqueue(request);
+
+        if (processRoutine == null && isActiveAndEnabled)
+        {
+            processRoutine = StartCoroutine(ProcessQueueRoutine());
         }
-
-        isSubscribedToGameState = false;
-    }
-
-    private void HandleGameStateChanged(GameState newState)
-    {
-        if (newState != GameState.Playing)
-            return;
-
-        TryStartQueueRoutine();
-    }
-
-    private void HandleQuestAccepted(QuestData questData)
-    {
-        if (questData == null)
-            return;
-
-        if (!questData.NotifyOnAccept)
-            return;
-
-        EnqueueNotification(
-            QuestNotificationUI.NotificationType.Accepted,
-            GetQuestTitle(questData)
-        );
-    }
-
-    private void HandleQuestCompleted(QuestData questData)
-    {
-        if (questData == null)
-            return;
-
-        if (!questData.NotifyOnComplete)
-            return;
-
-        EnqueueNotification(
-            QuestNotificationUI.NotificationType.Completed,
-            GetQuestTitle(questData)
-        );
-    }
-
-    private void EnqueueNotification(QuestNotificationUI.NotificationType type, string questTitle)
-    {
-        if (notificationUI == null)
-            return;
-
-        queue.Enqueue(new NotificationRequest(type, questTitle));
-        TryStartQueueRoutine();
-    }
-
-    private void TryStartQueueRoutine()
-    {
-        if (queueRoutine != null)
-            return;
-
-        if (queue.Count == 0)
-            return;
-
-        if (!IsGameInPlayingState())
-            return;
-
-        queueRoutine = StartCoroutine(ProcessQueueRoutine());
     }
 
     private IEnumerator ProcessQueueRoutine()
     {
-        while (queue.Count > 0)
+        while (notificationQueue.Count > 0)
         {
-            yield return WaitUntilPlayingState();
-
-            NotificationRequest request = queue.Dequeue();
-
-            if (notificationUI != null)
+            if (notificationUI == null)
             {
-                notificationUI.Show(request.Type, request.QuestTitle);
+                Debug.LogWarning("[QuestNotificationController] Notification UI is missing.", this);
+                processRoutine = null;
+                yield break;
+            }
 
-                float duration = notificationUI.GetTotalDisplayDuration();
-                if (duration > 0f)
-                {
-                    yield return WaitUnscaled(duration + 0.05f);
-                }
+            NotificationRequest request = notificationQueue.Dequeue();
+
+            if (request.UseLocalizedTitle)
+            {
+                if (request.Type == QuestNotificationUI.NotificationType.Accepted)
+                    notificationUI.ShowAccepted(request.LocalizedTitle, request.FallbackTitle);
                 else
-                {
-                    yield return null;
-                }
+                    notificationUI.ShowCompleted(request.LocalizedTitle, request.FallbackTitle);
             }
             else
             {
-                yield return null;
+                if (request.Type == QuestNotificationUI.NotificationType.Accepted)
+                    notificationUI.ShowAccepted(request.PlainTitle);
+                else
+                    notificationUI.ShowCompleted(request.PlainTitle);
             }
+
+            float waitTime = notificationUI.GetTotalDisplayDuration();
+            yield return WaitUnscaled(waitTime);
         }
 
-        queueRoutine = null;
-
-        if (queue.Count > 0 && IsGameInPlayingState())
-        {
-            queueRoutine = StartCoroutine(ProcessQueueRoutine());
-        }
-    }
-
-    private IEnumerator WaitUntilPlayingState()
-    {
-        while (!IsGameInPlayingState())
-        {
-            yield return null;
-        }
-    }
-
-    private bool IsGameInPlayingState()
-    {
-        if (GameStateManager.Instance == null)
-            return true;
-
-        return GameStateManager.Instance.CurrentState == GameState.Playing;
+        processRoutine = null;
     }
 
     private IEnumerator WaitUnscaled(float duration)
     {
+        if (duration <= 0f)
+            yield break;
+
         float timer = 0f;
 
         while (timer < duration)
@@ -219,21 +184,5 @@ public class QuestNotificationController : MonoBehaviour
             timer += Time.unscaledDeltaTime;
             yield return null;
         }
-    }
-
-    private string GetQuestTitle(QuestData questData)
-    {
-        if (questData == null)
-            return string.Empty;
-
-        if (questData.QuestTitle == null || questData.QuestTitle.IsEmpty)
-            return questData.QuestId;
-
-        var handle = questData.QuestTitle.GetLocalizedStringAsync();
-        if (!handle.IsDone)
-            return questData.QuestId;
-
-        string result = handle.Result;
-        return !string.IsNullOrEmpty(result) ? result : questData.QuestId;
     }
 }
