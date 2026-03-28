@@ -1,5 +1,6 @@
 using UnityEngine;
 
+[DefaultExecutionOrder(-10000)]
 public class PersistentRoot : MonoBehaviour
 {
     public static PersistentRoot Instance { get; private set; }
@@ -12,26 +13,67 @@ public class PersistentRoot : MonoBehaviour
 
     private void Awake()
     {
+        PersistentRoot[] allRoots = FindObjectsByType<PersistentRoot>(
+            FindObjectsInactive.Include,
+            FindObjectsSortMode.None);
+
+        if (allRoots.Length > 1)
+        {
+            PersistentRoot keeper = ChooseKeeper(allRoots);
+
+            if (keeper != this)
+            {
+                Debug.LogWarning(
+                    $"[PersistentRoot] Duplicate root destroyed: '{name}' from scene '{gameObject.scene.name}'. " +
+                    $"Keeper: '{keeper.name}' from scene '{keeper.gameObject.scene.name}'.",
+                    this);
+
+                Destroy(gameObject);
+                return;
+            }
+        }
+
         if (Instance != null && Instance != this)
         {
+            Debug.LogWarning(
+                $"[PersistentRoot] Duplicate instance destroyed: '{name}' from scene '{gameObject.scene.name}'.",
+                this);
+
             Destroy(gameObject);
             return;
         }
 
         Instance = this;
 
-        // Если объект уже находится в специальной DontDestroyOnLoad-сцене,
-        // повторно переносить его не нужно.
         if (gameObject.scene.name != "DontDestroyOnLoad")
         {
             DontDestroyOnLoad(gameObject);
         }
     }
 
-    private void OnApplicationQuit()
+    private PersistentRoot ChooseKeeper(PersistentRoot[] roots)
     {
-        if (Instance == this)
-            Instance = null;
+        PersistentRoot ddolRoot = null;
+        PersistentRoot best = null;
+
+        for (int i = 0; i < roots.Length; i++)
+        {
+            PersistentRoot root = roots[i];
+            if (root == null) continue;
+
+            if (root.gameObject.scene.name == "DontDestroyOnLoad")
+            {
+                ddolRoot = root;
+                break;
+            }
+
+            if (best == null || root.GetInstanceID() < best.GetInstanceID())
+            {
+                best = root;
+            }
+        }
+
+        return ddolRoot != null ? ddolRoot : best;
     }
 
     private void OnDestroy()
