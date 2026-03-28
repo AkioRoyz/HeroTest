@@ -12154,7 +12154,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 877348941}
-  - component: {fileID: 877348942}
   m_Layer: 0
   m_Name: GameManager
   m_TagString: Untagged
@@ -12190,19 +12189,6 @@ Transform:
   - {fileID: 661198770}
   m_Father: {fileID: 1442208805}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &877348942
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 877348940}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: bff46383ef94f404b913ec9d40ea4ee7, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GameManager
-  showLogs: 1
 --- !u!1 &892370872
 GameObject:
   m_ObjectHideFlags: 0

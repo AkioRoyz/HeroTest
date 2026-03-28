@@ -1,6 +1,5 @@
 using UnityEngine;
 
-[DefaultExecutionOrder(-10000)]
 public class PersistentRoot : MonoBehaviour
 {
     public static PersistentRoot Instance { get; private set; }
@@ -13,9 +12,8 @@ public class PersistentRoot : MonoBehaviour
 
     private void Awake()
     {
-        PersistentRoot[] allRoots = FindObjectsByType<PersistentRoot>(
-            FindObjectsInactive.Include,
-            FindObjectsSortMode.None);
+        PersistentRoot[] allRoots =
+            FindObjectsByType<PersistentRoot>(FindObjectsInactive.Include, FindObjectsSortMode.None);
 
         if (allRoots.Length > 1)
         {
@@ -44,11 +42,15 @@ public class PersistentRoot : MonoBehaviour
         }
 
         Instance = this;
+    }
+
+    private void Start()
+    {
+        if (Instance != this)
+            return;
 
         if (gameObject.scene.name != "DontDestroyOnLoad")
-        {
             DontDestroyOnLoad(gameObject);
-        }
     }
 
     private PersistentRoot ChooseKeeper(PersistentRoot[] roots)
@@ -68,9 +70,7 @@ public class PersistentRoot : MonoBehaviour
             }
 
             if (best == null || root.GetInstanceID() < best.GetInstanceID())
-            {
                 best = root;
-            }
         }
 
         return ddolRoot != null ? ddolRoot : best;
