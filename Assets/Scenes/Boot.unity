@@ -5581,7 +5581,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 23f84fe7b1c41564ea55ee08b4bd177b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AttackTrigger
-  showWarningOnAwake: 1
 --- !u!70 &372257263
 CapsuleCollider2D:
   m_ObjectHideFlags: 0
@@ -12260,6 +12259,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
+  - {fileID: 921319152}
   - {fileID: 1608696421}
   - {fileID: 1179012318}
   - {fileID: 168864645}
@@ -12360,7 +12360,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 23f84fe7b1c41564ea55ee08b4bd177b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AttackTrigger
-  showWarningOnAwake: 1
 --- !u!70 &902146722
 CapsuleCollider2D:
   m_ObjectHideFlags: 0
@@ -12655,6 +12654,134 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
+--- !u!1 &921319151
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 921319152}
+  - component: {fileID: 921319153}
+  m_Layer: 0
+  m_Name: DamageNumberManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &921319152
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 921319151}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 1.62504, y: 1.66622, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 877348941}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &921319153
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 921319151}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e26ce945d96428a4a951f84ce90472fe, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DamageNumberManager
+  damageNumberPrefab: {fileID: 5090356977446891250, guid: dd21b9b9349d4b144b4b0ca03070f7d2, type: 3}
+  worldContainer: {fileID: 0}
+  createContainerIfMissing: 1
+  styles:
+  - type: 0
+    color: {r: 1, g: 0.26758665, b: 0.19339621, a: 1}
+    fontSize: 3.2
+    prefix: 
+    suffix: 
+    lifetime: 0.7
+    riseDistance: 0.75
+    fadeStartNormalized: 0.905
+    randomSpawnOffsetX: {x: -0.15, y: 0.15}
+    randomSpawnOffsetY: {x: 0, y: 0.18}
+    horizontalDriftRange: {x: -0.08, y: 0.08}
+    startScaleMultiplier: 1
+    peakScaleMultiplier: 1.15
+    endScaleMultiplier: 0.9
+    sortingLayerName: Default
+    orderInLayer: 120
+  - type: 1
+    color: {r: 1, g: 0.55, b: 0.15, a: 1}
+    fontSize: 3.8
+    prefix: 
+    suffix: 
+    lifetime: 0.85
+    riseDistance: 0.95
+    fadeStartNormalized: 0.55
+    randomSpawnOffsetX: {x: -0.15, y: 0.15}
+    randomSpawnOffsetY: {x: 0, y: 0.18}
+    horizontalDriftRange: {x: -0.08, y: 0.08}
+    startScaleMultiplier: 1
+    peakScaleMultiplier: 1.15
+    endScaleMultiplier: 0.9
+    sortingLayerName: Default
+    orderInLayer: 125
+  - type: 2
+    color: {r: 0.35, g: 1, b: 0.95, a: 1}
+    fontSize: 4
+    prefix: 
+    suffix: 
+    lifetime: 0.9
+    riseDistance: 1
+    fadeStartNormalized: 0.55
+    randomSpawnOffsetX: {x: -0.15, y: 0.15}
+    randomSpawnOffsetY: {x: 0, y: 0.18}
+    horizontalDriftRange: {x: -0.08, y: 0.08}
+    startScaleMultiplier: 1
+    peakScaleMultiplier: 1.15
+    endScaleMultiplier: 0.9
+    sortingLayerName: Default
+    orderInLayer: 130
+  - type: 3
+    color: {r: 0.8, g: 0.8, b: 0.8, a: 1}
+    fontSize: 3
+    prefix: 
+    suffix: 
+    lifetime: 0.7
+    riseDistance: 0.65
+    fadeStartNormalized: 0.55
+    randomSpawnOffsetX: {x: -0.15, y: 0.15}
+    randomSpawnOffsetY: {x: 0, y: 0.18}
+    horizontalDriftRange: {x: -0.08, y: 0.08}
+    startScaleMultiplier: 1
+    peakScaleMultiplier: 1.15
+    endScaleMultiplier: 0.9
+    sortingLayerName: Default
+    orderInLayer: 118
+  - type: 4
+    color: {r: 0.65, g: 1, b: 0.65, a: 1}
+    fontSize: 3.6
+    prefix: 
+    suffix: 
+    lifetime: 0.8
+    riseDistance: 0.9
+    fadeStartNormalized: 0.55
+    randomSpawnOffsetX: {x: -0.15, y: 0.15}
+    randomSpawnOffsetY: {x: 0, y: 0.18}
+    horizontalDriftRange: {x: -0.08, y: 0.08}
+    startScaleMultiplier: 1
+    peakScaleMultiplier: 1.15
+    endScaleMultiplier: 0.9
+    sortingLayerName: Default
+    orderInLayer: 128
 --- !u!1 &927871815
 GameObject:
   m_ObjectHideFlags: 0

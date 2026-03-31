@@ -18,6 +18,10 @@ public class EnemyHealth : MonoBehaviour, ICombatReceiver
     [SerializeField] private int deathGold = 5;
     [SerializeField] private int deathEXP = 10;
 
+    [Header("Damage Numbers")]
+    [SerializeField] private bool showDamageNumbers = true;
+    [SerializeField] private CombatTarget combatTarget;
+
     private bool isDead;
 
     public event Action OnEnemyHealthChange;
@@ -36,8 +40,14 @@ public class EnemyHealth : MonoBehaviour, ICombatReceiver
 
     private void Awake()
     {
+        ResolveReferences();
         currentHealth = maxHealth;
         isDead = false;
+    }
+
+    private void OnValidate()
+    {
+        ResolveReferencesInEditor();
     }
 
     public void SetInvulnerable(bool value)
@@ -100,6 +110,8 @@ public class EnemyHealth : MonoBehaviour, ICombatReceiver
 
         DamageResult result = DamageResult.Damaged(finalDamage, killed, hitType);
 
+        TryShowDamageNumber(damageInfo, result);
+
         OnEnemyHealthChange?.Invoke();
         OnCombatDamageResolved?.Invoke(damageInfo, result);
 
@@ -123,6 +135,45 @@ public class EnemyHealth : MonoBehaviour, ICombatReceiver
         );
 
         ReceiveDamage(legacyDamage);
+    }
+
+    private void TryShowDamageNumber(DamageInfo damageInfo, DamageResult result)
+    {
+        if (!showDamageNumbers)
+            return;
+
+        if (!result.AppliedDamage || result.FinalDamage <= 0)
+            return;
+
+        if (damageInfo.SourceTeam != CombatTeam.Player)
+            return;
+
+        if (DamageNumberManager.Instance == null)
+            return;
+
+        DamageNumberType damageNumberType = ResolveDamageNumberType(damageInfo, result);
+
+        if (combatTarget != null)
+            DamageNumberManager.Instance.ShowDamageNumber(combatTarget, result.FinalDamage, damageNumberType);
+        else
+            DamageNumberManager.Instance.ShowDamageNumber(transform.position, result.FinalDamage, damageNumberType);
+    }
+
+    private DamageNumberType ResolveDamageNumberType(DamageInfo damageInfo, DamageResult result)
+    {
+        if (result.WasParried)
+            return DamageNumberType.ParryCounter;
+
+        if (result.WasBlocked)
+            return DamageNumberType.Blocked;
+
+        if (damageInfo.IsSpecial || result.HitType == CombatHitType.Special)
+            return DamageNumberType.Special;
+
+        if (damageInfo.IsCritical)
+            return DamageNumberType.Critical;
+
+        return DamageNumberType.Normal;
     }
 
     private bool ShouldIgnoreDamage(DamageInfo damageInfo)
@@ -169,5 +220,17 @@ public class EnemyHealth : MonoBehaviour, ICombatReceiver
         }
 
         Destroy(gameObject);
+    }
+
+    private void ResolveReferences()
+    {
+        if (combatTarget == null)
+            combatTarget = GetComponent<CombatTarget>();
+    }
+
+    private void ResolveReferencesInEditor()
+    {
+        if (combatTarget == null)
+            combatTarget = GetComponent<CombatTarget>();
     }
 }
