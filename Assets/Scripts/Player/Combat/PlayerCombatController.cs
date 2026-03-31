@@ -12,6 +12,7 @@ public class PlayerCombatController : MonoBehaviour
     [SerializeField] private PlayerHealth playerHealth;
     [SerializeField] private StatsSystem statsSystem;
     [SerializeField] private SpriteRenderer spriteRenderer;
+    [SerializeField] private PlayerTargetingSystem playerTargetingSystem;
 
     [Header("Attack Hitboxes")]
     [SerializeField] private PlayerCombatHitbox leftHitbox;
@@ -111,6 +112,9 @@ public class PlayerCombatController : MonoBehaviour
 
         if (spriteRenderer == null)
             spriteRenderer = GetComponent<SpriteRenderer>();
+
+        if (playerTargetingSystem == null)
+            playerTargetingSystem = GetComponent<PlayerTargetingSystem>();
     }
 
     public void RegisterHitbox(PlayerCombatHitbox hitbox)
@@ -185,6 +189,14 @@ public class PlayerCombatController : MonoBehaviour
 
     private PlayerAttackSide ResolveAttackSideForNewAttack()
     {
+        PlayerAttackSide targetFallbackSide = lastFacingSide;
+
+        if (playerTargetingSystem != null &&
+            playerTargetingSystem.TryGetPreferredAttackSide(targetFallbackSide, out PlayerAttackSide targetedSide))
+        {
+            return targetedSide;
+        }
+
         if (gameInput != null)
         {
             Vector2 move = gameInput.MoveVector;

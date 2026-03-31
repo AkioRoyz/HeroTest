@@ -10826,6 +10826,7 @@ GameObject:
   - component: {fileID: 775344454}
   - component: {fileID: 775344456}
   - component: {fileID: 775344455}
+  - component: {fileID: 775344457}
   m_Layer: 3
   m_Name: Player
   m_TagString: Player
@@ -10992,7 +10993,6 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1358835863}
-  - {fileID: 1224206919}
   - {fileID: 1903191967}
   - {fileID: 2110860458}
   - {fileID: 769774007}
@@ -11026,11 +11026,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerCombatController
   gameInput: {fileID: 811662987}
-  playerAnimation: {fileID: 0}
+  playerAnimation: {fileID: 775344456}
   playerMoving: {fileID: 1358835864}
   playerHealth: {fileID: 465841263}
   statsSystem: {fileID: 168864646}
   spriteRenderer: {fileID: 775344452}
+  playerTargetingSystem: {fileID: 775344457}
   leftHitbox: {fileID: 372257264}
   rightHitbox: {fileID: 902146723}
   lockMovementDuringAttack: 1
@@ -11063,6 +11064,34 @@ MonoBehaviour:
   playerHealth: {fileID: 465841263}
   gameInput: {fileID: 811662987}
   playerCombatController: {fileID: 0}
+--- !u!114 &775344457
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 775344448}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5b6028516cbcb4c4c9d23d046cb5785c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerTargetingSystem
+  gameInput: {fileID: 811662987}
+  targetingOrigin: {fileID: 775344453}
+  playerCombatController: {fileID: 775344455}
+  autoTargetingEnabled: 1
+  targetTeam: 2
+  targetLayerMask:
+    serializedVersion: 2
+    m_Bits: 64
+  searchRadius: 4
+  targetRefreshInterval: 0.1
+  currentTargetRetentionMultiplier: 1.2
+  currentTargetPriorityMultiplier: 0.85
+  minHorizontalOffsetForSideDecision: 0.1
+  markerPrefab: {fileID: 2029460102256708516, guid: 13694bb4bfebf6841988f371e3c1b092, type: 3}
+  markerParent: {fileID: 0}
+  createMarkerIfMissing: 1
 --- !u!1 &779773541
 GameObject:
   m_ObjectHideFlags: 0
@@ -17786,37 +17815,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1220669411}
   m_CullTransparentMesh: 1
---- !u!1 &1224206917
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1224206919}
-  m_Layer: 3
-  m_Name: PlayerAnimator
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &1224206919
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1224206917}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 775344453}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1242880076
 GameObject:
   m_ObjectHideFlags: 0
