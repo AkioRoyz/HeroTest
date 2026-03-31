@@ -10969,7 +10969,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 1
   m_MaskInteraction: 0
-  m_Sprite: {fileID: -7978735674136817684, guid: 21613b21523ba334b9b982397c9984d2, type: 3}
+  m_Sprite: {fileID: 815424164945274260, guid: ed076067e91b0864090b4011c4b95e14, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -11073,7 +11073,7 @@ MonoBehaviour:
     hitReactionType: 1
   lockMovementDuringAttack: 1
   defaultAttackFailSafeDuration: 0.7
-  preWindowInputBufferDuration: 0.25
+  preWindowInputBufferDuration: 0.3
   allowRetargetBetweenComboSteps: 0
   defaultFacingDirection: {x: 1, y: 0}
   minHorizontalInputToChangeFacing: 0.05
