@@ -48,7 +48,7 @@ public class PlayerAnimation : MonoBehaviour
             gameInput = FindFirstObjectByType<GameInput>();
 
         if (playerHealth == null)
-            playerHealth = FindFirstObjectByType<PlayerHealth>();
+            playerHealth = GetComponent<PlayerHealth>();
 
         if (playerCombatController == null)
             playerCombatController = GetComponent<PlayerCombatController>();
@@ -89,7 +89,7 @@ public class PlayerAnimation : MonoBehaviour
         animator.SetBool("IsRunning", isRunning);
     }
 
-    public void PlayBasicAttack(PlayerAttackSide attackSide)
+    public void PlayComboAttack(int animationComboIndex, PlayerAttackSide attackSide)
     {
         if (animator == null)
             return;
@@ -98,28 +98,68 @@ public class PlayerAnimation : MonoBehaviour
             spriteRenderer.flipX = attackSide == PlayerAttackSide.Left;
 
         animator.SetBool("IsRunning", false);
-        animator.SetInteger("AttackCombo", 1);
         animator.ResetTrigger("Attack");
+        animator.SetInteger("AttackCombo", Mathf.Max(1, animationComboIndex));
         animator.SetTrigger("Attack");
     }
 
-    // Animation Events
+    public void ResetCombatAnimationState()
+    {
+        if (animator == null)
+            return;
+
+        animator.ResetTrigger("Attack");
+        animator.SetInteger("AttackCombo", 0);
+    }
+
+    // Backward-compatible wrapper
+    public void PlayBasicAttack(PlayerAttackSide attackSide)
+    {
+        PlayComboAttack(1, attackSide);
+    }
+
+    public void AnimationEvent_OpenCurrentAttackHitbox()
+    {
+        if (playerCombatController != null)
+            playerCombatController.AnimationEvent_OpenCurrentAttackHitbox();
+    }
+
+    public void AnimationEvent_CloseCurrentAttackHitbox()
+    {
+        if (playerCombatController != null)
+            playerCombatController.AnimationEvent_CloseCurrentAttackHitbox();
+    }
+
+    public void AnimationEvent_OpenComboInputWindow()
+    {
+        if (playerCombatController != null)
+            playerCombatController.AnimationEvent_OpenComboInputWindow();
+    }
+
+    public void AnimationEvent_CloseComboInputWindow()
+    {
+        if (playerCombatController != null)
+            playerCombatController.AnimationEvent_CloseComboInputWindow();
+    }
+
+    public void AnimationEvent_EndCurrentAttackStep()
+    {
+        if (playerCombatController != null)
+            playerCombatController.AnimationEvent_EndCurrentAttackStep();
+    }
 
     public void AnimationEvent_OpenBasicAttackHitbox()
     {
-        if (playerCombatController != null)
-            playerCombatController.AnimationEvent_OpenBasicAttackHitbox();
+        AnimationEvent_OpenCurrentAttackHitbox();
     }
 
     public void AnimationEvent_CloseBasicAttackHitbox()
     {
-        if (playerCombatController != null)
-            playerCombatController.AnimationEvent_CloseBasicAttackHitbox();
+        AnimationEvent_CloseCurrentAttackHitbox();
     }
 
     public void AnimationEvent_EndBasicAttack()
     {
-        if (playerCombatController != null)
-            playerCombatController.AnimationEvent_EndBasicAttack();
+        AnimationEvent_EndCurrentAttackStep();
     }
 }

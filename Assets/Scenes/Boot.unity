@@ -11034,17 +11034,47 @@ MonoBehaviour:
   playerTargetingSystem: {fileID: 775344457}
   leftHitbox: {fileID: 372257264}
   rightHitbox: {fileID: 902146723}
+  comboSteps:
+  - animationComboIndex: 1
+    attackId: player_light_01
+    attackFailSafeDuration: 0.7
+    strengthDamageMultiplier: 1
+    flatDamageBonus: 0
+    randomDamageMinMultiplier: 0.9
+    randomDamageMaxMultiplier: 1.1
+    knockbackForce: 0
+    stunDuration: 0
+    canBeBlocked: 1
+    canBeParried: 1
+    hitReactionType: 1
+  - animationComboIndex: 2
+    attackId: player_light_02
+    attackFailSafeDuration: 0.72
+    strengthDamageMultiplier: 1.1
+    flatDamageBonus: 1
+    randomDamageMinMultiplier: 0.9
+    randomDamageMaxMultiplier: 1.1
+    knockbackForce: 0
+    stunDuration: 0
+    canBeBlocked: 1
+    canBeParried: 1
+    hitReactionType: 1
+  - animationComboIndex: 3
+    attackId: player_light_03
+    attackFailSafeDuration: 0.78
+    strengthDamageMultiplier: 1.25
+    flatDamageBonus: 2
+    randomDamageMinMultiplier: 0.9
+    randomDamageMaxMultiplier: 1.1
+    knockbackForce: 0
+    stunDuration: 0
+    canBeBlocked: 1
+    canBeParried: 1
+    hitReactionType: 1
   lockMovementDuringAttack: 1
-  attackFailSafeDuration: 0.7
-  strengthDamageMultiplier: 1
-  flatDamageBonus: 0
-  randomDamageMinMultiplier: 0.9
-  randomDamageMaxMultiplier: 1.1
-  knockbackForce: 0
-  stunDuration: 0
-  canBeBlocked: 1
-  canBeParried: 1
-  attackId: player_basic_attack_01
+  defaultAttackFailSafeDuration: 0.7
+  preWindowInputBufferDuration: 0.25
+  allowRetargetBetweenComboSteps: 0
   defaultFacingDirection: {x: 1, y: 0}
   minHorizontalInputToChangeFacing: 0.05
 --- !u!114 &775344456
