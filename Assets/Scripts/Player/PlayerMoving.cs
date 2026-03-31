@@ -9,8 +9,12 @@ public class PlayerMoving : MonoBehaviour
     [SerializeField] private PlayerHealth playerHealth;
 
     private float bonusSpeed;
-    private bool isMovementBlocked;
-    private Coroutine blockCoroutine;
+
+    private bool isHitMovementBlocked;
+    private bool isExternalMovementBlocked;
+    private Coroutine hitBlockCoroutine;
+
+    public bool IsMovementBlocked => isHitMovementBlocked || isExternalMovementBlocked;
 
     private void Awake()
     {
@@ -22,13 +26,22 @@ public class PlayerMoving : MonoBehaviour
         ResolveReferences();
 
         if (playerHealth != null)
-            playerHealth.OnTakeDamage += BlockMovement;
+            playerHealth.OnTakeDamage += BlockMovementFromHit;
     }
 
     private void OnDisable()
     {
         if (playerHealth != null)
-            playerHealth.OnTakeDamage -= BlockMovement;
+            playerHealth.OnTakeDamage -= BlockMovementFromHit;
+
+        isHitMovementBlocked = false;
+        isExternalMovementBlocked = false;
+
+        if (hitBlockCoroutine != null)
+        {
+            StopCoroutine(hitBlockCoroutine);
+            hitBlockCoroutine = null;
+        }
     }
 
     private void FixedUpdate()
@@ -50,7 +63,10 @@ public class PlayerMoving : MonoBehaviour
 
     private void Move()
     {
-        if (isMovementBlocked || rb == null || gameInput == null)
+        if (rb == null || gameInput == null)
+            return;
+
+        if (IsMovementBlocked)
             return;
 
         Vector2 move = gameInput.MoveVector;
@@ -59,8 +75,20 @@ public class PlayerMoving : MonoBehaviour
         rb.MovePosition(rb.position + move * currentSpeed * Time.fixedDeltaTime);
     }
 
-    public void AddSpeedBonus(float amount) => bonusSpeed += amount;
-    public void RemoveSpeedBonus(float amount) => bonusSpeed -= amount;
+    public void SetExternalMovementBlocked(bool value)
+    {
+        isExternalMovementBlocked = value;
+    }
+
+    public void AddSpeedBonus(float amount)
+    {
+        bonusSpeed += amount;
+    }
+
+    public void RemoveSpeedBonus(float amount)
+    {
+        bonusSpeed -= amount;
+    }
 
     public void AddTemporarySpeedBonus(float amount, float duration)
     {
@@ -74,19 +102,19 @@ public class PlayerMoving : MonoBehaviour
         RemoveSpeedBonus(amount);
     }
 
-    private void BlockMovement()
+    private void BlockMovementFromHit()
     {
-        if (blockCoroutine != null)
-            StopCoroutine(blockCoroutine);
+        if (hitBlockCoroutine != null)
+            StopCoroutine(hitBlockCoroutine);
 
-        blockCoroutine = StartCoroutine(BlockMovementCoroutine());
+        hitBlockCoroutine = StartCoroutine(BlockMovementCoroutine());
     }
 
     private IEnumerator BlockMovementCoroutine()
     {
-        isMovementBlocked = true;
+        isHitMovementBlocked = true;
         yield return new WaitForSeconds(0.5f);
-        isMovementBlocked = false;
-        blockCoroutine = null;
+        isHitMovementBlocked = false;
+        hitBlockCoroutine = null;
     }
 }

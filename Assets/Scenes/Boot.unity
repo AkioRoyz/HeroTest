@@ -5546,6 +5546,7 @@ GameObject:
   - component: {fileID: 372257261}
   - component: {fileID: 372257263}
   - component: {fileID: 372257262}
+  - component: {fileID: 372257264}
   m_Layer: 7
   m_Name: HitboxLeft
   m_TagString: Untagged
@@ -5580,7 +5581,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 23f84fe7b1c41564ea55ee08b4bd177b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AttackTrigger
-  statsSystem: {fileID: 168864646}
+  showWarningOnAwake: 1
 --- !u!70 &372257263
 CapsuleCollider2D:
   m_ObjectHideFlags: 0
@@ -5618,6 +5619,21 @@ CapsuleCollider2D:
   m_Offset: {x: 0, y: 0}
   m_Size: {x: 0.5, y: 1}
   m_Direction: 0
+--- !u!114 &372257264
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 372257260}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 28f1a4e3f214aa449aa5e61572972f8c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerCombatHitbox
+  side: 0
+  combatController: {fileID: 0}
+  triggerCollider: {fileID: 372257263}
 --- !u!1 &384515907
 GameObject:
   m_ObjectHideFlags: 0
@@ -8933,9 +8949,9 @@ MonoBehaviour:
   inventorySystem: {fileID: 1478176938}
   playerHealth: {fileID: 465841263}
   playerMana: {fileID: 465841264}
-  playerMoving: {fileID: 0}
+  playerMoving: {fileID: 1358835864}
   statsSystem: {fileID: 168864646}
-  playerTransform: {fileID: 0}
+  playerTransform: {fileID: 775344453}
   teleportAnchor: {fileID: 0}
   quickSlotItems:
   - {fileID: 11400000, guid: 1cc543ca1c32b7e4282124b10a78064d, type: 2}
@@ -10655,7 +10671,7 @@ Transform:
   m_Children:
   - {fileID: 902146720}
   - {fileID: 372257261}
-  m_Father: {fileID: 1608453892}
+  m_Father: {fileID: 775344453}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &770654159
 GameObject:
@@ -10809,6 +10825,8 @@ GameObject:
   - component: {fileID: 775344450}
   - component: {fileID: 775344449}
   - component: {fileID: 775344454}
+  - component: {fileID: 775344456}
+  - component: {fileID: 775344455}
   m_Layer: 3
   m_Name: Player
   m_TagString: Player
@@ -10976,9 +10994,9 @@ Transform:
   m_Children:
   - {fileID: 1358835863}
   - {fileID: 1224206919}
-  - {fileID: 1608453892}
   - {fileID: 1903191967}
   - {fileID: 2110860458}
+  - {fileID: 769774007}
   m_Father: {fileID: 1442208805}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &775344454
@@ -10996,6 +11014,56 @@ MonoBehaviour:
   fallbackTeam: 1
   aimPoint: {fileID: 2110860458}
   isTargetable: 1
+--- !u!114 &775344455
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 775344448}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 60e5a72a5916ee74ab65bbb289edd9a7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerCombatController
+  gameInput: {fileID: 811662987}
+  playerAnimation: {fileID: 0}
+  playerMoving: {fileID: 1358835864}
+  playerHealth: {fileID: 465841263}
+  statsSystem: {fileID: 168864646}
+  spriteRenderer: {fileID: 775344452}
+  leftHitbox: {fileID: 372257264}
+  rightHitbox: {fileID: 902146723}
+  lockMovementDuringAttack: 1
+  attackFailSafeDuration: 0.7
+  strengthDamageMultiplier: 1
+  flatDamageBonus: 0
+  randomDamageMinMultiplier: 0.9
+  randomDamageMaxMultiplier: 1.1
+  knockbackForce: 0
+  stunDuration: 0
+  canBeBlocked: 1
+  canBeParried: 1
+  attackId: player_basic_attack_01
+  defaultFacingDirection: {x: 1, y: 0}
+  minHorizontalInputToChangeFacing: 0.05
+--- !u!114 &775344456
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 775344448}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7b65b91e8001cad45baadc35cf690c6b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerAnimation
+  animator: {fileID: 775344449}
+  spriteRenderer: {fileID: 775344452}
+  playerHealth: {fileID: 465841263}
+  gameInput: {fileID: 811662987}
+  playerCombatController: {fileID: 0}
 --- !u!1 &779773541
 GameObject:
   m_ObjectHideFlags: 0
@@ -12257,6 +12325,7 @@ GameObject:
   - component: {fileID: 902146720}
   - component: {fileID: 902146722}
   - component: {fileID: 902146721}
+  - component: {fileID: 902146723}
   m_Layer: 7
   m_Name: HitboxRight
   m_TagString: Untagged
@@ -12291,7 +12360,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 23f84fe7b1c41564ea55ee08b4bd177b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AttackTrigger
-  statsSystem: {fileID: 168864646}
+  showWarningOnAwake: 1
 --- !u!70 &902146722
 CapsuleCollider2D:
   m_ObjectHideFlags: 0
@@ -12329,6 +12398,21 @@ CapsuleCollider2D:
   m_Offset: {x: 0, y: 0}
   m_Size: {x: 0.5, y: 1}
   m_Direction: 0
+--- !u!114 &902146723
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 902146719}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 28f1a4e3f214aa449aa5e61572972f8c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerCombatHitbox
+  side: 1
+  combatController: {fileID: 0}
+  triggerCollider: {fileID: 902146722}
 --- !u!1 &903112934
 GameObject:
   m_ObjectHideFlags: 0
@@ -17584,7 +17668,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1224206919}
-  - component: {fileID: 1224206918}
   m_Layer: 3
   m_Name: PlayerAnimator
   m_TagString: Untagged
@@ -17592,23 +17675,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1224206918
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1224206917}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7b65b91e8001cad45baadc35cf690c6b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PlayerAnimation
-  animator: {fileID: 775344449}
-  spriteRenderer: {fileID: 775344452}
-  playerHealth: {fileID: 465841263}
-  gameInput: {fileID: 811662987}
-  playerAttackSystem: {fileID: 1608453893}
 --- !u!4 &1224206919
 Transform:
   m_ObjectHideFlags: 0
@@ -24821,56 +24887,6 @@ MonoBehaviour:
   itemDescriptionLocalizeEvent: {fileID: 1187420886}
   itemNameText: {fileID: 1354975669}
   itemDescriptionText: {fileID: 1187420887}
---- !u!1 &1608453891
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1608453892}
-  - component: {fileID: 1608453893}
-  m_Layer: 7
-  m_Name: PlayerAttackSystem
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &1608453892
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1608453891}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children:
-  - {fileID: 769774007}
-  m_Father: {fileID: 775344453}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1608453893
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1608453891}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cfc05e0464e4df744839f4c5cf9bad68, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PlayerAttackSystem
-  gameInput: {fileID: 811662987}
-  spriteRenderer: {fileID: 775344452}
-  playerAnimation: {fileID: 1224206918}
-  attackLeft: {fileID: 372257261}
-  attackRight: {fileID: 902146720}
 --- !u!1 &1608696420
 GameObject:
   m_ObjectHideFlags: 0
