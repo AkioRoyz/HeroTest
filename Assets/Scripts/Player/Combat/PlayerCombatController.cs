@@ -5,6 +5,14 @@ using UnityEngine;
 
 public class PlayerCombatController : MonoBehaviour
 {
+    private enum AttackMode
+    {
+        None = 0,
+        LightCombo = 1,
+        HeavyCharge = 2,
+        HeavyAttack = 3
+    }
+
     [Header("Core References")]
     [SerializeField] private GameInput gameInput;
     [SerializeField] private PlayerAnimation playerAnimation;
@@ -18,12 +26,26 @@ public class PlayerCombatController : MonoBehaviour
     [SerializeField] private PlayerCombatHitbox leftHitbox;
     [SerializeField] private PlayerCombatHitbox rightHitbox;
 
-    [Header("Combo Settings")]
+    [Header("Light Combo Settings")]
     [SerializeField] private PlayerComboStepDefinition[] comboSteps;
     [SerializeField] private bool lockMovementDuringAttack = true;
     [SerializeField] private float defaultAttackFailSafeDuration = 0.70f;
     [SerializeField] private float preWindowInputBufferDuration = 0.35f;
     [SerializeField] private bool allowRetargetBetweenComboSteps = true;
+
+    [Header("Heavy Attack Settings")]
+    [SerializeField] private float heavyChargeHoldDuration = 0.35f;
+    [SerializeField] private float heavyAttackFailSafeDuration = 1.10f;
+    [SerializeField] private string heavyAttackId = "player_heavy_01";
+    [SerializeField] private float heavyStrengthDamageMultiplier = 1.75f;
+    [SerializeField] private int heavyFlatDamageBonus = 3;
+    [SerializeField] private float heavyRandomDamageMinMultiplier = 0.95f;
+    [SerializeField] private float heavyRandomDamageMaxMultiplier = 1.15f;
+    [SerializeField] private float heavyKnockbackForce = 0f;
+    [SerializeField] private float heavyStunDuration = 0f;
+    [SerializeField] private bool heavyCanBeBlocked = true;
+    [SerializeField] private bool heavyCanBeParried = true;
+    [SerializeField] private HitReactionType heavyHitReactionType = HitReactionType.Light;
 
     [Header("Facing")]
     [SerializeField] private Vector2 defaultFacingDirection = Vector2.right;
@@ -34,14 +56,19 @@ public class PlayerCombatController : MonoBehaviour
 
     private readonly HashSet<int> hitTargetIds = new HashSet<int>();
 
-    private bool isAttackInProgress;
+    private AttackMode currentAttackMode = AttackMode.None;
+
     private bool isHitboxOpen;
     private bool comboInputWindowOpen;
     private bool queuedNextComboStep;
     private bool preWindowBufferedInputActive;
     private float preWindowBufferedInputExpireTime;
 
+    private bool neutralAttackPressPending;
+    private float neutralAttackPressStartTime;
+
     private int currentComboStepIndex = -1;
+
     private int lastProcessedEndEventFrame = -1;
     private int lastProcessedOpenHitboxEventFrame = -1;
     private int lastProcessedCloseHitboxEventFrame = -1;
@@ -58,15 +85,23 @@ public class PlayerCombatController : MonoBehaviour
     public event Action<int, PlayerAttackSide> OnComboStepFinished;
     public event Action OnComboFinished;
 
-    public bool IsAttackInProgress => isAttackInProgress;
+    public bool IsAttackInProgress => currentAttackMode != AttackMode.None;
+    public bool IsLightComboInProgress => currentAttackMode == AttackMode.LightCombo;
+    public bool IsHeavyCharging => currentAttackMode == AttackMode.HeavyCharge;
+    public bool IsHeavyAttackInProgress => currentAttackMode == AttackMode.HeavyAttack;
+
     public bool IsHitboxOpen => isHitboxOpen;
     public bool IsComboInputWindowOpen => comboInputWindowOpen;
     public bool HasQueuedNextComboStep => queuedNextComboStep;
-    public bool ShouldLockVisualFacing => isAttackInProgress;
-    public int CurrentComboStepNumber => currentComboStepIndex >= 0 ? currentComboStepIndex + 1 : 0;
-    public int CurrentComboStepIndex => currentComboStepIndex;
+    public bool ShouldLockVisualFacing => currentAttackMode != AttackMode.None;
 
-    public PlayerAttackSide CurrentAttackSide => isAttackInProgress ? currentAttackSide : lastFacingSide;
+    public int CurrentComboStepNumber => currentAttackMode == AttackMode.LightCombo && currentComboStepIndex >= 0
+        ? currentComboStepIndex + 1
+        : 0;
+
+    public int CurrentComboStepIndex => currentAttackMode == AttackMode.LightCombo ? currentComboStepIndex : -1;
+
+    public PlayerAttackSide CurrentAttackSide => currentAttackMode != AttackMode.None ? currentAttackSide : lastFacingSide;
 
     public Vector2 CurrentAttackDirection
     {
@@ -89,7 +124,12 @@ public class PlayerCombatController : MonoBehaviour
 
         defaultAttackFailSafeDuration = Mathf.Max(0.05f, defaultAttackFailSafeDuration);
         preWindowInputBufferDuration = Mathf.Max(0.01f, preWindowInputBufferDuration);
+        heavyChargeHoldDuration = Mathf.Max(0.05f, heavyChargeHoldDuration);
+        heavyAttackFailSafeDuration = Mathf.Max(0.05f, heavyAttackFailSafeDuration);
         minHorizontalInputToChangeFacing = Mathf.Max(0f, minHorizontalInputToChangeFacing);
+
+        heavyRandomDamageMinMultiplier = Mathf.Max(0.01f, heavyRandomDamageMinMultiplier);
+        heavyRandomDamageMaxMultiplier = Mathf.Max(heavyRandomDamageMinMultiplier, heavyRandomDamageMaxMultiplier);
     }
 
     private void Awake()
@@ -105,7 +145,10 @@ public class PlayerCombatController : MonoBehaviour
         ResolveReferences();
 
         if (gameInput != null)
+        {
             gameInput.OnAttackStarted += HandleAttackStarted;
+            gameInput.OnAttackCanceled += HandleAttackCanceled;
+        }
 
         if (playerHealth != null)
             playerHealth.OnDied += HandlePlayerDied;
@@ -114,7 +157,10 @@ public class PlayerCombatController : MonoBehaviour
     private void OnDisable()
     {
         if (gameInput != null)
+        {
             gameInput.OnAttackStarted -= HandleAttackStarted;
+            gameInput.OnAttackCanceled -= HandleAttackCanceled;
+        }
 
         if (playerHealth != null)
             playerHealth.OnDied -= HandlePlayerDied;
@@ -126,6 +172,7 @@ public class PlayerCombatController : MonoBehaviour
     {
         UpdateLastFacingFromInput();
         UpdateBufferedInputExpiration();
+        UpdateNeutralAttackHoldDecision();
     }
 
     private void ResolveReferences()
@@ -191,6 +238,26 @@ public class PlayerCombatController : MonoBehaviour
         }
     }
 
+    private void UpdateNeutralAttackHoldDecision()
+    {
+        if (!neutralAttackPressPending)
+            return;
+
+        if (currentAttackMode != AttackMode.None)
+            return;
+
+        if (Time.time - neutralAttackPressStartTime < heavyChargeHoldDuration)
+            return;
+
+        DebugLog(
+            $"NEUTRAL HOLD REACHED HEAVY THRESHOLD | heldFor={(Time.time - neutralAttackPressStartTime):F2} | " +
+            $"threshold={heavyChargeHoldDuration:F2}"
+        );
+
+        CancelNeutralAttackPressCandidate();
+        StartHeavyCharge();
+    }
+
     private void HandlePlayerDied()
     {
         DebugLog("PLAYER DIED -> ForceStopAllCombatState");
@@ -200,22 +267,79 @@ public class PlayerCombatController : MonoBehaviour
     private void HandleAttackStarted()
     {
         DebugLog(
-            $"INPUT AttackStarted | inProgress={isAttackInProgress} | step={CurrentComboStepNumber} | " +
-            $"windowOpen={comboInputWindowOpen} | queued={queuedNextComboStep} | buffered={preWindowBufferedInputActive}"
+            $"INPUT AttackStarted | mode={currentAttackMode} | step={CurrentComboStepNumber} | " +
+            $"windowOpen={comboInputWindowOpen} | queued={queuedNextComboStep} | buffered={preWindowBufferedInputActive} | " +
+            $"neutralPending={neutralAttackPressPending}"
         );
 
-        if (!isAttackInProgress)
+        if (currentAttackMode == AttackMode.None)
         {
+            BeginNeutralAttackPressCandidate();
+            return;
+        }
+
+        if (currentAttackMode == AttackMode.LightCombo)
+        {
+            TryBufferComboContinuationInput();
+            return;
+        }
+
+        DebugLog($"INPUT AttackStarted IGNORED | mode={currentAttackMode}");
+    }
+
+    private void HandleAttackCanceled()
+    {
+        DebugLog(
+            $"INPUT AttackCanceled | mode={currentAttackMode} | neutralPending={neutralAttackPressPending} | " +
+            $"step={CurrentComboStepNumber}"
+        );
+
+        if (currentAttackMode == AttackMode.HeavyCharge)
+        {
+            StartHeavyAttackFromCharge();
+            return;
+        }
+
+        if (neutralAttackPressPending && currentAttackMode == AttackMode.None)
+        {
+            CancelNeutralAttackPressCandidate();
             TryStartComboFromBeginning();
             return;
         }
 
-        TryBufferComboContinuationInput();
+        DebugLog($"INPUT AttackCanceled IGNORED | mode={currentAttackMode}");
+    }
+
+    private void BeginNeutralAttackPressCandidate()
+    {
+        if (neutralAttackPressPending)
+        {
+            DebugLog("BeginNeutralAttackPressCandidate IGNORED | already pending");
+            return;
+        }
+
+        if (!CanStartAttackFromNeutral())
+        {
+            DebugLog("BeginNeutralAttackPressCandidate FAILED | CanStartAttackFromNeutral=false");
+            return;
+        }
+
+        neutralAttackPressPending = true;
+        neutralAttackPressStartTime = Time.time;
+
+        DebugLog($"NEUTRAL ATTACK PRESS STORED | startTime={neutralAttackPressStartTime:F2}");
+    }
+
+    private void CancelNeutralAttackPressCandidate()
+    {
+        neutralAttackPressPending = false;
+        neutralAttackPressStartTime = -1f;
     }
 
     public bool TryStartComboFromBeginning()
     {
         DebugLog("TryStartComboFromBeginning()");
+        CancelNeutralAttackPressCandidate();
         return StartComboStep(0, true);
     }
 
@@ -242,17 +366,16 @@ public class PlayerCombatController : MonoBehaviour
 
         step.Sanitize();
 
+        StopAttackFailSafeTimer();
+        CancelNeutralAttackPressCandidate();
+        ResetAnimationEventGuards();
+
+        currentAttackMode = AttackMode.LightCombo;
         currentComboStepIndex = stepIndex;
-        lastProcessedEndEventFrame = -1;
-        lastProcessedOpenHitboxEventFrame = -1;
-        lastProcessedCloseHitboxEventFrame = -1;
-        lastProcessedOpenComboWindowEventFrame = -1;
-        lastProcessedCloseComboWindowEventFrame = -1;
 
         if (fromNeutral || allowRetargetBetweenComboSteps)
             currentAttackSide = ResolveAttackSideForNewAttack();
 
-        isAttackInProgress = true;
         isHitboxOpen = false;
         comboInputWindowOpen = false;
         queuedNextComboStep = false;
@@ -268,7 +391,7 @@ public class PlayerCombatController : MonoBehaviour
         StartAttackFailSafeTimer(failSafe);
 
         DebugLog(
-            $"START STEP {stepIndex + 1} | animCombo={step.animationComboIndex} | attackId={step.attackId} | " +
+            $"START LIGHT STEP {stepIndex + 1} | animCombo={step.animationComboIndex} | attackId={step.attackId} | " +
             $"side={currentAttackSide} | failSafe={failSafe:F2}"
         );
 
@@ -279,12 +402,82 @@ public class PlayerCombatController : MonoBehaviour
         return true;
     }
 
+    private bool StartHeavyCharge()
+    {
+        if (!CanStartAttackFromNeutral())
+        {
+            DebugLog("StartHeavyCharge FAILED | CanStartAttackFromNeutral=false");
+            return false;
+        }
+
+        StopAttackFailSafeTimer();
+        CancelNeutralAttackPressCandidate();
+        ResetAnimationEventGuards();
+
+        currentAttackMode = AttackMode.HeavyCharge;
+        currentComboStepIndex = -1;
+        currentAttackSide = ResolveAttackSideForNewAttack();
+
+        isHitboxOpen = false;
+        comboInputWindowOpen = false;
+        queuedNextComboStep = false;
+
+        ClearBufferedInput();
+        hitTargetIds.Clear();
+        DisableAllHitboxesImmediate();
+
+        if (lockMovementDuringAttack && playerMoving != null)
+            playerMoving.SetExternalMovementBlocked(true);
+
+        DebugLog($"START HEAVY CHARGE | side={currentAttackSide}");
+
+        if (playerAnimation != null)
+            playerAnimation.PlayHeavyCharge(currentAttackSide);
+
+        return true;
+    }
+
+    private bool StartHeavyAttackFromCharge()
+    {
+        if (currentAttackMode != AttackMode.HeavyCharge)
+        {
+            DebugLog($"StartHeavyAttackFromCharge FAILED | currentMode={currentAttackMode}");
+            return false;
+        }
+
+        StopAttackFailSafeTimer();
+        ResetAnimationEventGuards();
+
+        currentAttackMode = AttackMode.HeavyAttack;
+        currentComboStepIndex = -1;
+
+        isHitboxOpen = false;
+        comboInputWindowOpen = false;
+        queuedNextComboStep = false;
+
+        ClearBufferedInput();
+        hitTargetIds.Clear();
+        DisableAllHitboxesImmediate();
+
+        StartAttackFailSafeTimer(heavyAttackFailSafeDuration);
+
+        DebugLog(
+            $"START HEAVY ATTACK | side={currentAttackSide} | attackId={heavyAttackId} | " +
+            $"failSafe={heavyAttackFailSafeDuration:F2}"
+        );
+
+        if (playerAnimation != null)
+            playerAnimation.PlayHeavyAttack(currentAttackSide);
+
+        return true;
+    }
+
     private bool CanStartAttackFromNeutral()
     {
         if (!enabled || !gameObject.activeInHierarchy)
             return false;
 
-        if (isAttackInProgress)
+        if (currentAttackMode != AttackMode.None)
             return false;
 
         if (playerHealth != null && !playerHealth.IsAlive)
@@ -298,7 +491,7 @@ public class PlayerCombatController : MonoBehaviour
 
     private void TryBufferComboContinuationInput()
     {
-        if (!isAttackInProgress)
+        if (currentAttackMode != AttackMode.LightCombo)
             return;
 
         if (!HasNextComboStep())
@@ -367,9 +560,9 @@ public class PlayerCombatController : MonoBehaviour
 
     public void HandleAnimationEvent_OpenCurrentAttackHitbox()
     {
-        if (!isAttackInProgress)
+        if (currentAttackMode != AttackMode.LightCombo && currentAttackMode != AttackMode.HeavyAttack)
         {
-            DebugLog("EVENT OpenHitbox IGNORED | no attack in progress");
+            DebugLog($"EVENT OpenHitbox IGNORED | mode={currentAttackMode}");
             return;
         }
 
@@ -386,14 +579,14 @@ public class PlayerCombatController : MonoBehaviour
         if (activeHitbox != null)
             activeHitbox.SetHitboxActive(true);
 
-        DebugLog($"EVENT OpenHitbox | step={CurrentComboStepNumber} | side={currentAttackSide}");
+        DebugLog($"EVENT OpenHitbox | mode={currentAttackMode} | step={CurrentComboStepNumber} | side={currentAttackSide}");
     }
 
     public void HandleAnimationEvent_CloseCurrentAttackHitbox()
     {
-        if (!isAttackInProgress && !isHitboxOpen)
+        if ((currentAttackMode != AttackMode.LightCombo && currentAttackMode != AttackMode.HeavyAttack) && !isHitboxOpen)
         {
-            DebugLog("EVENT CloseHitbox IGNORED | no attack / already closed");
+            DebugLog($"EVENT CloseHitbox IGNORED | mode={currentAttackMode} | already closed");
             return;
         }
 
@@ -407,14 +600,14 @@ public class PlayerCombatController : MonoBehaviour
         isHitboxOpen = false;
         DisableAllHitboxesImmediate();
 
-        DebugLog($"EVENT CloseHitbox | step={CurrentComboStepNumber}");
+        DebugLog($"EVENT CloseHitbox | mode={currentAttackMode} | step={CurrentComboStepNumber}");
     }
 
     public void HandleAnimationEvent_OpenComboInputWindow()
     {
-        if (!isAttackInProgress)
+        if (currentAttackMode != AttackMode.LightCombo)
         {
-            DebugLog("EVENT OpenComboWindow IGNORED | no attack in progress");
+            DebugLog($"EVENT OpenComboWindow IGNORED | mode={currentAttackMode}");
             return;
         }
 
@@ -443,9 +636,9 @@ public class PlayerCombatController : MonoBehaviour
 
     public void HandleAnimationEvent_CloseComboInputWindow()
     {
-        if (!isAttackInProgress)
+        if (currentAttackMode != AttackMode.LightCombo)
         {
-            DebugLog("EVENT CloseComboWindow IGNORED | no attack in progress");
+            DebugLog($"EVENT CloseComboWindow IGNORED | mode={currentAttackMode}");
             return;
         }
 
@@ -464,7 +657,7 @@ public class PlayerCombatController : MonoBehaviour
 
     public void HandleAnimationEvent_EndCurrentAttackStep()
     {
-        if (!isAttackInProgress)
+        if (currentAttackMode == AttackMode.None)
         {
             DebugLog("EVENT EndStep IGNORED | no attack in progress");
             return;
@@ -484,6 +677,19 @@ public class PlayerCombatController : MonoBehaviour
         comboInputWindowOpen = false;
         DisableAllHitboxesImmediate();
         ClearBufferedInput();
+
+        if (currentAttackMode == AttackMode.HeavyAttack)
+        {
+            DebugLog($"EVENT EndStep | heavy attack finished | attackId={heavyAttackId}");
+            FinishHeavyAttack();
+            return;
+        }
+
+        if (currentAttackMode != AttackMode.LightCombo)
+        {
+            DebugLog($"EVENT EndStep IGNORED | mode={currentAttackMode}");
+            return;
+        }
 
         int finishedStepIndex = currentComboStepIndex;
         PlayerAttackSide finishedSide = currentAttackSide;
@@ -516,7 +722,7 @@ public class PlayerCombatController : MonoBehaviour
 
     public void NotifyHitboxTriggered(PlayerCombatHitbox hitbox, Collider2D other)
     {
-        if (!isAttackInProgress)
+        if (currentAttackMode != AttackMode.LightCombo && currentAttackMode != AttackMode.HeavyAttack)
             return;
 
         if (!isHitboxOpen)
@@ -551,7 +757,7 @@ public class PlayerCombatController : MonoBehaviour
         DamageInfo damageInfo = BuildDamageInfo(hitPoint);
 
         DebugLog(
-            $"HIT CONFIRMED | step={CurrentComboStepNumber} | attackId={damageInfo.AttackId} | " +
+            $"HIT CONFIRMED | mode={currentAttackMode} | step={CurrentComboStepNumber} | attackId={damageInfo.AttackId} | " +
             $"damage={damageInfo.Damage} | target={receiverTransform.name}"
         );
 
@@ -559,6 +765,14 @@ public class PlayerCombatController : MonoBehaviour
     }
 
     private DamageInfo BuildDamageInfo(Vector3 hitPoint)
+    {
+        if (currentAttackMode == AttackMode.HeavyAttack)
+            return BuildHeavyDamageInfo(hitPoint);
+
+        return BuildLightComboDamageInfo(hitPoint);
+    }
+
+    private DamageInfo BuildLightComboDamageInfo(Vector3 hitPoint)
     {
         PlayerComboStepDefinition step = GetCurrentComboStep();
         if (step == null)
@@ -594,6 +808,35 @@ public class PlayerCombatController : MonoBehaviour
         );
     }
 
+    private DamageInfo BuildHeavyDamageInfo(Vector3 hitPoint)
+    {
+        int strength = statsSystem != null ? Mathf.Max(1, statsSystem.Strength) : 1;
+
+        float minMultiplier = Mathf.Min(heavyRandomDamageMinMultiplier, heavyRandomDamageMaxMultiplier);
+        float maxMultiplier = Mathf.Max(heavyRandomDamageMinMultiplier, heavyRandomDamageMaxMultiplier);
+
+        float randomizedMultiplier = UnityEngine.Random.Range(minMultiplier, maxMultiplier);
+        int calculatedDamage = Mathf.RoundToInt((strength * heavyStrengthDamageMultiplier + heavyFlatDamageBonus) * randomizedMultiplier);
+        calculatedDamage = Mathf.Max(1, calculatedDamage);
+
+        return new DamageInfo(
+            source: gameObject,
+            sourceTeam: CombatTeam.Player,
+            damage: calculatedDamage,
+            direction: CurrentAttackDirection,
+            hitPoint: hitPoint,
+            knockbackForce: heavyKnockbackForce,
+            stunDuration: heavyStunDuration,
+            canBeBlocked: heavyCanBeBlocked,
+            canBeParried: heavyCanBeParried,
+            ignoresInvulnerability: false,
+            isCritical: false,
+            isSpecial: false,
+            hitReactionType: heavyHitReactionType,
+            attackId: heavyAttackId
+        );
+    }
+
     private PlayerCombatHitbox GetActiveHitboxForCurrentAttack()
     {
         return currentAttackSide == PlayerAttackSide.Left ? leftHitbox : rightHitbox;
@@ -610,55 +853,44 @@ public class PlayerCombatController : MonoBehaviour
 
     private void FinishCombo()
     {
-        StopAttackFailSafeTimer();
-
-        bool comboWasActive = isAttackInProgress || currentComboStepIndex >= 0;
+        bool comboWasActive = currentAttackMode == AttackMode.LightCombo || currentComboStepIndex >= 0;
 
         DebugLog($"FinishCombo() | comboWasActive={comboWasActive} | lastStep={CurrentComboStepNumber}");
 
-        isAttackInProgress = false;
-        isHitboxOpen = false;
-        comboInputWindowOpen = false;
-        queuedNextComboStep = false;
-        currentComboStepIndex = -1;
-        lastProcessedEndEventFrame = -1;
-        lastProcessedOpenHitboxEventFrame = -1;
-        lastProcessedCloseHitboxEventFrame = -1;
-        lastProcessedOpenComboWindowEventFrame = -1;
-        lastProcessedCloseComboWindowEventFrame = -1;
-
-        ClearBufferedInput();
-        hitTargetIds.Clear();
-        DisableAllHitboxesImmediate();
-
-        if (lockMovementDuringAttack && playerMoving != null)
-            playerMoving.SetExternalMovementBlocked(false);
-
-        if (playerAnimation != null)
-            playerAnimation.ResetCombatAnimationState();
+        ResetToNeutralCombatState();
 
         if (comboWasActive)
             OnComboFinished?.Invoke();
     }
 
+    private void FinishHeavyAttack()
+    {
+        DebugLog($"FinishHeavyAttack() | attackId={heavyAttackId}");
+
+        ResetToNeutralCombatState();
+    }
+
     private void ForceStopAllCombatState()
+    {
+        DebugLog("ForceStopAllCombatState()");
+        ResetToNeutralCombatState();
+    }
+
+    private void ResetToNeutralCombatState()
     {
         StopAttackFailSafeTimer();
 
-        DebugLog("ForceStopAllCombatState()");
+        currentAttackMode = AttackMode.None;
+        currentComboStepIndex = -1;
 
-        isAttackInProgress = false;
         isHitboxOpen = false;
         comboInputWindowOpen = false;
         queuedNextComboStep = false;
-        currentComboStepIndex = -1;
-        lastProcessedEndEventFrame = -1;
-        lastProcessedOpenHitboxEventFrame = -1;
-        lastProcessedCloseHitboxEventFrame = -1;
-        lastProcessedOpenComboWindowEventFrame = -1;
-        lastProcessedCloseComboWindowEventFrame = -1;
 
         ClearBufferedInput();
+        CancelNeutralAttackPressCandidate();
+        ResetAnimationEventGuards();
+
         hitTargetIds.Clear();
         DisableAllHitboxesImmediate();
 
@@ -669,12 +901,21 @@ public class PlayerCombatController : MonoBehaviour
             playerAnimation.ResetCombatAnimationState();
     }
 
+    private void ResetAnimationEventGuards()
+    {
+        lastProcessedEndEventFrame = -1;
+        lastProcessedOpenHitboxEventFrame = -1;
+        lastProcessedCloseHitboxEventFrame = -1;
+        lastProcessedOpenComboWindowEventFrame = -1;
+        lastProcessedCloseComboWindowEventFrame = -1;
+    }
+
     private void StartAttackFailSafeTimer(float duration)
     {
         StopAttackFailSafeTimer();
         attackFailSafeCoroutine = StartCoroutine(AttackFailSafeRoutine(duration));
 
-        DebugLog($"StartFailSafeTimer | duration={duration:F2} | step={CurrentComboStepNumber}");
+        DebugLog($"StartFailSafeTimer | duration={duration:F2} | mode={currentAttackMode} | step={CurrentComboStepNumber}");
     }
 
     private void StopAttackFailSafeTimer()
@@ -691,15 +932,15 @@ public class PlayerCombatController : MonoBehaviour
         yield return new WaitForSeconds(Mathf.Max(0.05f, duration));
         attackFailSafeCoroutine = null;
 
-        DebugLog($"FAILSAFE TRIGGERED | step={CurrentComboStepNumber}");
+        DebugLog($"FAILSAFE TRIGGERED | mode={currentAttackMode} | step={CurrentComboStepNumber}");
 
-        if (isAttackInProgress)
+        if (currentAttackMode == AttackMode.LightCombo || currentAttackMode == AttackMode.HeavyAttack)
             HandleAnimationEvent_EndCurrentAttackStep();
     }
 
     private bool HasNextComboStep()
     {
-        return IsValidComboStepIndex(currentComboStepIndex + 1);
+        return currentAttackMode == AttackMode.LightCombo && IsValidComboStepIndex(currentComboStepIndex + 1);
     }
 
     private bool HasValidBufferedInput()

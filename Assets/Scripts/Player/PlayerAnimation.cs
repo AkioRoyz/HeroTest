@@ -109,6 +109,8 @@ public class PlayerAnimation : MonoBehaviour
         );
 
         animator.SetBool("IsRunning", false);
+        animator.SetBool("IsHeavyCharging", false);
+        animator.ResetTrigger("HeavyAttack");
         animator.ResetTrigger("Attack");
         animator.SetInteger("AttackCombo", Mathf.Max(1, animationComboIndex));
         animator.SetTrigger("Attack");
@@ -116,14 +118,61 @@ public class PlayerAnimation : MonoBehaviour
         DebugLog($"Animator params set | AttackCombo={Mathf.Max(1, animationComboIndex)} | Trigger Attack");
     }
 
+    public void PlayHeavyCharge(PlayerAttackSide attackSide)
+    {
+        if (animator == null)
+            return;
+
+        if (spriteRenderer != null)
+            spriteRenderer.flipX = attackSide == PlayerAttackSide.Left;
+
+        AnimatorStateInfo stateInfo = animator.GetCurrentAnimatorStateInfo(0);
+
+        DebugLog(
+            $"PlayHeavyCharge() | side={attackSide} | " +
+            $"beforeStateHash={stateInfo.shortNameHash} | normalizedTime={stateInfo.normalizedTime:F2}"
+        );
+
+        animator.SetBool("IsRunning", false);
+        animator.ResetTrigger("Attack");
+        animator.ResetTrigger("HeavyAttack");
+        animator.SetInteger("AttackCombo", 0);
+        animator.SetBool("IsHeavyCharging", true);
+    }
+
+    public void PlayHeavyAttack(PlayerAttackSide attackSide)
+    {
+        if (animator == null)
+            return;
+
+        if (spriteRenderer != null)
+            spriteRenderer.flipX = attackSide == PlayerAttackSide.Left;
+
+        AnimatorStateInfo stateInfo = animator.GetCurrentAnimatorStateInfo(0);
+
+        DebugLog(
+            $"PlayHeavyAttack() | side={attackSide} | " +
+            $"beforeStateHash={stateInfo.shortNameHash} | normalizedTime={stateInfo.normalizedTime:F2}"
+        );
+
+        animator.SetBool("IsRunning", false);
+        animator.SetBool("IsHeavyCharging", false);
+        animator.ResetTrigger("Attack");
+        animator.SetInteger("AttackCombo", 0);
+        animator.ResetTrigger("HeavyAttack");
+        animator.SetTrigger("HeavyAttack");
+    }
+
     public void ResetCombatAnimationState()
     {
         if (animator == null)
             return;
 
-        DebugLog("ResetCombatAnimationState() | reset Attack trigger, set AttackCombo=0");
+        DebugLog("ResetCombatAnimationState() | reset Attack/HeavyAttack triggers, AttackCombo=0, IsHeavyCharging=false");
         animator.ResetTrigger("Attack");
+        animator.ResetTrigger("HeavyAttack");
         animator.SetInteger("AttackCombo", 0);
+        animator.SetBool("IsHeavyCharging", false);
     }
 
     public void PlayBasicAttack(PlayerAttackSide attackSide)
@@ -131,11 +180,9 @@ public class PlayerAnimation : MonoBehaviour
         PlayComboAttack(1, attackSide);
     }
 
-    // ВАЖНО:
     // Animation Events должны приходить только сюда.
     // Этот компонент форвардит их в PlayerCombatController через методы,
     // которые НЕ начинаются с "AnimationEvent_".
-    // Так Unity не сможет случайно вызвать одноимённые методы на двух скриптах сразу.
     public void AnimationEvent_OpenCurrentAttackHitbox()
     {
         DebugLog("AnimationEvent_OpenCurrentAttackHitbox()");
