@@ -5615,8 +5615,8 @@ CapsuleCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0, y: 0}
-  m_Size: {x: 0.5, y: 1}
+  m_Offset: {x: -0.22118701, y: 0.42806196}
+  m_Size: {x: 0.9423742, y: 1.8561239}
   m_Direction: 0
 --- !u!114 &372257264
 MonoBehaviour:
@@ -11037,7 +11037,7 @@ MonoBehaviour:
   comboSteps:
   - animationComboIndex: 1
     attackId: player_light_01
-    attackFailSafeDuration: 5
+    attackFailSafeDuration: 2
     strengthDamageMultiplier: 1
     flatDamageBonus: 0
     randomDamageMinMultiplier: 0.9
@@ -11049,7 +11049,7 @@ MonoBehaviour:
     hitReactionType: 1
   - animationComboIndex: 2
     attackId: player_light_02
-    attackFailSafeDuration: 5
+    attackFailSafeDuration: 2
     strengthDamageMultiplier: 1.1
     flatDamageBonus: 1
     randomDamageMinMultiplier: 0.9
@@ -11061,7 +11061,7 @@ MonoBehaviour:
     hitReactionType: 1
   - animationComboIndex: 3
     attackId: player_light_03
-    attackFailSafeDuration: 5
+    attackFailSafeDuration: 2
     strengthDamageMultiplier: 1.25
     flatDamageBonus: 2
     randomDamageMinMultiplier: 0.9
@@ -12455,8 +12455,8 @@ CapsuleCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0, y: 0}
-  m_Size: {x: 0.5, y: 1}
+  m_Offset: {x: 0.20817603, y: 0.42806196}
+  m_Size: {x: 0.91635203, y: 1.8561239}
   m_Direction: 0
 --- !u!114 &902146723
 MonoBehaviour:

@@ -131,39 +131,49 @@ public class PlayerAnimation : MonoBehaviour
         PlayComboAttack(1, attackSide);
     }
 
+    // ВАЖНО:
+    // Animation Events должны приходить только сюда.
+    // Этот компонент форвардит их в PlayerCombatController через методы,
+    // которые НЕ начинаются с "AnimationEvent_".
+    // Так Unity не сможет случайно вызвать одноимённые методы на двух скриптах сразу.
     public void AnimationEvent_OpenCurrentAttackHitbox()
     {
         DebugLog("AnimationEvent_OpenCurrentAttackHitbox()");
+
         if (playerCombatController != null)
-            playerCombatController.AnimationEvent_OpenCurrentAttackHitbox();
+            playerCombatController.HandleAnimationEvent_OpenCurrentAttackHitbox();
     }
 
     public void AnimationEvent_CloseCurrentAttackHitbox()
     {
         DebugLog("AnimationEvent_CloseCurrentAttackHitbox()");
+
         if (playerCombatController != null)
-            playerCombatController.AnimationEvent_CloseCurrentAttackHitbox();
+            playerCombatController.HandleAnimationEvent_CloseCurrentAttackHitbox();
     }
 
     public void AnimationEvent_OpenComboInputWindow()
     {
         DebugLog("AnimationEvent_OpenComboInputWindow()");
+
         if (playerCombatController != null)
-            playerCombatController.AnimationEvent_OpenComboInputWindow();
+            playerCombatController.HandleAnimationEvent_OpenComboInputWindow();
     }
 
     public void AnimationEvent_CloseComboInputWindow()
     {
         DebugLog("AnimationEvent_CloseComboInputWindow()");
+
         if (playerCombatController != null)
-            playerCombatController.AnimationEvent_CloseComboInputWindow();
+            playerCombatController.HandleAnimationEvent_CloseComboInputWindow();
     }
 
     public void AnimationEvent_EndCurrentAttackStep()
     {
         DebugLog("AnimationEvent_EndCurrentAttackStep()");
+
         if (playerCombatController != null)
-            playerCombatController.AnimationEvent_EndCurrentAttackStep();
+            playerCombatController.HandleAnimationEvent_EndCurrentAttackStep();
     }
 
     public void AnimationEvent_OpenBasicAttackHitbox()

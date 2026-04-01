@@ -43,6 +43,10 @@ public class PlayerCombatController : MonoBehaviour
 
     private int currentComboStepIndex = -1;
     private int lastProcessedEndEventFrame = -1;
+    private int lastProcessedOpenHitboxEventFrame = -1;
+    private int lastProcessedCloseHitboxEventFrame = -1;
+    private int lastProcessedOpenComboWindowEventFrame = -1;
+    private int lastProcessedCloseComboWindowEventFrame = -1;
 
     private Vector2 lastNonZeroMoveDirection = Vector2.right;
     private PlayerAttackSide lastFacingSide = PlayerAttackSide.Right;
@@ -240,6 +244,10 @@ public class PlayerCombatController : MonoBehaviour
 
         currentComboStepIndex = stepIndex;
         lastProcessedEndEventFrame = -1;
+        lastProcessedOpenHitboxEventFrame = -1;
+        lastProcessedCloseHitboxEventFrame = -1;
+        lastProcessedOpenComboWindowEventFrame = -1;
+        lastProcessedCloseComboWindowEventFrame = -1;
 
         if (fromNeutral || allowRetargetBetweenComboSteps)
             currentAttackSide = ResolveAttackSideForNewAttack();
@@ -301,8 +309,16 @@ public class PlayerCombatController : MonoBehaviour
 
         if (comboInputWindowOpen)
         {
-            queuedNextComboStep = true;
-            DebugLog($"QUEUE NEXT STEP IMMEDIATE | currentStep={CurrentComboStepNumber} -> nextStep={CurrentComboStepNumber + 1}");
+            if (!queuedNextComboStep)
+            {
+                queuedNextComboStep = true;
+                DebugLog($"QUEUE NEXT STEP IMMEDIATE | currentStep={CurrentComboStepNumber} -> nextStep={CurrentComboStepNumber + 1}");
+            }
+            else
+            {
+                DebugLog($"QUEUE NEXT STEP IGNORED | already queued | currentStep={CurrentComboStepNumber}");
+            }
+
             return;
         }
 
@@ -349,7 +365,7 @@ public class PlayerCombatController : MonoBehaviour
         return defaultFacingDirection.x < 0f ? PlayerAttackSide.Left : PlayerAttackSide.Right;
     }
 
-    public void AnimationEvent_OpenCurrentAttackHitbox()
+    public void HandleAnimationEvent_OpenCurrentAttackHitbox()
     {
         if (!isAttackInProgress)
         {
@@ -357,6 +373,13 @@ public class PlayerCombatController : MonoBehaviour
             return;
         }
 
+        if (lastProcessedOpenHitboxEventFrame == Time.frameCount)
+        {
+            DebugLog($"EVENT OpenHitbox IGNORED | duplicate same frame | frame={Time.frameCount}");
+            return;
+        }
+
+        lastProcessedOpenHitboxEventFrame = Time.frameCount;
         isHitboxOpen = true;
 
         PlayerCombatHitbox activeHitbox = GetActiveHitboxForCurrentAttack();
@@ -366,15 +389,28 @@ public class PlayerCombatController : MonoBehaviour
         DebugLog($"EVENT OpenHitbox | step={CurrentComboStepNumber} | side={currentAttackSide}");
     }
 
-    public void AnimationEvent_CloseCurrentAttackHitbox()
+    public void HandleAnimationEvent_CloseCurrentAttackHitbox()
     {
+        if (!isAttackInProgress && !isHitboxOpen)
+        {
+            DebugLog("EVENT CloseHitbox IGNORED | no attack / already closed");
+            return;
+        }
+
+        if (lastProcessedCloseHitboxEventFrame == Time.frameCount)
+        {
+            DebugLog($"EVENT CloseHitbox IGNORED | duplicate same frame | frame={Time.frameCount}");
+            return;
+        }
+
+        lastProcessedCloseHitboxEventFrame = Time.frameCount;
         isHitboxOpen = false;
         DisableAllHitboxesImmediate();
 
         DebugLog($"EVENT CloseHitbox | step={CurrentComboStepNumber}");
     }
 
-    public void AnimationEvent_OpenComboInputWindow()
+    public void HandleAnimationEvent_OpenComboInputWindow()
     {
         if (!isAttackInProgress)
         {
@@ -382,6 +418,13 @@ public class PlayerCombatController : MonoBehaviour
             return;
         }
 
+        if (lastProcessedOpenComboWindowEventFrame == Time.frameCount)
+        {
+            DebugLog($"EVENT OpenComboWindow IGNORED | duplicate same frame | frame={Time.frameCount}");
+            return;
+        }
+
+        lastProcessedOpenComboWindowEventFrame = Time.frameCount;
         comboInputWindowOpen = true;
 
         DebugLog(
@@ -398,15 +441,28 @@ public class PlayerCombatController : MonoBehaviour
         }
     }
 
-    public void AnimationEvent_CloseComboInputWindow()
+    public void HandleAnimationEvent_CloseComboInputWindow()
     {
+        if (!isAttackInProgress)
+        {
+            DebugLog("EVENT CloseComboWindow IGNORED | no attack in progress");
+            return;
+        }
+
+        if (lastProcessedCloseComboWindowEventFrame == Time.frameCount)
+        {
+            DebugLog($"EVENT CloseComboWindow IGNORED | duplicate same frame | frame={Time.frameCount}");
+            return;
+        }
+
+        lastProcessedCloseComboWindowEventFrame = Time.frameCount;
         comboInputWindowOpen = false;
         ClearBufferedInput();
 
         DebugLog($"EVENT CloseComboWindow | step={CurrentComboStepNumber} | queued={queuedNextComboStep}");
     }
 
-    public void AnimationEvent_EndCurrentAttackStep()
+    public void HandleAnimationEvent_EndCurrentAttackStep()
     {
         if (!isAttackInProgress)
         {
@@ -445,27 +501,17 @@ public class PlayerCombatController : MonoBehaviour
 
             DebugLog($"CHAIN TO NEXT STEP | {finishedStepIndex + 1} -> {nextStepIndex + 1}");
 
-            StartComboStep(nextStepIndex, false);
+            if (!StartComboStep(nextStepIndex, false))
+            {
+                DebugLog("CHAIN FAILED -> FinishCombo()");
+                FinishCombo();
+            }
+
             return;
         }
 
         DebugLog("NO CHAIN -> FinishCombo()");
         FinishCombo();
-    }
-
-    public void AnimationEvent_OpenBasicAttackHitbox()
-    {
-        AnimationEvent_OpenCurrentAttackHitbox();
-    }
-
-    public void AnimationEvent_CloseBasicAttackHitbox()
-    {
-        AnimationEvent_CloseCurrentAttackHitbox();
-    }
-
-    public void AnimationEvent_EndBasicAttack()
-    {
-        AnimationEvent_EndCurrentAttackStep();
     }
 
     public void NotifyHitboxTriggered(PlayerCombatHitbox hitbox, Collider2D other)
@@ -576,6 +622,10 @@ public class PlayerCombatController : MonoBehaviour
         queuedNextComboStep = false;
         currentComboStepIndex = -1;
         lastProcessedEndEventFrame = -1;
+        lastProcessedOpenHitboxEventFrame = -1;
+        lastProcessedCloseHitboxEventFrame = -1;
+        lastProcessedOpenComboWindowEventFrame = -1;
+        lastProcessedCloseComboWindowEventFrame = -1;
 
         ClearBufferedInput();
         hitTargetIds.Clear();
@@ -603,6 +653,10 @@ public class PlayerCombatController : MonoBehaviour
         queuedNextComboStep = false;
         currentComboStepIndex = -1;
         lastProcessedEndEventFrame = -1;
+        lastProcessedOpenHitboxEventFrame = -1;
+        lastProcessedCloseHitboxEventFrame = -1;
+        lastProcessedOpenComboWindowEventFrame = -1;
+        lastProcessedCloseComboWindowEventFrame = -1;
 
         ClearBufferedInput();
         hitTargetIds.Clear();
@@ -640,7 +694,7 @@ public class PlayerCombatController : MonoBehaviour
         DebugLog($"FAILSAFE TRIGGERED | step={CurrentComboStepNumber}");
 
         if (isAttackInProgress)
-            AnimationEvent_EndCurrentAttackStep();
+            HandleAnimationEvent_EndCurrentAttackStep();
     }
 
     private bool HasNextComboStep()
