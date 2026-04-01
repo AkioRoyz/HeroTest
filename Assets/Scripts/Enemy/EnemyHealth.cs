@@ -22,6 +22,11 @@ public class EnemyHealth : MonoBehaviour, ICombatReceiver
     [SerializeField] private bool showDamageNumbers = true;
     [SerializeField] private CombatTarget combatTarget;
 
+    [Header("Death Lifecycle")]
+    [SerializeField] private bool destroyImmediatelyOnDeath = true;
+    [SerializeField] private float destroyDelayAfterDeath = 0f;
+    [SerializeField] private bool disableCombatTargetOnDeath = true;
+
     private bool isDead;
 
     public event Action OnEnemyHealthChange;
@@ -37,22 +42,48 @@ public class EnemyHealth : MonoBehaviour, ICombatReceiver
     public bool IsAlive => !isDead && currentHealth > 0;
     public Transform Transform => transform;
     public bool IsInvulnerable => isInvulnerable;
+    public bool IsDead => isDead;
 
     private void Awake()
     {
         ResolveReferences();
+
+        maxHealth = Mathf.Max(1, maxHealth);
         currentHealth = maxHealth;
         isDead = false;
     }
 
     private void OnValidate()
     {
+        maxHealth = Mathf.Max(1, maxHealth);
+        currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth);
+        destroyDelayAfterDeath = Mathf.Max(0f, destroyDelayAfterDeath);
+
         ResolveReferencesInEditor();
     }
 
     public void SetInvulnerable(bool value)
     {
         isInvulnerable = value;
+    }
+
+    public void SetDestroyImmediatelyOnDeath(bool value)
+    {
+        destroyImmediatelyOnDeath = value;
+    }
+
+    public void SetDestroyDelayAfterDeath(float value)
+    {
+        destroyDelayAfterDeath = Mathf.Max(0f, value);
+    }
+
+    public void DestroyAfterDeath(float delay = -1f)
+    {
+        if (!isDead)
+            return;
+
+        float resolvedDelay = delay >= 0f ? delay : destroyDelayAfterDeath;
+        Destroy(gameObject, Mathf.Max(0f, resolvedDelay));
     }
 
     [ContextMenu("Debug/Take 10 Damage (Legacy)")]
@@ -202,6 +233,11 @@ public class EnemyHealth : MonoBehaviour, ICombatReceiver
             return;
 
         isDead = true;
+
+        if (disableCombatTargetOnDeath && combatTarget != null)
+            combatTarget.SetTargetable(false);
+
+        OnEnemyHealthChange?.Invoke();
         OnDied?.Invoke();
 
         if (QuestManager.Instance != null)
@@ -219,7 +255,8 @@ public class EnemyHealth : MonoBehaviour, ICombatReceiver
             Debug.LogWarning("EnemyHealth: RewardSystem.Instance is missing.");
         }
 
-        Destroy(gameObject);
+        if (destroyImmediatelyOnDeath)
+            DestroyAfterDeath();
     }
 
     private void ResolveReferences()
