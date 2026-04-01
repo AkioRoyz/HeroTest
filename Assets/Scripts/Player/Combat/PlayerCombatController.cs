@@ -65,7 +65,12 @@ public class PlayerCombatController : MonoBehaviour
     private float preWindowBufferedInputExpireTime;
 
     private bool neutralAttackPressPending;
-    private float neutralAttackPressStartTime;
+    private float neutralAttackPressStartTime = -1f;
+
+    private bool isAttackButtonHeld;
+    private float attackButtonHoldStartTime = -1f;
+
+    private bool pendingHeavyFollowUp;
 
     private int currentComboStepIndex = -1;
 
@@ -173,6 +178,7 @@ public class PlayerCombatController : MonoBehaviour
         UpdateLastFacingFromInput();
         UpdateBufferedInputExpiration();
         UpdateNeutralAttackHoldDecision();
+        UpdateHeavyFollowUpDecision();
     }
 
     private void ResolveReferences()
@@ -255,7 +261,12 @@ public class PlayerCombatController : MonoBehaviour
         );
 
         CancelNeutralAttackPressCandidate();
-        StartHeavyCharge();
+        StartHeavyChargeFromNeutral();
+    }
+
+    private void UpdateHeavyFollowUpDecision()
+    {
+        TryArmHeavyFollowUpDuringLightCombo();
     }
 
     private void HandlePlayerDied()
@@ -266,10 +277,12 @@ public class PlayerCombatController : MonoBehaviour
 
     private void HandleAttackStarted()
     {
+        BeginAttackButtonHold();
+
         DebugLog(
             $"INPUT AttackStarted | mode={currentAttackMode} | step={CurrentComboStepNumber} | " +
             $"windowOpen={comboInputWindowOpen} | queued={queuedNextComboStep} | buffered={preWindowBufferedInputActive} | " +
-            $"neutralPending={neutralAttackPressPending}"
+            $"neutralPending={neutralAttackPressPending} | held={isAttackButtonHeld}"
         );
 
         if (currentAttackMode == AttackMode.None)
@@ -281,6 +294,7 @@ public class PlayerCombatController : MonoBehaviour
         if (currentAttackMode == AttackMode.LightCombo)
         {
             TryBufferComboContinuationInput();
+            TryArmHeavyFollowUpDuringLightCombo();
             return;
         }
 
@@ -289,14 +303,28 @@ public class PlayerCombatController : MonoBehaviour
 
     private void HandleAttackCanceled()
     {
+        float heldDuration = GetCurrentAttackButtonHeldDuration();
+        EndAttackButtonHold();
+
         DebugLog(
             $"INPUT AttackCanceled | mode={currentAttackMode} | neutralPending={neutralAttackPressPending} | " +
-            $"step={CurrentComboStepNumber}"
+            $"step={CurrentComboStepNumber} | heldDuration={heldDuration:F2} | pendingHeavyFollowUp={pendingHeavyFollowUp}"
         );
 
         if (currentAttackMode == AttackMode.HeavyCharge)
         {
             StartHeavyAttackFromCharge();
+            return;
+        }
+
+        if (currentAttackMode == AttackMode.LightCombo)
+        {
+            if (pendingHeavyFollowUp)
+            {
+                DebugLog("HEAVY FOLLOW-UP DISARMED | button released before combo step ended");
+                pendingHeavyFollowUp = false;
+            }
+
             return;
         }
 
@@ -308,6 +336,26 @@ public class PlayerCombatController : MonoBehaviour
         }
 
         DebugLog($"INPUT AttackCanceled IGNORED | mode={currentAttackMode}");
+    }
+
+    private void BeginAttackButtonHold()
+    {
+        isAttackButtonHeld = true;
+        attackButtonHoldStartTime = Time.time;
+    }
+
+    private void EndAttackButtonHold()
+    {
+        isAttackButtonHeld = false;
+        attackButtonHoldStartTime = -1f;
+    }
+
+    private float GetCurrentAttackButtonHeldDuration()
+    {
+        if (!isAttackButtonHeld || attackButtonHoldStartTime < 0f)
+            return 0f;
+
+        return Time.time - attackButtonHoldStartTime;
     }
 
     private void BeginNeutralAttackPressCandidate()
@@ -379,6 +427,7 @@ public class PlayerCombatController : MonoBehaviour
         isHitboxOpen = false;
         comboInputWindowOpen = false;
         queuedNextComboStep = false;
+        pendingHeavyFollowUp = false;
 
         ClearBufferedInput();
         hitTargetIds.Clear();
@@ -402,25 +451,44 @@ public class PlayerCombatController : MonoBehaviour
         return true;
     }
 
-    private bool StartHeavyCharge()
+    private bool StartHeavyChargeFromNeutral()
     {
         if (!CanStartAttackFromNeutral())
         {
-            DebugLog("StartHeavyCharge FAILED | CanStartAttackFromNeutral=false");
+            DebugLog("StartHeavyChargeFromNeutral FAILED | CanStartAttackFromNeutral=false");
             return false;
         }
 
+        return EnterHeavyChargeState(resolveNewSide: true, reason: "neutral hold");
+    }
+
+    private bool StartHeavyChargeFromComboFollowUp()
+    {
+        if (currentAttackMode != AttackMode.LightCombo)
+        {
+            DebugLog($"StartHeavyChargeFromComboFollowUp FAILED | currentMode={currentAttackMode}");
+            return false;
+        }
+
+        return EnterHeavyChargeState(resolveNewSide: false, reason: "combo follow-up");
+    }
+
+    private bool EnterHeavyChargeState(bool resolveNewSide, string reason)
+    {
         StopAttackFailSafeTimer();
         CancelNeutralAttackPressCandidate();
         ResetAnimationEventGuards();
 
         currentAttackMode = AttackMode.HeavyCharge;
         currentComboStepIndex = -1;
-        currentAttackSide = ResolveAttackSideForNewAttack();
+
+        if (resolveNewSide)
+            currentAttackSide = ResolveAttackSideForNewAttack();
 
         isHitboxOpen = false;
         comboInputWindowOpen = false;
         queuedNextComboStep = false;
+        pendingHeavyFollowUp = false;
 
         ClearBufferedInput();
         hitTargetIds.Clear();
@@ -429,7 +497,7 @@ public class PlayerCombatController : MonoBehaviour
         if (lockMovementDuringAttack && playerMoving != null)
             playerMoving.SetExternalMovementBlocked(true);
 
-        DebugLog($"START HEAVY CHARGE | side={currentAttackSide}");
+        DebugLog($"START HEAVY CHARGE | reason={reason} | side={currentAttackSide}");
 
         if (playerAnimation != null)
             playerAnimation.PlayHeavyCharge(currentAttackSide);
@@ -454,6 +522,7 @@ public class PlayerCombatController : MonoBehaviour
         isHitboxOpen = false;
         comboInputWindowOpen = false;
         queuedNextComboStep = false;
+        pendingHeavyFollowUp = false;
 
         ClearBufferedInput();
         hitTargetIds.Clear();
@@ -522,6 +591,34 @@ public class PlayerCombatController : MonoBehaviour
             $"BUFFER INPUT STORED | currentStep={CurrentComboStepNumber} | expiresAt={preWindowBufferedInputExpireTime:F2} | " +
             $"bufferDuration={preWindowInputBufferDuration:F2}"
         );
+    }
+
+    private bool TryArmHeavyFollowUpDuringLightCombo()
+    {
+        if (currentAttackMode != AttackMode.LightCombo)
+            return false;
+
+        if (pendingHeavyFollowUp)
+            return false;
+
+        if (!isAttackButtonHeld)
+            return false;
+
+        if (HasNextComboStep())
+            return false;
+
+        float heldDuration = GetCurrentAttackButtonHeldDuration();
+        if (heldDuration < heavyChargeHoldDuration)
+            return false;
+
+        pendingHeavyFollowUp = true;
+
+        DebugLog(
+            $"HEAVY FOLLOW-UP ARMED | step={CurrentComboStepNumber} | heldDuration={heldDuration:F2} | " +
+            $"threshold={heavyChargeHoldDuration:F2}"
+        );
+
+        return true;
     }
 
     private PlayerAttackSide ResolveAttackSideForNewAttack()
@@ -695,7 +792,8 @@ public class PlayerCombatController : MonoBehaviour
         PlayerAttackSide finishedSide = currentAttackSide;
 
         DebugLog(
-            $"EVENT EndStep | finishedStep={finishedStepIndex + 1} | queuedNext={queuedNextComboStep} | hasNext={HasNextComboStep()}"
+            $"EVENT EndStep | finishedStep={finishedStepIndex + 1} | queuedNext={queuedNextComboStep} | " +
+            $"hasNext={HasNextComboStep()} | pendingHeavyFollowUp={pendingHeavyFollowUp} | buttonHeld={isAttackButtonHeld}"
         );
 
         OnComboStepFinished?.Invoke(finishedStepIndex, finishedSide);
@@ -714,6 +812,25 @@ public class PlayerCombatController : MonoBehaviour
             }
 
             return;
+        }
+
+        if (pendingHeavyFollowUp && !HasNextComboStep())
+        {
+            if (isAttackButtonHeld)
+            {
+                DebugLog($"CHAIN TO HEAVY CHARGE | finishedStep={finishedStepIndex + 1}");
+
+                if (!StartHeavyChargeFromComboFollowUp())
+                {
+                    DebugLog("HEAVY FOLLOW-UP CHAIN FAILED -> FinishCombo()");
+                    FinishCombo();
+                }
+
+                return;
+            }
+
+            DebugLog("HEAVY FOLLOW-UP DROPPED | button is no longer held");
+            pendingHeavyFollowUp = false;
         }
 
         DebugLog("NO CHAIN -> FinishCombo()");
@@ -886,9 +1003,11 @@ public class PlayerCombatController : MonoBehaviour
         isHitboxOpen = false;
         comboInputWindowOpen = false;
         queuedNextComboStep = false;
+        pendingHeavyFollowUp = false;
 
         ClearBufferedInput();
         CancelNeutralAttackPressCandidate();
+        EndAttackButtonHold();
         ResetAnimationEventGuards();
 
         hitTargetIds.Clear();
