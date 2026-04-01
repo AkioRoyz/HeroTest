@@ -24,7 +24,13 @@ public class EnemyController : MonoBehaviour
     [SerializeField] private Rigidbody2D rb;
     [SerializeField] private SpriteRenderer spriteRenderer;
     [SerializeField] private CombatTarget combatTarget;
+
+    [SerializeField] private Collider2D bodyCollider;
+
     [SerializeField] private PlayerHealth playerHealth;
+    [SerializeField] private PlayerMoving playerMoving;
+    [SerializeField] private Transform playerTargetTransform;
+    [SerializeField] private Collider2D playerBodyCollider;
 
     [Header("Attack Hitboxes")]
     [SerializeField] private EnemyAttackHitbox leftHitbox;
@@ -33,7 +39,10 @@ public class EnemyController : MonoBehaviour
     [Header("Perception")]
     [SerializeField] private float detectionRadius = 4.5f;
     [SerializeField] private float loseTargetRadius = 6f;
-    [SerializeField] private float attackRange = 1.1f;
+
+    [Header("Combat Distance")]
+    [SerializeField] private float attackRange = 0.20f;
+    [SerializeField] private float movementStopDistance = 0.08f;
 
     [Header("Movement")]
     [SerializeField] private float moveSpeed = 2f;
@@ -67,6 +76,7 @@ public class EnemyController : MonoBehaviour
 
     [Header("Debug")]
     [SerializeField] private bool enableEnemyDebugLogs = true;
+    [SerializeField] private bool logTargetResolution = true;
 
     private readonly HashSet<int> hitTargetIds = new HashSet<int>();
 
@@ -82,10 +92,11 @@ public class EnemyController : MonoBehaviour
     private Coroutine attackFailSafeCoroutine;
 
     public bool IsFacingLeft => isFacingLeft;
+
     public bool IsMovingAnimationDesired =>
         currentState == EnemyState.Chase &&
         HasValidPlayerTarget() &&
-        DistanceToPlayer() > attackRange * 0.85f;
+        GetCombatDistanceToPlayer() > movementStopDistance + 0.01f;
 
     public bool ShouldLockVisualFacing =>
         currentState == EnemyState.Windup ||
@@ -102,7 +113,8 @@ public class EnemyController : MonoBehaviour
     {
         detectionRadius = Mathf.Max(0.1f, detectionRadius);
         loseTargetRadius = Mathf.Max(detectionRadius, loseTargetRadius);
-        attackRange = Mathf.Max(0.1f, attackRange);
+        attackRange = Mathf.Max(0.01f, attackRange);
+        movementStopDistance = Mathf.Max(0f, movementStopDistance);
         moveSpeed = Mathf.Max(0f, moveSpeed);
         windupDuration = Mathf.Max(0f, windupDuration);
         recoveryDuration = Mathf.Max(0f, recoveryDuration);
@@ -127,14 +139,12 @@ public class EnemyController : MonoBehaviour
         if (enemyHealth != null)
             enemyHealth.SetDestroyImmediatelyOnDeath(false);
 
-        // ВАЖНО:
-        // Не определяем тут стартовое состояние через enemyHealth.IsAlive.
-        // EnemyHealth может ещё не успеть инициализировать currentHealth в своём Awake.
         currentState = EnemyState.Idle;
     }
 
     private void Start()
     {
+        RefreshPlayerReferences(forceRefresh: true);
         InitializeRuntimeStateAfterAllAwake();
     }
 
@@ -164,11 +174,8 @@ public class EnemyController : MonoBehaviour
 
     private void Update()
     {
-        TryResolveMissingPlayerReference();
+        RefreshPlayerReferences(forceRefresh: false);
 
-        // Дополнительная защита:
-        // если событие смерти по какой-то причине было пропущено,
-        // контроллер всё равно увидит мёртвого врага и переведёт его в Death.
         if (enemyHealth != null && enemyHealth.IsDead)
         {
             if (currentState != EnemyState.Death)
@@ -222,18 +229,21 @@ public class EnemyController : MonoBehaviour
         if (rb == null)
             return;
 
-        Vector2 currentPosition = rb.position;
-        Vector2 targetPosition = playerHealth.transform.position;
-        Vector2 toTarget = targetPosition - currentPosition;
+        float combatDistance = GetCombatDistanceToPlayer();
+        float stopDistance = Mathf.Max(0f, movementStopDistance);
 
-        float distance = toTarget.magnitude;
-        float stopDistance = Mathf.Max(0.05f, attackRange * 0.85f);
-
-        if (distance <= stopDistance)
+        if (combatDistance <= stopDistance)
             return;
 
-        Vector2 direction = toTarget / distance;
-        rb.MovePosition(currentPosition + direction * moveSpeed * Time.fixedDeltaTime);
+        Vector2 direction = GetDirectionToPlayer();
+        if (direction.sqrMagnitude <= 0.0001f)
+            return;
+
+        float maxStep = moveSpeed * Time.fixedDeltaTime;
+        float allowedStep = Mathf.Max(0f, combatDistance - stopDistance);
+        float finalStep = Mathf.Min(maxStep, allowedStep);
+
+        rb.MovePosition(rb.position + direction * finalStep);
     }
 
     private void InitializeRuntimeStateAfterAllAwake()
@@ -264,14 +274,188 @@ public class EnemyController : MonoBehaviour
         if (combatTarget == null)
             combatTarget = GetComponent<CombatTarget>();
 
-        if (playerHealth == null)
-            playerHealth = FindFirstObjectByType<PlayerHealth>();
+        if (bodyCollider == null)
+            bodyCollider = GetComponent<Collider2D>();
     }
 
-    private void TryResolveMissingPlayerReference()
+    private void RefreshPlayerReferences(bool forceRefresh)
     {
-        if (playerHealth == null)
-            playerHealth = FindFirstObjectByType<PlayerHealth>();
+        bool needHealthRefresh = forceRefresh || !IsPlayerHealthUsable(playerHealth);
+        bool needMovingRefresh = forceRefresh || !IsPlayerMovingUsable(playerMoving);
+        bool needTransformRefresh = forceRefresh || !IsPlayerTargetTransformUsable(playerTargetTransform);
+        bool needBodyColliderRefresh = forceRefresh || !IsBodyColliderUsable(playerBodyCollider);
+
+        if (!needHealthRefresh && !needMovingRefresh && !needTransformRefresh && !needBodyColliderRefresh)
+            return;
+
+        PlayerHealth oldHealth = playerHealth;
+        PlayerMoving oldMoving = playerMoving;
+        Transform oldTargetTransform = playerTargetTransform;
+        Collider2D oldPlayerBodyCollider = playerBodyCollider;
+
+        if (needHealthRefresh)
+            playerHealth = FindBestPlayerHealth();
+
+        if (needMovingRefresh)
+            playerMoving = FindBestPlayerMoving();
+
+        if (needTransformRefresh)
+            playerTargetTransform = ResolveBestPlayerTargetTransform(playerHealth, playerMoving);
+
+        if (needBodyColliderRefresh)
+            playerBodyCollider = ResolveBestPlayerBodyCollider(playerHealth, playerMoving, playerTargetTransform);
+
+        if (logTargetResolution)
+        {
+            string oldHealthName = oldHealth != null ? oldHealth.name : "null";
+            string newHealthName = playerHealth != null ? playerHealth.name : "null";
+
+            string oldMovingName = oldMoving != null ? oldMoving.name : "null";
+            string newMovingName = playerMoving != null ? playerMoving.name : "null";
+
+            string oldTargetName = oldTargetTransform != null ? oldTargetTransform.name : "null";
+            string newTargetName = playerTargetTransform != null ? playerTargetTransform.name : "null";
+
+            string oldColliderName = oldPlayerBodyCollider != null ? oldPlayerBodyCollider.name : "null";
+            string newColliderName = playerBodyCollider != null ? playerBodyCollider.name : "null";
+
+            DebugLog(
+                $"TARGET REFRESH | health: {oldHealthName} -> {newHealthName} | " +
+                $"moving: {oldMovingName} -> {newMovingName} | " +
+                $"targetTransform: {oldTargetName} -> {newTargetName} | " +
+                $"bodyCollider: {oldColliderName} -> {newColliderName}"
+            );
+        }
+    }
+
+    private PlayerHealth FindBestPlayerHealth()
+    {
+        PlayerHealth[] candidates = FindObjectsByType<PlayerHealth>(FindObjectsSortMode.None);
+
+        PlayerHealth best = null;
+        float bestDistanceSqr = float.MaxValue;
+        Vector3 selfPosition = transform.position;
+
+        for (int i = 0; i < candidates.Length; i++)
+        {
+            PlayerHealth candidate = candidates[i];
+            if (!IsPlayerHealthUsable(candidate))
+                continue;
+
+            float distanceSqr = (candidate.transform.position - selfPosition).sqrMagnitude;
+            if (distanceSqr < bestDistanceSqr)
+            {
+                bestDistanceSqr = distanceSqr;
+                best = candidate;
+            }
+        }
+
+        return best;
+    }
+
+    private PlayerMoving FindBestPlayerMoving()
+    {
+        PlayerMoving[] candidates = FindObjectsByType<PlayerMoving>(FindObjectsSortMode.None);
+
+        PlayerMoving best = null;
+        float bestDistanceSqr = float.MaxValue;
+        Vector3 selfPosition = transform.position;
+
+        for (int i = 0; i < candidates.Length; i++)
+        {
+            PlayerMoving candidate = candidates[i];
+            if (!IsPlayerMovingUsable(candidate))
+                continue;
+
+            float distanceSqr = (candidate.transform.position - selfPosition).sqrMagnitude;
+            if (distanceSqr < bestDistanceSqr)
+            {
+                bestDistanceSqr = distanceSqr;
+                best = candidate;
+            }
+        }
+
+        return best;
+    }
+
+    private Transform ResolveBestPlayerTargetTransform(PlayerHealth health, PlayerMoving moving)
+    {
+        if (IsPlayerMovingUsable(moving))
+            return moving.transform;
+
+        if (IsPlayerHealthUsable(health))
+        {
+            PlayerMoving movingFromParent = health.GetComponentInParent<PlayerMoving>();
+            if (IsPlayerMovingUsable(movingFromParent))
+                return movingFromParent.transform;
+
+            return health.transform;
+        }
+
+        return null;
+    }
+
+    private Collider2D ResolveBestPlayerBodyCollider(PlayerHealth health, PlayerMoving moving, Transform targetTransform)
+    {
+        if (IsPlayerMovingUsable(moving))
+        {
+            Collider2D fromMoving = moving.GetComponent<Collider2D>();
+            if (IsBodyColliderUsable(fromMoving))
+                return fromMoving;
+
+            Collider2D fromMovingChild = moving.GetComponentInChildren<Collider2D>();
+            if (IsBodyColliderUsable(fromMovingChild))
+                return fromMovingChild;
+        }
+
+        if (IsPlayerTargetTransformUsable(targetTransform))
+        {
+            Collider2D fromTarget = targetTransform.GetComponent<Collider2D>();
+            if (IsBodyColliderUsable(fromTarget))
+                return fromTarget;
+
+            Collider2D fromTargetChild = targetTransform.GetComponentInChildren<Collider2D>();
+            if (IsBodyColliderUsable(fromTargetChild))
+                return fromTargetChild;
+        }
+
+        if (IsPlayerHealthUsable(health))
+        {
+            Collider2D fromHealthParent = health.GetComponentInParent<Collider2D>();
+            if (IsBodyColliderUsable(fromHealthParent))
+                return fromHealthParent;
+        }
+
+        return null;
+    }
+
+    private bool IsPlayerHealthUsable(PlayerHealth candidate)
+    {
+        return candidate != null &&
+               candidate.isActiveAndEnabled &&
+               candidate.gameObject.activeInHierarchy &&
+               candidate.IsAlive;
+    }
+
+    private bool IsPlayerMovingUsable(PlayerMoving candidate)
+    {
+        return candidate != null &&
+               candidate.isActiveAndEnabled &&
+               candidate.gameObject.activeInHierarchy;
+    }
+
+    private bool IsPlayerTargetTransformUsable(Transform candidate)
+    {
+        return candidate != null &&
+               candidate.gameObject.activeInHierarchy;
+    }
+
+    private bool IsBodyColliderUsable(Collider2D candidate)
+    {
+        return candidate != null &&
+               candidate.enabled &&
+               candidate.gameObject.activeInHierarchy &&
+               !candidate.isTrigger;
     }
 
     public void RegisterHitbox(EnemyAttackHitbox hitbox)
@@ -492,7 +676,7 @@ public class EnemyController : MonoBehaviour
         if (!HasValidPlayerTarget())
             return;
 
-        Vector3 toPlayer = playerHealth.transform.position - transform.position;
+        Vector3 toPlayer = playerTargetTransform.position - transform.position;
 
         if (toPlayer.x > 0.01f)
             isFacingLeft = false;
@@ -505,7 +689,7 @@ public class EnemyController : MonoBehaviour
         if (!HasValidPlayerTarget())
             return;
 
-        Vector3 toPlayer = playerHealth.transform.position - transform.position;
+        Vector3 toPlayer = playerTargetTransform.position - transform.position;
 
         if (force)
         {
@@ -521,9 +705,8 @@ public class EnemyController : MonoBehaviour
 
     private bool HasValidPlayerTarget()
     {
-        return playerHealth != null &&
-               playerHealth.IsAlive &&
-               playerHealth.gameObject.activeInHierarchy;
+        return IsPlayerHealthUsable(playerHealth) &&
+               IsPlayerTargetTransformUsable(playerTargetTransform);
     }
 
     private bool CanDetectPlayer()
@@ -531,7 +714,7 @@ public class EnemyController : MonoBehaviour
         if (!HasValidPlayerTarget())
             return false;
 
-        return DistanceToPlayer() <= detectionRadius;
+        return GetCenterDistanceToPlayer() <= detectionRadius;
     }
 
     private bool CanKeepPlayerTarget()
@@ -539,7 +722,7 @@ public class EnemyController : MonoBehaviour
         if (!HasValidPlayerTarget())
             return false;
 
-        return DistanceToPlayer() <= loseTargetRadius;
+        return GetCenterDistanceToPlayer() <= loseTargetRadius;
     }
 
     private bool IsPlayerWithinAttackRange()
@@ -547,15 +730,51 @@ public class EnemyController : MonoBehaviour
         if (!HasValidPlayerTarget())
             return false;
 
-        return DistanceToPlayer() <= attackRange;
+        return GetCombatDistanceToPlayer() <= attackRange;
     }
 
-    private float DistanceToPlayer()
+    private float GetCenterDistanceToPlayer()
     {
         if (!HasValidPlayerTarget())
             return float.MaxValue;
 
-        return Vector2.Distance(transform.position, playerHealth.transform.position);
+        return Vector2.Distance(transform.position, playerTargetTransform.position);
+    }
+
+    private float GetCombatDistanceToPlayer()
+    {
+        if (!HasValidPlayerTarget())
+            return float.MaxValue;
+
+        if (IsBodyColliderUsable(bodyCollider) && IsBodyColliderUsable(playerBodyCollider))
+        {
+            Vector2 ownPoint = bodyCollider.bounds.ClosestPoint(playerBodyCollider.bounds.center);
+            Vector2 targetPoint = playerBodyCollider.bounds.ClosestPoint(bodyCollider.bounds.center);
+            return Vector2.Distance(ownPoint, targetPoint);
+        }
+
+        return Vector2.Distance(transform.position, playerTargetTransform.position);
+    }
+
+    private Vector2 GetDirectionToPlayer()
+    {
+        if (!HasValidPlayerTarget())
+            return Vector2.zero;
+
+        Vector2 from = IsBodyColliderUsable(bodyCollider)
+            ? (Vector2)bodyCollider.bounds.center
+            : (Vector2)transform.position;
+
+        Vector2 to = IsBodyColliderUsable(playerBodyCollider)
+            ? (Vector2)playerBodyCollider.bounds.center
+            : (Vector2)playerTargetTransform.position;
+
+        Vector2 direction = to - from;
+
+        if (direction.sqrMagnitude <= 0.0001f)
+            return Vector2.zero;
+
+        return direction.normalized;
     }
 
     private void HandleEnemyDied()
@@ -830,9 +1049,6 @@ public class EnemyController : MonoBehaviour
 
         Gizmos.color = new Color(1f, 0.5f, 0f);
         Gizmos.DrawWireSphere(transform.position, loseTargetRadius);
-
-        Gizmos.color = Color.red;
-        Gizmos.DrawWireSphere(transform.position, attackRange);
     }
 #endif
 }

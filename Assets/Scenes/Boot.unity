@@ -6491,7 +6491,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 877348941}
+  m_Father: {fileID: 775344453}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &465841263
 MonoBehaviour:
@@ -10890,8 +10890,8 @@ CapsuleCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: -0.032597303, y: 0.5070688}
-  m_Size: {x: 0.74675107, y: 1.1741377}
+  m_Offset: {x: 0.043154597, y: 0.9699967}
+  m_Size: {x: 1.4032671, y: 2.3019981}
   m_Direction: 0
 --- !u!50 &775344451
 Rigidbody2D:
@@ -10996,6 +10996,7 @@ Transform:
   - {fileID: 1903191967}
   - {fileID: 2110860458}
   - {fileID: 769774007}
+  - {fileID: 465841262}
   m_Father: {fileID: 1442208805}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &775344454
@@ -11075,6 +11076,18 @@ MonoBehaviour:
   defaultAttackFailSafeDuration: 0.7
   preWindowInputBufferDuration: 0.35
   allowRetargetBetweenComboSteps: 0
+  heavyChargeHoldDuration: 0.35
+  heavyAttackFailSafeDuration: 1.1
+  heavyAttackId: player_heavy_01
+  heavyStrengthDamageMultiplier: 1.75
+  heavyFlatDamageBonus: 3
+  heavyRandomDamageMinMultiplier: 0.95
+  heavyRandomDamageMaxMultiplier: 1.15
+  heavyKnockbackForce: 0
+  heavyStunDuration: 0
+  heavyCanBeBlocked: 1
+  heavyCanBeParried: 1
+  heavyHitReactionType: 1
   defaultFacingDirection: {x: 1, y: 0}
   minHorizontalInputToChangeFacing: 0.05
   enableCombatDebugLogs: 1
@@ -11094,7 +11107,7 @@ MonoBehaviour:
   spriteRenderer: {fileID: 775344452}
   playerHealth: {fileID: 465841263}
   gameInput: {fileID: 811662987}
-  playerCombatController: {fileID: 0}
+  playerCombatController: {fileID: 775344455}
   enableAnimationDebugLogs: 1
 --- !u!114 &775344457
 MonoBehaviour:
@@ -12324,7 +12337,6 @@ Transform:
   - {fileID: 1608696421}
   - {fileID: 1179012318}
   - {fileID: 168864645}
-  - {fileID: 465841262}
   - {fileID: 1983169525}
   - {fileID: 811662988}
   - {fileID: 1196298840}
