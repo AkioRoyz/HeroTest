@@ -8,6 +8,9 @@ public class PlayerAnimation : MonoBehaviour
     [SerializeField] private GameInput gameInput;
     [SerializeField] private PlayerCombatController playerCombatController;
 
+    [Header("Debug")]
+    [SerializeField] private bool enableAnimationDebugLogs = true;
+
     private void Awake()
     {
         ResolveReferences();
@@ -59,6 +62,7 @@ public class PlayerAnimation : MonoBehaviour
         if (animator == null)
             return;
 
+        DebugLog("TakeDamage() -> Trigger Hit");
         animator.SetTrigger("Hit");
     }
 
@@ -97,10 +101,19 @@ public class PlayerAnimation : MonoBehaviour
         if (spriteRenderer != null)
             spriteRenderer.flipX = attackSide == PlayerAttackSide.Left;
 
+        AnimatorStateInfo stateInfo = animator.GetCurrentAnimatorStateInfo(0);
+
+        DebugLog(
+            $"PlayComboAttack({animationComboIndex}) | side={attackSide} | " +
+            $"beforeStateHash={stateInfo.shortNameHash} | normalizedTime={stateInfo.normalizedTime:F2}"
+        );
+
         animator.SetBool("IsRunning", false);
         animator.ResetTrigger("Attack");
         animator.SetInteger("AttackCombo", Mathf.Max(1, animationComboIndex));
         animator.SetTrigger("Attack");
+
+        DebugLog($"Animator params set | AttackCombo={Mathf.Max(1, animationComboIndex)} | Trigger Attack");
     }
 
     public void ResetCombatAnimationState()
@@ -108,11 +121,11 @@ public class PlayerAnimation : MonoBehaviour
         if (animator == null)
             return;
 
+        DebugLog("ResetCombatAnimationState() | reset Attack trigger, set AttackCombo=0");
         animator.ResetTrigger("Attack");
         animator.SetInteger("AttackCombo", 0);
     }
 
-    // Backward-compatible wrapper
     public void PlayBasicAttack(PlayerAttackSide attackSide)
     {
         PlayComboAttack(1, attackSide);
@@ -120,30 +133,35 @@ public class PlayerAnimation : MonoBehaviour
 
     public void AnimationEvent_OpenCurrentAttackHitbox()
     {
+        DebugLog("AnimationEvent_OpenCurrentAttackHitbox()");
         if (playerCombatController != null)
             playerCombatController.AnimationEvent_OpenCurrentAttackHitbox();
     }
 
     public void AnimationEvent_CloseCurrentAttackHitbox()
     {
+        DebugLog("AnimationEvent_CloseCurrentAttackHitbox()");
         if (playerCombatController != null)
             playerCombatController.AnimationEvent_CloseCurrentAttackHitbox();
     }
 
     public void AnimationEvent_OpenComboInputWindow()
     {
+        DebugLog("AnimationEvent_OpenComboInputWindow()");
         if (playerCombatController != null)
             playerCombatController.AnimationEvent_OpenComboInputWindow();
     }
 
     public void AnimationEvent_CloseComboInputWindow()
     {
+        DebugLog("AnimationEvent_CloseComboInputWindow()");
         if (playerCombatController != null)
             playerCombatController.AnimationEvent_CloseComboInputWindow();
     }
 
     public void AnimationEvent_EndCurrentAttackStep()
     {
+        DebugLog("AnimationEvent_EndCurrentAttackStep()");
         if (playerCombatController != null)
             playerCombatController.AnimationEvent_EndCurrentAttackStep();
     }
@@ -161,5 +179,13 @@ public class PlayerAnimation : MonoBehaviour
     public void AnimationEvent_EndBasicAttack()
     {
         AnimationEvent_EndCurrentAttackStep();
+    }
+
+    private void DebugLog(string message)
+    {
+        if (!enableAnimationDebugLogs)
+            return;
+
+        Debug.Log($"[PlayerAnimation DEBUG] {message}", this);
     }
 }

@@ -11037,7 +11037,7 @@ MonoBehaviour:
   comboSteps:
   - animationComboIndex: 1
     attackId: player_light_01
-    attackFailSafeDuration: 0.7
+    attackFailSafeDuration: 5
     strengthDamageMultiplier: 1
     flatDamageBonus: 0
     randomDamageMinMultiplier: 0.9
@@ -11049,7 +11049,7 @@ MonoBehaviour:
     hitReactionType: 1
   - animationComboIndex: 2
     attackId: player_light_02
-    attackFailSafeDuration: 0.72
+    attackFailSafeDuration: 5
     strengthDamageMultiplier: 1.1
     flatDamageBonus: 1
     randomDamageMinMultiplier: 0.9
@@ -11061,7 +11061,7 @@ MonoBehaviour:
     hitReactionType: 1
   - animationComboIndex: 3
     attackId: player_light_03
-    attackFailSafeDuration: 0.78
+    attackFailSafeDuration: 5
     strengthDamageMultiplier: 1.25
     flatDamageBonus: 2
     randomDamageMinMultiplier: 0.9
@@ -11073,10 +11073,11 @@ MonoBehaviour:
     hitReactionType: 1
   lockMovementDuringAttack: 1
   defaultAttackFailSafeDuration: 0.7
-  preWindowInputBufferDuration: 0.3
+  preWindowInputBufferDuration: 0.35
   allowRetargetBetweenComboSteps: 0
   defaultFacingDirection: {x: 1, y: 0}
   minHorizontalInputToChangeFacing: 0.05
+  enableCombatDebugLogs: 1
 --- !u!114 &775344456
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -11094,6 +11095,7 @@ MonoBehaviour:
   playerHealth: {fileID: 465841263}
   gameInput: {fileID: 811662987}
   playerCombatController: {fileID: 0}
+  enableAnimationDebugLogs: 1
 --- !u!114 &775344457
 MonoBehaviour:
   m_ObjectHideFlags: 0
