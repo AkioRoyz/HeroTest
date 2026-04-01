@@ -897,7 +897,12 @@ public class EnemyController : MonoBehaviour
             return;
 
         if (!TryGetCombatReceiver(other, out ICombatReceiver receiver))
+        {
+            DebugLog(
+                $"HITBOX OVERLAP BUT NO ICombatReceiver | other={other.name} | root={other.transform.root.name}"
+            );
             return;
+        }
 
         if (receiver == null || !receiver.IsAlive)
             return;
@@ -1018,7 +1023,55 @@ public class EnemyController : MonoBehaviour
 
     private bool TryGetCombatReceiver(Collider2D other, out ICombatReceiver receiver)
     {
-        MonoBehaviour[] behaviours = other.GetComponentsInParent<MonoBehaviour>(true);
+        if (TryFindCombatReceiverOnGameObject(other.gameObject, out receiver))
+            return true;
+
+        if (other.attachedRigidbody != null &&
+            TryFindCombatReceiverOnGameObject(other.attachedRigidbody.gameObject, out receiver))
+            return true;
+
+        MonoBehaviour[] parentBehaviours = other.GetComponentsInParent<MonoBehaviour>(true);
+        for (int i = 0; i < parentBehaviours.Length; i++)
+        {
+            if (parentBehaviours[i] is ICombatReceiver parentReceiver)
+            {
+                receiver = parentReceiver;
+                return true;
+            }
+        }
+
+        MonoBehaviour[] childBehaviours = other.GetComponentsInChildren<MonoBehaviour>(true);
+        for (int i = 0; i < childBehaviours.Length; i++)
+        {
+            if (childBehaviours[i] is ICombatReceiver childReceiver)
+            {
+                receiver = childReceiver;
+                return true;
+            }
+        }
+
+        if (other.attachedRigidbody != null)
+        {
+            MonoBehaviour[] rigidbodyChildBehaviours =
+                other.attachedRigidbody.GetComponentsInChildren<MonoBehaviour>(true);
+
+            for (int i = 0; i < rigidbodyChildBehaviours.Length; i++)
+            {
+                if (rigidbodyChildBehaviours[i] is ICombatReceiver rigidbodyChildReceiver)
+                {
+                    receiver = rigidbodyChildReceiver;
+                    return true;
+                }
+            }
+        }
+
+        receiver = null;
+        return false;
+    }
+
+    private bool TryFindCombatReceiverOnGameObject(GameObject target, out ICombatReceiver receiver)
+    {
+        MonoBehaviour[] behaviours = target.GetComponents<MonoBehaviour>();
 
         for (int i = 0; i < behaviours.Length; i++)
         {
