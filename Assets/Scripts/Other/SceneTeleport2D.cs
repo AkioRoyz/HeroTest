@@ -6,6 +6,7 @@ public class SceneTeleport2D : MonoBehaviour
 {
     [Header("Scene")]
     [SerializeField] private string targetSceneName;
+    [SerializeField] private string targetEntryPointId;
 
     [Header("Player Detection")]
     [SerializeField] private string playerTag = "Player";
@@ -26,41 +27,46 @@ public class SceneTeleport2D : MonoBehaviour
         if (isLoading)
             return;
 
-        if (showLogs)
-            Debug.Log($"[Teleport] В триггер вошёл: {other.name}", this);
-
-        // Если collider висит на дочернем объекте, берём объект Rigidbody2D
         GameObject enteredObject = other.attachedRigidbody != null
             ? other.attachedRigidbody.gameObject
             : other.gameObject;
 
-        if (showLogs)
-            Debug.Log($"[Teleport] Проверяем объект: {enteredObject.name}, tag = {enteredObject.tag}", this);
-
         if (!enteredObject.CompareTag(playerTag))
-        {
-            if (showLogs)
-                Debug.Log($"[Teleport] Это не игрок. Ожидался tag: {playerTag}", this);
             return;
-        }
 
         if (string.IsNullOrWhiteSpace(targetSceneName))
         {
-            Debug.LogWarning("[Teleport] Не указано имя сцены.", this);
+            Debug.LogWarning("[Teleport] Target scene name is empty.", this);
             return;
         }
 
         if (!Application.CanStreamedLevelBeLoaded(targetSceneName))
         {
-            Debug.LogError($"[Teleport] Сцена '{targetSceneName}' не найдена в списке сцен билда.", this);
+            Debug.LogError($"[Teleport] Scene '{targetSceneName}' is not in Build Settings.", this);
             return;
         }
 
+        if (SceneTransitionManager.Instance != null)
+        {
+            if (SceneTransitionManager.Instance.IsLoading)
+                return;
+
+            isLoading = true;
+
+            if (showLogs)
+                Debug.Log($"[Teleport] Loading scene via SceneTransitionManager: {targetSceneName}, entryPointId = {targetEntryPointId}", this);
+
+            SceneTransitionManager.Instance.LoadScene(targetSceneName, targetEntryPointId);
+            return;
+        }
+
+        // Fallback, если менеджер не найден
         isLoading = true;
+        SceneTransitionState.SetNextEntryPoint(targetEntryPointId);
 
         if (showLogs)
-            Debug.Log($"[Teleport] Загружаем сцену: {targetSceneName}", this);
+            Debug.LogWarning($"[Teleport] SceneTransitionManager not found. Fallback direct load: {targetSceneName}", this);
 
-        SceneManager.LoadSceneAsync(targetSceneName, LoadSceneMode.Single);
+        SceneManager.LoadScene(targetSceneName, LoadSceneMode.Single);
     }
 }

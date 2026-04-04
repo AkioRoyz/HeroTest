@@ -1198,6 +1198,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0fe595ce0f8cf8b4287f5e910f98e91f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::StartMenu
+  firstGameplaySceneName: Boot
+  startEntryPointId: 
 --- !u!4 &1128932280
 Transform:
   m_ObjectHideFlags: 0

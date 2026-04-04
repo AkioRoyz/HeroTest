@@ -3,9 +3,20 @@ using UnityEngine.SceneManagement;
 
 public class StartMenu : MonoBehaviour
 {
+    [Header("Start Game")]
+    [SerializeField] private string firstGameplaySceneName = "SampleScene";
+    [SerializeField] private string startEntryPointId;
+
     public void StartTest()
     {
-        SceneManager.LoadScene(1);
+        if (SceneTransitionManager.Instance != null)
+        {
+            SceneTransitionManager.Instance.LoadScene(firstGameplaySceneName, startEntryPointId);
+            return;
+        }
+
+        SceneTransitionState.SetNextEntryPoint(startEntryPointId);
+        SceneManager.LoadScene(firstGameplaySceneName, LoadSceneMode.Single);
     }
 
     public void ExitGame()
