@@ -41,8 +41,11 @@ public class DialogueToolsWindow : EditorWindow
         public static GUIStyle WrappedMiniLabel;
         public static GUIStyle SectionTitle;
 
-        public static void Ensure()
+        public static bool TryEnsure()
         {
+            if (EditorStyles.label == null || EditorStyles.boldLabel == null || EditorStyles.miniLabel == null || EditorStyles.miniBoldLabel == null)
+                return false;
+
             if (ToolbarTitle == null)
             {
                 ToolbarTitle = new GUIStyle(EditorStyles.boldLabel);
@@ -73,6 +76,17 @@ public class DialogueToolsWindow : EditorWindow
                 SectionTitle = new GUIStyle(EditorStyles.boldLabel);
                 SectionTitle.fontSize = 12;
             }
+
+            return true;
+        }
+
+        public static void Reset()
+        {
+            ToolbarTitle = null;
+            BigTitle = null;
+            MiniBadge = null;
+            WrappedMiniLabel = null;
+            SectionTitle = null;
         }
     }
 
@@ -167,7 +181,9 @@ public class DialogueToolsWindow : EditorWindow
 
     private void OnEnable()
     {
-        Styles.Ensure();
+        titleContent = new GUIContent("Dialogue Tools");
+        minSize = new Vector2(1280f, 760f);
+
         RefreshAssetLists();
         TryAdoptCurrentSelection();
 
@@ -183,6 +199,7 @@ public class DialogueToolsWindow : EditorWindow
     private void OnDisable()
     {
         Undo.undoRedoPerformed -= HandleUndoRedo;
+        Styles.Reset();
     }
 
     private void OnFocus()
@@ -204,7 +221,12 @@ public class DialogueToolsWindow : EditorWindow
 
     private void OnGUI()
     {
-        Styles.Ensure();
+        if (!Styles.TryEnsure())
+        {
+            Repaint();
+            return;
+        }
+
         DrawToolbar();
 
         EditorGUILayout.BeginHorizontal();
@@ -581,8 +603,8 @@ public class DialogueToolsWindow : EditorWindow
             return;
         }
 
-        int errorCount = messages.Count(delegate(ValidationMessage x) { return x.Kind == MessageKind.Error; });
-        int warningCount = messages.Count(delegate(ValidationMessage x) { return x.Kind == MessageKind.Warning; });
+        int errorCount = messages.Count(delegate (ValidationMessage x) { return x.Kind == MessageKind.Error; });
+        int warningCount = messages.Count(delegate (ValidationMessage x) { return x.Kind == MessageKind.Warning; });
 
         MessageType summaryType = errorCount > 0 ? MessageType.Error : MessageType.Warning;
         EditorGUILayout.HelpBox(string.Format("Errors: {0}   Warnings: {1}", errorCount, warningCount), summaryType);
@@ -1274,15 +1296,15 @@ public class DialogueToolsWindow : EditorWindow
         dialogueAssets = AssetDatabase.FindAssets("t:DialogueData", new[] { "Assets" })
             .Select(AssetDatabase.GUIDToAssetPath)
             .Select(AssetDatabase.LoadAssetAtPath<DialogueData>)
-            .Where(delegate(DialogueData x) { return x != null; })
-            .OrderBy(delegate(DialogueData x) { return x.name; })
+            .Where(delegate (DialogueData x) { return x != null; })
+            .OrderBy(delegate (DialogueData x) { return x.name; })
             .ToList();
 
         speakerAssets = AssetDatabase.FindAssets("t:DialogueSpeakerData", new[] { "Assets" })
             .Select(AssetDatabase.GUIDToAssetPath)
             .Select(AssetDatabase.LoadAssetAtPath<DialogueSpeakerData>)
-            .Where(delegate(DialogueSpeakerData x) { return x != null; })
-            .OrderBy(delegate(DialogueSpeakerData x) { return x.name; })
+            .Where(delegate (DialogueSpeakerData x) { return x != null; })
+            .OrderBy(delegate (DialogueSpeakerData x) { return x.name; })
             .ToList();
 
         if (selectedDialogue != null && !dialogueAssets.Contains(selectedDialogue))
@@ -1304,7 +1326,7 @@ public class DialogueToolsWindow : EditorWindow
         if (string.IsNullOrWhiteSpace(searchText))
             return dialogueAssets;
 
-        return dialogueAssets.Where(delegate(DialogueData x)
+        return dialogueAssets.Where(delegate (DialogueData x)
         {
             return x != null && x.name.IndexOf(searchText, StringComparison.OrdinalIgnoreCase) >= 0;
         });
@@ -1315,7 +1337,7 @@ public class DialogueToolsWindow : EditorWindow
         if (string.IsNullOrWhiteSpace(searchText))
             return speakerAssets;
 
-        return speakerAssets.Where(delegate(DialogueSpeakerData x)
+        return speakerAssets.Where(delegate (DialogueSpeakerData x)
         {
             return x != null && x.name.IndexOf(searchText, StringComparison.OrdinalIgnoreCase) >= 0;
         });
