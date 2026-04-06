@@ -1,4 +1,3 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -14,8 +13,16 @@ public class EnemyController : MonoBehaviour
         Windup = 2,
         Attack = 3,
         Recovery = 4,
-        Stun = 5,
-        Death = 6
+        Hit = 5,
+        Stun = 6,
+        Death = 7
+    }
+
+    private enum IncomingReactionType
+    {
+        None = 0,
+        Hit = 1,
+        Stun = 2
     }
 
     [Header("References")]
@@ -51,6 +58,16 @@ public class EnemyController : MonoBehaviour
     [SerializeField] private float windupDuration = 0.30f;
     [SerializeField] private float recoveryDuration = 0.45f;
     [SerializeField] private float attackFailSafeDuration = 0.90f;
+
+    [Header("Hit Reaction")]
+    [SerializeField] private bool enableLightHitReaction = true;
+    [SerializeField] private float lightHitDuration = 0.10f;
+    [SerializeField] private bool lightHitInterruptsWindup = false;
+    [SerializeField] private bool lightHitInterruptsAttack = false;
+    [SerializeField] private bool lightHitInterruptsRecovery = true;
+    [SerializeField] private bool heavyHitInterruptsWindup = true;
+    [SerializeField] private bool heavyHitInterruptsAttack = true;
+    [SerializeField] private bool heavyHitInterruptsRecovery = true;
 
     [Header("Attack Damage")]
     [SerializeField] private string attackId = "enemy_melee_01";
@@ -101,6 +118,7 @@ public class EnemyController : MonoBehaviour
     public bool ShouldLockVisualFacing =>
         currentState == EnemyState.Windup ||
         currentState == EnemyState.Attack ||
+        currentState == EnemyState.Hit ||
         currentState == EnemyState.Stun ||
         currentState == EnemyState.Death;
 
@@ -119,11 +137,17 @@ public class EnemyController : MonoBehaviour
         windupDuration = Mathf.Max(0f, windupDuration);
         recoveryDuration = Mathf.Max(0f, recoveryDuration);
         attackFailSafeDuration = Mathf.Max(0.05f, attackFailSafeDuration);
+
+        enableLightHitReaction = enableLightHitReaction;
+        lightHitDuration = Mathf.Max(0.03f, lightHitDuration);
+
         attackDamage = Mathf.Max(0, attackDamage);
         attackRandomDamageMinMultiplier = Mathf.Max(0.01f, attackRandomDamageMinMultiplier);
         attackRandomDamageMaxMultiplier = Mathf.Max(attackRandomDamageMinMultiplier, attackRandomDamageMaxMultiplier);
+
         fallbackHeavyStunDuration = Mathf.Max(0f, fallbackHeavyStunDuration);
         fallbackExplicitStunDuration = Mathf.Max(0f, fallbackExplicitStunDuration);
+
         deathDestroyDelay = Mathf.Max(0f, deathDestroyDelay);
 
         ResolveReferences();
@@ -205,6 +229,10 @@ public class EnemyController : MonoBehaviour
 
             case EnemyState.Recovery:
                 TickRecovery();
+                break;
+
+            case EnemyState.Hit:
+                TickHit();
                 break;
 
             case EnemyState.Stun:
@@ -511,16 +539,17 @@ public class EnemyController : MonoBehaviour
         if (stateTimer > 0f)
             return;
 
-        if (!CanKeepPlayerTarget())
-        {
-            EnterIdle();
-            return;
-        }
+        ResumeAfterReactionOrRecovery();
+    }
 
-        if (IsPlayerWithinAttackRange())
-            EnterWindup();
-        else
-            EnterChase();
+    private void TickHit()
+    {
+        stateTimer -= Time.deltaTime;
+
+        if (stateTimer > 0f)
+            return;
+
+        ResumeAfterReactionOrRecovery();
     }
 
     private void TickStun()
@@ -530,6 +559,11 @@ public class EnemyController : MonoBehaviour
         if (stateTimer > 0f)
             return;
 
+        ResumeAfterReactionOrRecovery();
+    }
+
+    private void ResumeAfterReactionOrRecovery()
+    {
         if (!CanKeepPlayerTarget())
         {
             EnterIdle();
@@ -620,6 +654,24 @@ public class EnemyController : MonoBehaviour
 
         StopAttackFailSafeTimer();
         DisableAllHitboxesImmediate();
+    }
+
+    private void EnterHit(float duration)
+    {
+        if (currentState == EnemyState.Death)
+            return;
+
+        float resolvedDuration = Mathf.Max(0.03f, duration);
+
+        DebugLog($"STATE -> Hit | duration={resolvedDuration:F2}");
+        currentState = EnemyState.Hit;
+        stateTimer = resolvedDuration;
+
+        StopAttackFailSafeTimer();
+        DisableAllHitboxesImmediate();
+
+        if (enemyAnimation != null)
+            enemyAnimation.PlayHit();
     }
 
     private void EnterStun(float duration)
@@ -793,15 +845,101 @@ public class EnemyController : MonoBehaviour
         if (result.WasKilled)
             return;
 
-        float stunDuration = ResolveIncomingStunDuration(damageInfo);
+        float resolvedStun = ResolveIncomingStunDuration(damageInfo);
+        IncomingReactionType reactionType = ResolveIncomingReactionType(damageInfo, resolvedStun);
 
         DebugLog(
             $"RECEIVED DAMAGE | finalDamage={result.FinalDamage} | " +
-            $"reaction={damageInfo.HitReactionType} | incomingStun={damageInfo.StunDuration:F2} | resolvedStun={stunDuration:F2}"
+            $"reaction={damageInfo.HitReactionType} | incomingStun={damageInfo.StunDuration:F2} | " +
+            $"resolvedStun={resolvedStun:F2} | currentState={currentState} | resolvedReaction={reactionType}"
         );
 
-        if (stunDuration > 0f)
-            EnterStun(stunDuration);
+        switch (reactionType)
+        {
+            case IncomingReactionType.Hit:
+                EnterHit(lightHitDuration);
+                break;
+
+            case IncomingReactionType.Stun:
+                EnterStun(resolvedStun);
+                break;
+
+            case IncomingReactionType.None:
+            default:
+                break;
+        }
+    }
+
+    private IncomingReactionType ResolveIncomingReactionType(DamageInfo damageInfo, float resolvedStun)
+    {
+        bool isHeavyOrStronger =
+            damageInfo.HitReactionType == HitReactionType.Heavy ||
+            damageInfo.HitReactionType == HitReactionType.Stun ||
+            resolvedStun > 0f;
+
+        bool isLight =
+            damageInfo.HitReactionType == HitReactionType.Light &&
+            !isHeavyOrStronger &&
+            enableLightHitReaction;
+
+        switch (currentState)
+        {
+            case EnemyState.Idle:
+            case EnemyState.Chase:
+                if (isHeavyOrStronger && resolvedStun > 0f)
+                    return IncomingReactionType.Stun;
+
+                if (isLight)
+                    return IncomingReactionType.Hit;
+
+                return IncomingReactionType.None;
+
+            case EnemyState.Windup:
+                if (isHeavyOrStronger && resolvedStun > 0f && heavyHitInterruptsWindup)
+                    return IncomingReactionType.Stun;
+
+                if (isLight && lightHitInterruptsWindup)
+                    return IncomingReactionType.Hit;
+
+                return IncomingReactionType.None;
+
+            case EnemyState.Attack:
+                if (isHeavyOrStronger && resolvedStun > 0f && heavyHitInterruptsAttack)
+                    return IncomingReactionType.Stun;
+
+                if (isLight && lightHitInterruptsAttack)
+                    return IncomingReactionType.Hit;
+
+                return IncomingReactionType.None;
+
+            case EnemyState.Recovery:
+                if (isHeavyOrStronger && resolvedStun > 0f && heavyHitInterruptsRecovery)
+                    return IncomingReactionType.Stun;
+
+                if (isLight && lightHitInterruptsRecovery)
+                    return IncomingReactionType.Hit;
+
+                return IncomingReactionType.None;
+
+            case EnemyState.Hit:
+                if (isHeavyOrStronger && resolvedStun > 0f)
+                    return IncomingReactionType.Stun;
+
+                if (isLight)
+                    return IncomingReactionType.Hit;
+
+                return IncomingReactionType.None;
+
+            case EnemyState.Stun:
+                if (isHeavyOrStronger && resolvedStun > stateTimer)
+                    return IncomingReactionType.Stun;
+
+                return IncomingReactionType.None;
+
+            case EnemyState.Death:
+            default:
+                return IncomingReactionType.None;
+        }
     }
 
     private float ResolveIncomingStunDuration(DamageInfo damageInfo)
@@ -935,7 +1073,7 @@ public class EnemyController : MonoBehaviour
     {
         float minMultiplier = Mathf.Min(attackRandomDamageMinMultiplier, attackRandomDamageMaxMultiplier);
         float maxMultiplier = Mathf.Max(attackRandomDamageMinMultiplier, attackRandomDamageMaxMultiplier);
-        float randomizedMultiplier = UnityEngine.Random.Range(minMultiplier, maxMultiplier);
+        float randomizedMultiplier = Random.Range(minMultiplier, maxMultiplier);
 
         int finalDamage = Mathf.RoundToInt(Mathf.Max(0, attackDamage) * randomizedMultiplier);
         finalDamage = Mathf.Max(1, finalDamage);

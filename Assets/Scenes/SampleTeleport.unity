@@ -1840,6 +1840,10 @@ PrefabInstance:
       propertyPath: attackDamage
       value: 50
       objectReference: {fileID: 0}
+    - target: {fileID: 788196693827532916, guid: 58b2a194698829e40ba840fa59900ae0, type: 3}
+      propertyPath: windupDuration
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 1324237381396901076, guid: 58b2a194698829e40ba840fa59900ae0, type: 3}
       propertyPath: deathEXP
       value: 1000

@@ -57,6 +57,7 @@ public class EnemyAnimation : MonoBehaviour
 
         DebugLog("PlayWindup()");
         animator.SetBool("IsMoving", false);
+        animator.ResetTrigger("Hit");
         animator.ResetTrigger("Attack");
         animator.ResetTrigger("Stun");
         animator.SetTrigger("Windup");
@@ -69,9 +70,23 @@ public class EnemyAnimation : MonoBehaviour
 
         DebugLog("PlayAttack()");
         animator.SetBool("IsMoving", false);
+        animator.ResetTrigger("Hit");
         animator.ResetTrigger("Windup");
         animator.ResetTrigger("Stun");
         animator.SetTrigger("Attack");
+    }
+
+    public void PlayHit()
+    {
+        if (animator == null)
+            return;
+
+        DebugLog("PlayHit()");
+        animator.SetBool("IsMoving", false);
+        animator.ResetTrigger("Windup");
+        animator.ResetTrigger("Attack");
+        animator.ResetTrigger("Stun");
+        animator.SetTrigger("Hit");
     }
 
     public void PlayStun()
@@ -81,6 +96,7 @@ public class EnemyAnimation : MonoBehaviour
 
         DebugLog("PlayStun()");
         animator.SetBool("IsMoving", false);
+        animator.ResetTrigger("Hit");
         animator.ResetTrigger("Windup");
         animator.ResetTrigger("Attack");
         animator.SetTrigger("Stun");
@@ -93,6 +109,7 @@ public class EnemyAnimation : MonoBehaviour
 
         DebugLog("PlayDeath()");
         animator.SetBool("IsMoving", false);
+        animator.ResetTrigger("Hit");
         animator.ResetTrigger("Windup");
         animator.ResetTrigger("Attack");
         animator.ResetTrigger("Stun");

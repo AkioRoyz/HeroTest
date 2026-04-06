@@ -2347,20 +2347,20 @@ MonoBehaviour:
   moveX: 0
   moveY: 5
   moveZ: 0
-  speedX: 1
-  speedY: 3
-  speedZ: 1
+  speedX: 0
+  speedY: 2
+  speedZ: 0
   phaseX: 0
   phaseY: 0
   phaseZ: 0
-  enableRotationSway: 1
-  useLocalRotation: 1
+  enableRotationSway: 0
+  useLocalRotation: 0
   rotateX: 0
   rotateY: 0
   rotateZ: 0
-  rotateSpeedX: 1
-  rotateSpeedY: 1
-  rotateSpeedZ: 1
+  rotateSpeedX: 0
+  rotateSpeedY: 0
+  rotateSpeedZ: 0
   rotatePhaseX: 0
   rotatePhaseY: 0
   rotatePhaseZ: 0
@@ -11703,10 +11703,10 @@ MonoBehaviour:
     randomDamageMinMultiplier: 0.9
     randomDamageMaxMultiplier: 1.1
     knockbackForce: 0
-    stunDuration: 0
+    stunDuration: 0.6
     canBeBlocked: 1
     canBeParried: 1
-    hitReactionType: 1
+    hitReactionType: 2
   lockMovementDuringAttack: 1
   defaultAttackFailSafeDuration: 0.7
   preWindowInputBufferDuration: 0.35
@@ -11719,10 +11719,10 @@ MonoBehaviour:
   heavyRandomDamageMinMultiplier: 0.95
   heavyRandomDamageMaxMultiplier: 1.15
   heavyKnockbackForce: 0
-  heavyStunDuration: 0
+  heavyStunDuration: 1.5
   heavyCanBeBlocked: 1
   heavyCanBeParried: 1
-  heavyHitReactionType: 1
+  heavyHitReactionType: 2
   defaultFacingDirection: {x: 1, y: 0}
   minHorizontalInputToChangeFacing: 0.05
   enableCombatDebugLogs: 1
