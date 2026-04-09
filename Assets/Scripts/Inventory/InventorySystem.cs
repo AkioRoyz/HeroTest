@@ -94,7 +94,6 @@ public class InventorySystem : MonoBehaviour
         }
         else
         {
-            // Если предмет не стакается, создаём отдельные записи
             for (int i = 0; i < amount; i++)
             {
                 targetList.Add(new InventoryEntry(item, 1));
@@ -172,7 +171,6 @@ public class InventorySystem : MonoBehaviour
             return 0;
 
         List<InventoryEntry> targetList = GetTargetList(item.ItemType);
-
         int count = 0;
 
         for (int i = 0; i < targetList.Count; i++)
@@ -184,6 +182,35 @@ public class InventorySystem : MonoBehaviour
         }
 
         return count;
+    }
+
+    public List<InventoryEntry> GetAllEntriesSnapshot()
+    {
+        List<InventoryEntry> result = new();
+        AddEntriesToSnapshot(consumableItems, result);
+        AddEntriesToSnapshot(questItems, result);
+        AddEntriesToSnapshot(equipmentItems, result);
+        return result;
+    }
+
+    public void ClearAllItems()
+    {
+        consumableItems.Clear();
+        questItems.Clear();
+        equipmentItems.Clear();
+        OnInventoryChanged?.Invoke();
+    }
+
+    private void AddEntriesToSnapshot(List<InventoryEntry> source, List<InventoryEntry> target)
+    {
+        for (int i = 0; i < source.Count; i++)
+        {
+            InventoryEntry entry = source[i];
+            if (entry == null || entry.Item == null || entry.Amount <= 0)
+                continue;
+
+            target.Add(new InventoryEntry(entry.Item, entry.Amount));
+        }
     }
 
     private List<InventoryEntry> GetTargetList(ItemType itemType)

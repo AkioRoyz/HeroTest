@@ -66,6 +66,13 @@ public class PlayerHealth : MonoBehaviour, ICombatReceiver
         isInvulnerable = value;
     }
 
+    public void SetCurrentHealthFromSave(int value)
+    {
+        currentHealth = Mathf.Clamp(value, 0, Mathf.Max(1, maxHealth));
+        isDead = currentHealth <= 0;
+        OnHealthChange?.Invoke();
+    }
+
     public DamageResult ReceiveDamage(DamageInfo damageInfo)
     {
         if (ShouldIgnoreDamage(damageInfo))

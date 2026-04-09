@@ -49,14 +49,12 @@ public class EquipmentSystem : MonoBehaviour
 
     private void HandleSceneLoaded(Scene scene, LoadSceneMode mode)
     {
-        // Если StatsSystem был на старом объекте сцены и пропал,
-        // находим новый и заново навешиваем бонусы от уже надетых предметов.
         if (statsSystem == null)
         {
             ResolveStatsSystem(true);
         }
 
-        OnEquipmentChanged?.Invoke();
+        NotifyEquipmentChanged();
     }
 
     private void EnsureInitialized()
@@ -162,7 +160,7 @@ public class EquipmentSystem : MonoBehaviour
         equippedItems[slotIndex] = item;
         ApplyItemBonuses(item);
 
-        OnEquipmentChanged?.Invoke();
+        NotifyEquipmentChanged();
         return true;
     }
 
@@ -191,8 +189,67 @@ public class EquipmentSystem : MonoBehaviour
         InventorySystem.Instance.AddItem(item, 1);
         equippedItems[slotIndex] = null;
 
-        OnEquipmentChanged?.Invoke();
+        NotifyEquipmentChanged();
         return true;
+    }
+
+    public void ClearAllEquipment(bool notify = true)
+    {
+        EnsureInitialized();
+        ResolveStatsSystem(false);
+
+        for (int i = 0; i < equippedItems.Length; i++)
+        {
+            if (equippedItems[i] == null)
+                continue;
+
+            RemoveItemBonuses(equippedItems[i]);
+            equippedItems[i] = null;
+        }
+
+        if (notify)
+            NotifyEquipmentChanged();
+    }
+
+    public void SetItemInSlotDirect(ItemData item, int slotIndex, bool notify = true)
+    {
+        EnsureInitialized();
+        ResolveStatsSystem(false);
+
+        if (slotIndex < 0 || slotIndex >= equippedItems.Length)
+        {
+            Debug.LogWarning($"Invalid equipment slot index: {slotIndex}");
+            return;
+        }
+
+        ItemData oldItem = equippedItems[slotIndex];
+        if (oldItem != null)
+        {
+            RemoveItemBonuses(oldItem);
+        }
+
+        equippedItems[slotIndex] = item;
+
+        if (item != null)
+        {
+            if (item.ItemType != ItemType.Equipment)
+            {
+                Debug.LogWarning($"[EquipmentSystem] Direct set ignored because '{item.name}' is not equipment.", item);
+                equippedItems[slotIndex] = null;
+            }
+            else
+            {
+                ApplyItemBonuses(item);
+            }
+        }
+
+        if (notify)
+            NotifyEquipmentChanged();
+    }
+
+    public void NotifyEquipmentChanged()
+    {
+        OnEquipmentChanged?.Invoke();
     }
 
     private void ApplyItemBonuses(ItemData item)

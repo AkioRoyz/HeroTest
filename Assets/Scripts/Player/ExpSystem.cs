@@ -20,6 +20,16 @@ public class ExpSystem : MonoBehaviour
     public int MaxLvl => maxLvl;
     public int CurrentXP => currentXP;
 
+    private int defaultXpToNextLvl;
+    private int defaultCurrentXP;
+    private int defaultCurrentLvl;
+    private bool defaultsCaptured;
+
+    private void Awake()
+    {
+        CaptureDefaultsIfNeeded();
+    }
+
     private void Start()
     {
         OnXpAdd?.Invoke(currentXP);
@@ -43,6 +53,36 @@ public class ExpSystem : MonoBehaviour
     public void AddXP(int amount)
     {
         AddXPInternal(amount);
+    }
+
+    public void SetProgressFromSave(int level, int xp, int nextLevelXp)
+    {
+        CaptureDefaultsIfNeeded();
+
+        currentLvl = Mathf.Clamp(level, 1, maxLvl);
+        xpToNextLvl = Mathf.Max(1, nextLevelXp);
+        currentXP = Mathf.Clamp(xp, 0, xpToNextLvl);
+
+        if (currentLvl >= maxLvl)
+        {
+            currentLvl = maxLvl;
+            currentXP = xpToNextLvl;
+        }
+
+        OnLevelChange?.Invoke(currentLvl);
+        OnXpAdd?.Invoke(currentXP);
+    }
+
+    public void ResetToDefaults()
+    {
+        CaptureDefaultsIfNeeded();
+
+        currentLvl = defaultCurrentLvl;
+        currentXP = defaultCurrentXP;
+        xpToNextLvl = defaultXpToNextLvl;
+
+        OnLevelChange?.Invoke(currentLvl);
+        OnXpAdd?.Invoke(currentXP);
     }
 
     [ContextMenu("Debug/Add XP")]
@@ -89,5 +129,16 @@ public class ExpSystem : MonoBehaviour
         }
 
         OnLevelChange?.Invoke(currentLvl);
+    }
+
+    private void CaptureDefaultsIfNeeded()
+    {
+        if (defaultsCaptured)
+            return;
+
+        defaultsCaptured = true;
+        defaultXpToNextLvl = Mathf.Max(1, xpToNextLvl);
+        defaultCurrentXP = Mathf.Max(0, currentXP);
+        defaultCurrentLvl = Mathf.Max(1, currentLvl);
     }
 }
