@@ -25,10 +25,17 @@ public class GameInput : MonoBehaviour
     private InputSystem_Actions inputActions;
 
     private InputActionMap playerActionMap;
+    private InputActionMap menuActionMap;
+
     private InputAction playerAttackAction;
     private InputAction playerGuardAction;
     private InputAction playerSpecialAction;
     private InputAction playerToggleTargetingAction;
+
+    // Опциональное действие для будущего удаления сохранений.
+    // Если ты позже добавишь action "Delete" в Menu map,
+    // этот код автоматически начнёт его видеть.
+    private InputAction menuDeleteAction;
 
     private bool missingCombatActionsWarningShown;
 
@@ -57,6 +64,7 @@ public class GameInput : MonoBehaviour
     public event Action OnMenuRight;
     public event Action OnMenuSelect;
     public event Action OnMenuUnequip;
+    public event Action OnMenuDelete;
     public event Action OnMenuClose;
 
     public event Action OnQuestJournalUp;
@@ -83,6 +91,7 @@ public class GameInput : MonoBehaviour
     public bool HasGuardAction => playerGuardAction != null;
     public bool HasSpecialAction => playerSpecialAction != null;
     public bool HasToggleTargetingAction => playerToggleTargetingAction != null;
+    public bool HasMenuDeleteAction => menuDeleteAction != null;
 
     private void Awake()
     {
@@ -141,11 +150,14 @@ public class GameInput : MonoBehaviour
             return;
 
         playerActionMap = inputActions.asset.FindActionMap("Player", false);
+        menuActionMap = inputActions.asset.FindActionMap("Menu", false);
 
         playerAttackAction = inputActions.Player.Attack;
         playerGuardAction = FindOptionalPlayerAction("Guard");
         playerSpecialAction = FindOptionalPlayerAction("Special");
         playerToggleTargetingAction = FindOptionalPlayerAction("ToggleTargeting");
+
+        menuDeleteAction = FindOptionalMenuAction("Delete");
 
         ShowMissingCombatActionWarningOnce();
     }
@@ -156,6 +168,14 @@ public class GameInput : MonoBehaviour
             return null;
 
         return playerActionMap.FindAction(actionName, false);
+    }
+
+    private InputAction FindOptionalMenuAction(string actionName)
+    {
+        if (menuActionMap == null)
+            return null;
+
+        return menuActionMap.FindAction(actionName, false);
     }
 
     private void ShowMissingCombatActionWarningOnce()
@@ -208,6 +228,12 @@ public class GameInput : MonoBehaviour
         return inputActions.Menu.UnequipItem;
     }
 
+    public InputAction GetMenuAction_Delete()
+    {
+        EnsureInitialized();
+        return menuDeleteAction;
+    }
+
     public bool IsAttackPressed()
     {
         return playerAttackAction != null && playerAttackAction.IsPressed();
@@ -238,6 +264,9 @@ public class GameInput : MonoBehaviour
 
         if (playerToggleTargetingAction != null)
             playerToggleTargetingAction.performed += OnToggleTargetingPerformedInternal;
+
+        if (menuDeleteAction != null)
+            menuDeleteAction.performed += OnMenuDeletePerformed;
 
         // Player
         inputActions.Player.Use.performed += OnUsePerformed;
@@ -304,6 +333,9 @@ public class GameInput : MonoBehaviour
 
         if (playerToggleTargetingAction != null)
             playerToggleTargetingAction.performed -= OnToggleTargetingPerformedInternal;
+
+        if (menuDeleteAction != null)
+            menuDeleteAction.performed -= OnMenuDeletePerformed;
 
         // Player
         inputActions.Player.Use.performed -= OnUsePerformed;
@@ -438,8 +470,6 @@ public class GameInput : MonoBehaviour
 
         if (groupChanged || layoutChanged)
             OnActiveDeviceGroupChanged?.Invoke();
-
-        Debug.Log($"Active input device: {device.displayName}, layout: {device.layout}, group: {CurrentDeviceGroup}");
     }
 
     // -------------------- Player --------------------
@@ -671,6 +701,15 @@ public class GameInput : MonoBehaviour
 
         UpdateDeviceGroup(context);
         OnMenuUnequip?.Invoke();
+    }
+
+    private void OnMenuDeletePerformed(InputAction.CallbackContext context)
+    {
+        if (CurrentMode != InputMode.Menu)
+            return;
+
+        UpdateDeviceGroup(context);
+        OnMenuDelete?.Invoke();
     }
 
     private void OnMenuClosePerformed(InputAction.CallbackContext context)
