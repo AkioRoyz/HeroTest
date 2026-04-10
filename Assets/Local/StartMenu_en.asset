@@ -19,15 +19,11 @@ MonoBehaviour:
     m_Items: []
   m_TableData:
   - m_Id: 101533429760
-    m_Localized: New Game
+    m_Localized: '[ Start Project: Hero Isekai ]'
     m_Metadata:
       m_Items: []
   - m_Id: 205275344896
-    m_Localized: Exit Game
-    m_Metadata:
-      m_Items: []
-  - m_Id: 395428311040
-    m_Localized: Test Game
+    m_Localized: '[ Turn off the System ]'
     m_Metadata:
       m_Items: []
   references:

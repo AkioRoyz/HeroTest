@@ -23,10 +23,6 @@ MonoBehaviour:
     m_Key: startMenu.exit
     m_Metadata:
       m_Items: []
-  - m_Id: 395428311040
-    m_Key: startMenu.testStart
-    m_Metadata:
-      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -7,25 +8,61 @@ public class StartMenu : MonoBehaviour
     [SerializeField] private string firstGameplaySceneName = "SampleScene";
     [SerializeField] private string startEntryPointId;
 
-    [Header("Save UI")]
-    [SerializeField] private SaveLoadMenuUI saveLoadMenuUI;
-    [SerializeField] private GameObject continueButtonRoot;
+    [Header("Fade")]
+    [SerializeField] private CanvasGroup fadeCanvasGroup;
+    [SerializeField] private float fadeDuration = 0.5f;
 
-    private void OnEnable()
+    private bool isTransitioning;
+
+    private void Awake()
     {
-        RefreshContinueButton();
-
-        if (SaveSystem.Instance != null)
-            SaveSystem.Instance.OnSaveSlotsChanged += RefreshContinueButton;
-    }
-
-    private void OnDisable()
-    {
-        if (SaveSystem.Instance != null)
-            SaveSystem.Instance.OnSaveSlotsChanged -= RefreshContinueButton;
+        if (fadeCanvasGroup != null)
+        {
+            fadeCanvasGroup.alpha = 0f;
+            fadeCanvasGroup.blocksRaycasts = false;
+            fadeCanvasGroup.interactable = false;
+        }
     }
 
     public void StartNewGame()
+    {
+        if (isTransitioning) return;
+        StartCoroutine(StartNewGameRoutine());
+    }
+
+    private IEnumerator StartNewGameRoutine()
+    {
+        isTransitioning = true;
+
+        yield return FadeToBlack();
+
+        // Даём кадру отрисоваться полностью чёрным
+        yield return new WaitForEndOfFrame();
+
+        LoadGameplayScene();
+    }
+
+    private IEnumerator FadeToBlack()
+    {
+        if (fadeCanvasGroup == null)
+        {
+            yield break;
+        }
+
+        fadeCanvasGroup.blocksRaycasts = true;
+
+        float time = 0f;
+        while (time < fadeDuration)
+        {
+            time += Time.unscaledDeltaTime;
+            fadeCanvasGroup.alpha = Mathf.Clamp01(time / fadeDuration);
+            yield return null;
+        }
+
+        fadeCanvasGroup.alpha = 1f;
+    }
+
+    private void LoadGameplayScene()
     {
         if (SaveSystem.Instance != null)
         {
@@ -41,26 +78,6 @@ public class StartMenu : MonoBehaviour
 
         SceneTransitionState.SetNextEntryPoint(startEntryPointId);
         SceneManager.LoadScene(firstGameplaySceneName, LoadSceneMode.Single);
-    }
-
-    public void StartTest()
-    {
-        StartNewGame();
-    }
-
-    public void OpenContinueMenu()
-    {
-        if (saveLoadMenuUI != null)
-            saveLoadMenuUI.OpenLoadMode();
-    }
-
-    public void RefreshContinueButton()
-    {
-        if (continueButtonRoot == null)
-            return;
-
-        bool hasSave = SaveSystem.Instance != null && SaveSystem.Instance.HasAnySave();
-        continueButtonRoot.SetActive(hasSave);
     }
 
     public void ExitGame()
