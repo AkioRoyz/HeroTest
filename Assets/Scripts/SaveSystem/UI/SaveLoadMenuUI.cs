@@ -1,8 +1,11 @@
+using System;
 using TMPro;
 using UnityEngine;
 
 public class SaveLoadMenuUI : MonoBehaviour
 {
+    public event Action OnWindowClosed;
+
     private enum WindowMode
     {
         Save,
@@ -31,9 +34,12 @@ public class SaveLoadMenuUI : MonoBehaviour
 
     private WindowMode currentMode = WindowMode.Load;
 
+    public bool IsOpen => root != null && root.activeSelf;
+
     private void Awake()
     {
-        Close();
+        if (root != null)
+            root.SetActive(false);
     }
 
     private void OnEnable()
@@ -62,8 +68,14 @@ public class SaveLoadMenuUI : MonoBehaviour
 
     public void Close()
     {
-        if (root != null)
-            root.SetActive(false);
+        if (root == null)
+            return;
+
+        bool wasOpen = root.activeSelf;
+        root.SetActive(false);
+
+        if (wasOpen)
+            OnWindowClosed?.Invoke();
     }
 
     public void Refresh()
@@ -173,6 +185,7 @@ public class SaveLoadMenuUI : MonoBehaviour
         {
             if (saveSystem.SaveToRegularSlot(slotIndex))
                 Close();
+
             return;
         }
 
@@ -200,6 +213,7 @@ public class SaveLoadMenuUI : MonoBehaviour
         {
             if (saveSystem.SaveToAutoSlot())
                 Close();
+
             return;
         }
 
