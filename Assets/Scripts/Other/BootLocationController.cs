@@ -35,8 +35,7 @@ public class BootLocationController : MonoBehaviour
         if (saveLoadMenuUI != null)
             saveLoadMenuUI.OnWindowClosed += HandleLoadWindowClosed;
 
-        if (gameInput != null)
-            gameInput.SwitchToPlayerMode();
+        EnterBootLocationMode();
     }
 
     private void OnDisable()
@@ -50,7 +49,11 @@ public class BootLocationController : MonoBehaviour
     private void ResolveReferences()
     {
         if (gameInput == null)
-            gameInput = GameInput.Instance != null ? GameInput.Instance : FindFirstObjectByType<GameInput>();
+        {
+            gameInput = GameInput.Instance != null
+                ? GameInput.Instance
+                : FindFirstObjectByType<GameInput>();
+        }
     }
 
     private void RebindInput()
@@ -81,6 +84,17 @@ public class BootLocationController : MonoBehaviour
         fadeCanvasGroup.alpha = 0f;
         fadeCanvasGroup.blocksRaycasts = false;
         fadeCanvasGroup.interactable = false;
+    }
+
+    private void EnterBootLocationMode()
+    {
+        if (GameStateManager.Instance != null)
+            GameStateManager.Instance.SetState(GameState.Playing);
+        else
+            Time.timeScale = 1f;
+
+        if (gameInput != null)
+            gameInput.SwitchToPlayerMode();
     }
 
     public void RegisterAvailableTrigger(BootActionTrigger trigger)
@@ -198,7 +212,6 @@ public class BootLocationController : MonoBehaviour
         fadeCanvasGroup.interactable = true;
 
         float time = 0f;
-
         while (time < fadeDuration)
         {
             time += Time.unscaledDeltaTime;

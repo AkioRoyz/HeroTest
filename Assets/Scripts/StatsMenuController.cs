@@ -20,7 +20,6 @@ public class StatsMenuController : MonoBehaviour
     private void OnEnable()
     {
         SceneManager.sceneLoaded += HandleSceneLoaded;
-
         ResolveReferences();
         RebindInput();
         ForceClosedVisual();
@@ -55,6 +54,7 @@ public class StatsMenuController : MonoBehaviour
 
         gameInput.OnStats += ToggleMenu;
         gameInput.OnMenuClose += CloseMenu;
+        gameInput.OnMenuCloseEquipment += CloseMenu;
 
         subscribedInput = gameInput;
     }
@@ -66,6 +66,8 @@ public class StatsMenuController : MonoBehaviour
 
         subscribedInput.OnStats -= ToggleMenu;
         subscribedInput.OnMenuClose -= CloseMenu;
+        subscribedInput.OnMenuCloseEquipment -= CloseMenu;
+
         subscribedInput = null;
     }
 

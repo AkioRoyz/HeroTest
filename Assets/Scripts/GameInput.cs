@@ -25,17 +25,48 @@ public class GameInput : MonoBehaviour
     private InputSystem_Actions inputActions;
 
     private InputActionMap playerActionMap;
+    private InputActionMap dialogueActionMap;
     private InputActionMap menuActionMap;
+    private InputActionMap questJournalActionMap;
+
+    private InputAction moveAction;
 
     private InputAction playerAttackAction;
     private InputAction playerGuardAction;
     private InputAction playerSpecialAction;
     private InputAction playerToggleTargetingAction;
+    private InputAction playerUseAction;
+    private InputAction playerStatsAction;
+    private InputAction playerQuestJournalAction;
+    private InputAction playerPauseAction;
+    private InputAction playerItem1Action;
+    private InputAction playerItem2Action;
+    private InputAction playerItem3Action;
+    private InputAction playerItem4Action;
+    private InputAction playerItem5Action;
 
-    // Опциональное действие для будущего удаления сохранений.
-    // Если ты позже добавишь action "Delete" в Menu map,
-    // этот код автоматически начнёт его видеть.
-    private InputAction menuDeleteAction;
+    private InputAction dialogueUpAction;
+    private InputAction dialogueDownAction;
+    private InputAction dialogueSelectAction;
+
+    private InputAction menuUpAction;
+    private InputAction menuDownAction;
+    private InputAction menuLeftAction;
+    private InputAction menuRightAction;
+    private InputAction menuSelectAction;
+    private InputAction menuSecondaryAction;       // UnequipOrDelete
+    private InputAction menuDeleteAction;          // optional legacy/special action
+    private InputAction menuCloseAction;           // Escape
+    private InputAction menuCloseEquipmentAction;  // I
+
+    private InputAction questJournalUpAction;
+    private InputAction questJournalDownAction;
+    private InputAction questJournalSelectAction;
+    private InputAction questJournalBackAction;
+    private InputAction questJournalMainTabAction;
+    private InputAction questJournalSideTabAction;
+    private InputAction questJournalPinQuestAction;
+    private InputAction questJournalCloseAction;
 
     private bool missingCombatActionsWarningShown;
 
@@ -45,6 +76,7 @@ public class GameInput : MonoBehaviour
 
     public event Action OnGuardStarted;
     public event Action OnGuardCanceled;
+
     public event Action OnSpecialPerformed;
     public event Action OnToggleTargeting;
 
@@ -52,6 +84,7 @@ public class GameInput : MonoBehaviour
     public event Action OnStats;
     public event Action OnQuestJournal;
     public event Action OnPauseToggle;
+
     public event Action<int> OnQuickSlotPressed;
 
     public event Action OnDialogueUp;
@@ -63,9 +96,18 @@ public class GameInput : MonoBehaviour
     public event Action OnMenuLeft;
     public event Action OnMenuRight;
     public event Action OnMenuSelect;
-    public event Action OnMenuUnequip;
+
+    public event Action OnMenuUnequipOrDelete;
+
+    public event Action OnMenuUnequip
+    {
+        add => OnMenuUnequipOrDelete += value;
+        remove => OnMenuUnequipOrDelete -= value;
+    }
+
     public event Action OnMenuDelete;
     public event Action OnMenuClose;
+    public event Action OnMenuCloseEquipment;
 
     public event Action OnQuestJournalUp;
     public event Action OnQuestJournalDown;
@@ -93,6 +135,8 @@ public class GameInput : MonoBehaviour
     public bool HasToggleTargetingAction => playerToggleTargetingAction != null;
     public bool HasMenuDeleteAction => menuDeleteAction != null;
 
+    private bool IsMenuLikeMode => CurrentMode == InputMode.Menu || CurrentMode == InputMode.PauseMenu;
+
     private void Awake()
     {
         if (Instance != null && Instance != this)
@@ -102,36 +146,42 @@ public class GameInput : MonoBehaviour
         }
 
         Instance = this;
-
         EnsureInitialized();
         SwitchToPlayerMode();
     }
 
     private void OnDestroy()
     {
-        if (Instance == this)
+        if (Instance != this)
+            return;
+
+        UnsubscribeFromInput();
+
+        if (inputActions != null)
         {
-            UnsubscribeFromInput();
-
-            if (inputActions != null)
-                inputActions.Dispose();
-
-            Instance = null;
+            inputActions.Dispose();
+            inputActions = null;
         }
+
+        Instance = null;
     }
 
     private void Update()
     {
-        if (inputActions == null)
+        if (moveAction == null)
         {
             MoveVector = Vector2.zero;
             return;
         }
 
         if (CurrentMode == InputMode.Player)
-            MoveVector = inputActions.Player.Moving.ReadValue<Vector2>().normalized;
+        {
+            MoveVector = moveAction.ReadValue<Vector2>().normalized;
+        }
         else
+        {
             MoveVector = Vector2.zero;
+        }
     }
 
     private void EnsureInitialized()
@@ -150,32 +200,80 @@ public class GameInput : MonoBehaviour
             return;
 
         playerActionMap = inputActions.asset.FindActionMap("Player", false);
+        dialogueActionMap = inputActions.asset.FindActionMap("Dialogue", false);
         menuActionMap = inputActions.asset.FindActionMap("Menu", false);
+        questJournalActionMap = inputActions.asset.FindActionMap("QuestJournal", false);
 
-        playerAttackAction = inputActions.Player.Attack;
-        playerGuardAction = FindOptionalPlayerAction("Guard");
-        playerSpecialAction = FindOptionalPlayerAction("Special");
-        playerToggleTargetingAction = FindOptionalPlayerAction("ToggleTargeting");
+        moveAction = FindRequiredAction(playerActionMap, "Player", "Moving");
 
-        menuDeleteAction = FindOptionalMenuAction("Delete");
+        playerAttackAction = FindRequiredAction(playerActionMap, "Player", "Attack");
+        playerGuardAction = FindOptionalAction(playerActionMap, "Guard");
+        playerSpecialAction = FindOptionalAction(playerActionMap, "Special");
+        playerToggleTargetingAction = FindOptionalAction(playerActionMap, "ToggleTargeting");
+        playerUseAction = FindRequiredAction(playerActionMap, "Player", "Use");
+        playerStatsAction = FindRequiredAction(playerActionMap, "Player", "Stats");
+        playerQuestJournalAction = FindRequiredAction(playerActionMap, "Player", "QuestJournal");
+        playerPauseAction = FindRequiredAction(playerActionMap, "Player", "Pause");
+        playerItem1Action = FindRequiredAction(playerActionMap, "Player", "Item1");
+        playerItem2Action = FindRequiredAction(playerActionMap, "Player", "Item2");
+        playerItem3Action = FindRequiredAction(playerActionMap, "Player", "Item3");
+        playerItem4Action = FindRequiredAction(playerActionMap, "Player", "Item4");
+        playerItem5Action = FindRequiredAction(playerActionMap, "Player", "Item5");
+
+        dialogueUpAction = FindRequiredAction(dialogueActionMap, "Dialogue", "UpSelect");
+        dialogueDownAction = FindRequiredAction(dialogueActionMap, "Dialogue", "DownSelect");
+        dialogueSelectAction = FindRequiredAction(dialogueActionMap, "Dialogue", "SelectChoise");
+
+        menuUpAction = FindRequiredAction(menuActionMap, "Menu", "UpSelect");
+        menuDownAction = FindRequiredAction(menuActionMap, "Menu", "DownSelect");
+        menuLeftAction = FindRequiredAction(menuActionMap, "Menu", "LeftSelect");
+        menuRightAction = FindRequiredAction(menuActionMap, "Menu", "RightSelect");
+        menuSelectAction = FindRequiredAction(menuActionMap, "Menu", "SelectChoise");
+
+        menuSecondaryAction =
+            FindOptionalAction(menuActionMap, "UnequipOrDelete") ??
+            FindOptionalAction(menuActionMap, "UnequipItem");
+
+        menuDeleteAction = FindOptionalAction(menuActionMap, "Delete");
+        menuCloseAction = FindRequiredAction(menuActionMap, "Menu", "CloseUI");
+        menuCloseEquipmentAction = FindRequiredAction(menuActionMap, "Menu", "CloseEquipment");
+
+        questJournalUpAction = FindRequiredAction(questJournalActionMap, "QuestJournal", "UpSelect");
+        questJournalDownAction = FindRequiredAction(questJournalActionMap, "QuestJournal", "DownSelect");
+        questJournalSelectAction = FindRequiredAction(questJournalActionMap, "QuestJournal", "Select");
+        questJournalBackAction = FindRequiredAction(questJournalActionMap, "QuestJournal", "Back");
+        questJournalMainTabAction = FindRequiredAction(questJournalActionMap, "QuestJournal", "MainTab");
+        questJournalSideTabAction = FindRequiredAction(questJournalActionMap, "QuestJournal", "SideTab");
+        questJournalPinQuestAction = FindRequiredAction(questJournalActionMap, "QuestJournal", "PinQuest");
+        questJournalCloseAction = FindRequiredAction(questJournalActionMap, "QuestJournal", "CloseUI");
 
         ShowMissingCombatActionWarningOnce();
     }
 
-    private InputAction FindOptionalPlayerAction(string actionName)
+    private InputAction FindRequiredAction(InputActionMap map, string mapName, string actionName)
     {
-        if (playerActionMap == null)
+        if (map == null)
+        {
+            Debug.LogWarning($"GameInput: action map '{mapName}' was not found in InputSystem_Actions.");
             return null;
+        }
 
-        return playerActionMap.FindAction(actionName, false);
+        InputAction action = map.FindAction(actionName, false);
+
+        if (action == null)
+        {
+            Debug.LogWarning($"GameInput: action '{mapName}/{actionName}' was not found in InputSystem_Actions.");
+        }
+
+        return action;
     }
 
-    private InputAction FindOptionalMenuAction(string actionName)
+    private InputAction FindOptionalAction(InputActionMap map, string actionName)
     {
-        if (menuActionMap == null)
+        if (map == null)
             return null;
 
-        return menuActionMap.FindAction(actionName, false);
+        return map.FindAction(actionName, false);
     }
 
     private void ShowMissingCombatActionWarningOnce()
@@ -183,24 +281,18 @@ public class GameInput : MonoBehaviour
         if (missingCombatActionsWarningShown)
             return;
 
-        List<string> missingActions = new List<string>();
+        List<string> missingActions = new();
 
-        if (playerGuardAction == null)
-            missingActions.Add("Player/Guard");
-
-        if (playerSpecialAction == null)
-            missingActions.Add("Player/Special");
-
-        if (playerToggleTargetingAction == null)
-            missingActions.Add("Player/ToggleTargeting");
+        if (playerGuardAction == null) missingActions.Add("Player/Guard");
+        if (playerSpecialAction == null) missingActions.Add("Player/Special");
+        if (playerToggleTargetingAction == null) missingActions.Add("Player/ToggleTargeting");
 
         if (missingActions.Count > 0)
         {
             Debug.LogWarning(
                 "GameInput: optional combat actions are missing from InputSystem_Actions: " +
                 string.Join(", ", missingActions) +
-                ". Add them in the Player action map to enable guard, special and targeting toggle."
-            );
+                ". Add them in the Player action map to enable guard, special and targeting toggle.");
         }
 
         missingCombatActionsWarningShown = true;
@@ -219,13 +311,19 @@ public class GameInput : MonoBehaviour
     public InputAction GetMenuAction_Select()
     {
         EnsureInitialized();
-        return inputActions.Menu.SelectChoise;
+        return menuSelectAction;
+    }
+
+    public InputAction GetMenuAction_UnequipOrDelete()
+    {
+        EnsureInitialized();
+        return menuSecondaryAction;
     }
 
     public InputAction GetMenuAction_Unequip()
     {
         EnsureInitialized();
-        return inputActions.Menu.UnequipItem;
+        return menuSecondaryAction;
     }
 
     public InputAction GetMenuAction_Delete()
@@ -246,207 +344,164 @@ public class GameInput : MonoBehaviour
 
     private void SubscribeToInput()
     {
-        if (playerAttackAction != null)
-        {
-            playerAttackAction.started += OnAttackStartedPerformed;
-            playerAttackAction.performed += OnAttackPerformed;
-            playerAttackAction.canceled += OnAttackCanceledPerformed;
-        }
+        SubscribeStarted(playerAttackAction, OnAttackStartedPerformed);
+        SubscribePerformed(playerAttackAction, OnAttackPerformed);
+        SubscribeCanceled(playerAttackAction, OnAttackCanceledPerformed);
 
-        if (playerGuardAction != null)
-        {
-            playerGuardAction.started += OnGuardStartedPerformed;
-            playerGuardAction.canceled += OnGuardCanceledPerformed;
-        }
+        SubscribeStarted(playerGuardAction, OnGuardStartedPerformed);
+        SubscribeCanceled(playerGuardAction, OnGuardCanceledPerformed);
 
-        if (playerSpecialAction != null)
-            playerSpecialAction.performed += OnSpecialPerformedInternal;
+        SubscribePerformed(playerSpecialAction, OnSpecialPerformedInternal);
+        SubscribePerformed(playerToggleTargetingAction, OnToggleTargetingPerformedInternal);
 
-        if (playerToggleTargetingAction != null)
-            playerToggleTargetingAction.performed += OnToggleTargetingPerformedInternal;
+        SubscribePerformed(playerUseAction, OnUsePerformed);
+        SubscribePerformed(playerStatsAction, OnStatsPerformed);
+        SubscribePerformed(playerQuestJournalAction, OnQuestJournalPerformed);
+        SubscribePerformed(playerPauseAction, OnPausePerformed);
+        SubscribePerformed(playerItem1Action, OnQuickSlotPerformed);
+        SubscribePerformed(playerItem2Action, OnQuickSlotPerformed);
+        SubscribePerformed(playerItem3Action, OnQuickSlotPerformed);
+        SubscribePerformed(playerItem4Action, OnQuickSlotPerformed);
+        SubscribePerformed(playerItem5Action, OnQuickSlotPerformed);
 
-        if (menuDeleteAction != null)
-            menuDeleteAction.performed += OnMenuDeletePerformed;
+        SubscribePerformed(dialogueUpAction, OnDialogueUpPerformed);
+        SubscribePerformed(dialogueDownAction, OnDialogueDownPerformed);
+        SubscribePerformed(dialogueSelectAction, OnDialogueSelectPerformed);
 
-        // Player
-        inputActions.Player.Use.performed += OnUsePerformed;
-        inputActions.Player.Stats.performed += OnStatsPerformed;
-        inputActions.Player.QuestJournal.performed += OnQuestJournalPerformed;
-        inputActions.Player.Pause.performed += OnPausePerformed;
-        inputActions.Player.Item1.performed += OnItem1Performed;
-        inputActions.Player.Item2.performed += OnItem2Performed;
-        inputActions.Player.Item3.performed += OnItem3Performed;
-        inputActions.Player.Item4.performed += OnItem4Performed;
-        inputActions.Player.Item5.performed += OnItem5Performed;
+        SubscribePerformed(menuUpAction, OnMenuUpPerformed);
+        SubscribePerformed(menuDownAction, OnMenuDownPerformed);
+        SubscribePerformed(menuLeftAction, OnMenuLeftPerformed);
+        SubscribePerformed(menuRightAction, OnMenuRightPerformed);
+        SubscribePerformed(menuSelectAction, OnMenuSelectPerformed);
+        SubscribePerformed(menuSecondaryAction, OnMenuSecondaryPerformed);
+        SubscribePerformed(menuDeleteAction, OnMenuDeletePerformed);
+        SubscribePerformed(menuCloseAction, OnMenuClosePerformed);
+        SubscribePerformed(menuCloseEquipmentAction, OnMenuCloseEquipmentPerformed);
 
-        // Dialogue
-        inputActions.Dialogue.UpSelect.performed += OnDialogueUpPerformed;
-        inputActions.Dialogue.DownSelect.performed += OnDialogueDownPerformed;
-        inputActions.Dialogue.SelectChoise.performed += OnDialogueSelectPerformed;
-
-        // Menu
-        inputActions.Menu.UpSelect.performed += OnMenuUpPerformed;
-        inputActions.Menu.DownSelect.performed += OnMenuDownPerformed;
-        inputActions.Menu.LeftSelect.performed += OnMenuLeftPerformed;
-        inputActions.Menu.RightSelect.performed += OnMenuRightPerformed;
-        inputActions.Menu.SelectChoise.performed += OnMenuSelectPerformed;
-        inputActions.Menu.UnequipItem.performed += OnMenuUnequipPerformed;
-        inputActions.Menu.CloseUI.performed += OnMenuClosePerformed;
-
-        // Quest Journal
-        inputActions.QuestJournal.UpSelect.performed += OnQuestJournalUpPerformed;
-        inputActions.QuestJournal.DownSelect.performed += OnQuestJournalDownPerformed;
-        inputActions.QuestJournal.Select.performed += OnQuestJournalSelectPerformed;
-        inputActions.QuestJournal.Back.performed += OnQuestJournalBackPerformed;
-        inputActions.QuestJournal.MainTab.performed += OnQuestJournalMainTabPerformed;
-        inputActions.QuestJournal.SideTab.performed += OnQuestJournalSideTabPerformed;
-        inputActions.QuestJournal.PinQuest.performed += OnQuestJournalPinQuestPerformed;
-        inputActions.QuestJournal.CloseUI.performed += OnQuestJournalClosePerformed;
-
-        // Pause Menu
-        inputActions.PauseMenu.UpSelect.performed += OnPauseMenuUpPerformed;
-        inputActions.PauseMenu.DownSelect.performed += OnPauseMenuDownPerformed;
-        inputActions.PauseMenu.SelectChoise.performed += OnPauseMenuSelectPerformed;
-        inputActions.PauseMenu.TogglePause.performed += OnPauseMenuTogglePerformed;
+        SubscribePerformed(questJournalUpAction, OnQuestJournalUpPerformed);
+        SubscribePerformed(questJournalDownAction, OnQuestJournalDownPerformed);
+        SubscribePerformed(questJournalSelectAction, OnQuestJournalSelectPerformed);
+        SubscribePerformed(questJournalBackAction, OnQuestJournalBackPerformed);
+        SubscribePerformed(questJournalMainTabAction, OnQuestJournalMainTabPerformed);
+        SubscribePerformed(questJournalSideTabAction, OnQuestJournalSideTabPerformed);
+        SubscribePerformed(questJournalPinQuestAction, OnQuestJournalPinQuestPerformed);
+        SubscribePerformed(questJournalCloseAction, OnQuestJournalClosePerformed);
     }
 
     private void UnsubscribeFromInput()
     {
-        if (inputActions == null)
-            return;
+        UnsubscribeStarted(playerAttackAction, OnAttackStartedPerformed);
+        UnsubscribePerformed(playerAttackAction, OnAttackPerformed);
+        UnsubscribeCanceled(playerAttackAction, OnAttackCanceledPerformed);
 
-        if (playerAttackAction != null)
-        {
-            playerAttackAction.started -= OnAttackStartedPerformed;
-            playerAttackAction.performed -= OnAttackPerformed;
-            playerAttackAction.canceled -= OnAttackCanceledPerformed;
-        }
+        UnsubscribeStarted(playerGuardAction, OnGuardStartedPerformed);
+        UnsubscribeCanceled(playerGuardAction, OnGuardCanceledPerformed);
 
-        if (playerGuardAction != null)
-        {
-            playerGuardAction.started -= OnGuardStartedPerformed;
-            playerGuardAction.canceled -= OnGuardCanceledPerformed;
-        }
+        UnsubscribePerformed(playerSpecialAction, OnSpecialPerformedInternal);
+        UnsubscribePerformed(playerToggleTargetingAction, OnToggleTargetingPerformedInternal);
 
-        if (playerSpecialAction != null)
-            playerSpecialAction.performed -= OnSpecialPerformedInternal;
+        UnsubscribePerformed(playerUseAction, OnUsePerformed);
+        UnsubscribePerformed(playerStatsAction, OnStatsPerformed);
+        UnsubscribePerformed(playerQuestJournalAction, OnQuestJournalPerformed);
+        UnsubscribePerformed(playerPauseAction, OnPausePerformed);
+        UnsubscribePerformed(playerItem1Action, OnQuickSlotPerformed);
+        UnsubscribePerformed(playerItem2Action, OnQuickSlotPerformed);
+        UnsubscribePerformed(playerItem3Action, OnQuickSlotPerformed);
+        UnsubscribePerformed(playerItem4Action, OnQuickSlotPerformed);
+        UnsubscribePerformed(playerItem5Action, OnQuickSlotPerformed);
 
-        if (playerToggleTargetingAction != null)
-            playerToggleTargetingAction.performed -= OnToggleTargetingPerformedInternal;
+        UnsubscribePerformed(dialogueUpAction, OnDialogueUpPerformed);
+        UnsubscribePerformed(dialogueDownAction, OnDialogueDownPerformed);
+        UnsubscribePerformed(dialogueSelectAction, OnDialogueSelectPerformed);
 
-        if (menuDeleteAction != null)
-            menuDeleteAction.performed -= OnMenuDeletePerformed;
+        UnsubscribePerformed(menuUpAction, OnMenuUpPerformed);
+        UnsubscribePerformed(menuDownAction, OnMenuDownPerformed);
+        UnsubscribePerformed(menuLeftAction, OnMenuLeftPerformed);
+        UnsubscribePerformed(menuRightAction, OnMenuRightPerformed);
+        UnsubscribePerformed(menuSelectAction, OnMenuSelectPerformed);
+        UnsubscribePerformed(menuSecondaryAction, OnMenuSecondaryPerformed);
+        UnsubscribePerformed(menuDeleteAction, OnMenuDeletePerformed);
+        UnsubscribePerformed(menuCloseAction, OnMenuClosePerformed);
+        UnsubscribePerformed(menuCloseEquipmentAction, OnMenuCloseEquipmentPerformed);
 
-        // Player
-        inputActions.Player.Use.performed -= OnUsePerformed;
-        inputActions.Player.Stats.performed -= OnStatsPerformed;
-        inputActions.Player.QuestJournal.performed -= OnQuestJournalPerformed;
-        inputActions.Player.Pause.performed -= OnPausePerformed;
-        inputActions.Player.Item1.performed -= OnItem1Performed;
-        inputActions.Player.Item2.performed -= OnItem2Performed;
-        inputActions.Player.Item3.performed -= OnItem3Performed;
-        inputActions.Player.Item4.performed -= OnItem4Performed;
-        inputActions.Player.Item5.performed -= OnItem5Performed;
+        UnsubscribePerformed(questJournalUpAction, OnQuestJournalUpPerformed);
+        UnsubscribePerformed(questJournalDownAction, OnQuestJournalDownPerformed);
+        UnsubscribePerformed(questJournalSelectAction, OnQuestJournalSelectPerformed);
+        UnsubscribePerformed(questJournalBackAction, OnQuestJournalBackPerformed);
+        UnsubscribePerformed(questJournalMainTabAction, OnQuestJournalMainTabPerformed);
+        UnsubscribePerformed(questJournalSideTabAction, OnQuestJournalSideTabPerformed);
+        UnsubscribePerformed(questJournalPinQuestAction, OnQuestJournalPinQuestPerformed);
+        UnsubscribePerformed(questJournalCloseAction, OnQuestJournalClosePerformed);
+    }
 
-        // Dialogue
-        inputActions.Dialogue.UpSelect.performed -= OnDialogueUpPerformed;
-        inputActions.Dialogue.DownSelect.performed -= OnDialogueDownPerformed;
-        inputActions.Dialogue.SelectChoise.performed -= OnDialogueSelectPerformed;
+    private static void SubscribeStarted(InputAction action, Action<InputAction.CallbackContext> callback)
+    {
+        if (action != null) action.started += callback;
+    }
 
-        // Menu
-        inputActions.Menu.UpSelect.performed -= OnMenuUpPerformed;
-        inputActions.Menu.DownSelect.performed -= OnMenuDownPerformed;
-        inputActions.Menu.LeftSelect.performed -= OnMenuLeftPerformed;
-        inputActions.Menu.RightSelect.performed -= OnMenuRightPerformed;
-        inputActions.Menu.SelectChoise.performed -= OnMenuSelectPerformed;
-        inputActions.Menu.UnequipItem.performed -= OnMenuUnequipPerformed;
-        inputActions.Menu.CloseUI.performed -= OnMenuClosePerformed;
+    private static void SubscribePerformed(InputAction action, Action<InputAction.CallbackContext> callback)
+    {
+        if (action != null) action.performed += callback;
+    }
 
-        // Quest Journal
-        inputActions.QuestJournal.UpSelect.performed -= OnQuestJournalUpPerformed;
-        inputActions.QuestJournal.DownSelect.performed -= OnQuestJournalDownPerformed;
-        inputActions.QuestJournal.Select.performed -= OnQuestJournalSelectPerformed;
-        inputActions.QuestJournal.Back.performed -= OnQuestJournalBackPerformed;
-        inputActions.QuestJournal.MainTab.performed -= OnQuestJournalMainTabPerformed;
-        inputActions.QuestJournal.SideTab.performed -= OnQuestJournalSideTabPerformed;
-        inputActions.QuestJournal.PinQuest.performed -= OnQuestJournalPinQuestPerformed;
-        inputActions.QuestJournal.CloseUI.performed -= OnQuestJournalClosePerformed;
+    private static void SubscribeCanceled(InputAction action, Action<InputAction.CallbackContext> callback)
+    {
+        if (action != null) action.canceled += callback;
+    }
 
-        // Pause Menu
-        inputActions.PauseMenu.UpSelect.performed -= OnPauseMenuUpPerformed;
-        inputActions.PauseMenu.DownSelect.performed -= OnPauseMenuDownPerformed;
-        inputActions.PauseMenu.SelectChoise.performed -= OnPauseMenuSelectPerformed;
-        inputActions.PauseMenu.TogglePause.performed -= OnPauseMenuTogglePerformed;
+    private static void UnsubscribeStarted(InputAction action, Action<InputAction.CallbackContext> callback)
+    {
+        if (action != null) action.started -= callback;
+    }
+
+    private static void UnsubscribePerformed(InputAction action, Action<InputAction.CallbackContext> callback)
+    {
+        if (action != null) action.performed -= callback;
+    }
+
+    private static void UnsubscribeCanceled(InputAction action, Action<InputAction.CallbackContext> callback)
+    {
+        if (action != null) action.canceled -= callback;
     }
 
     public void SwitchToPlayerMode()
     {
-        EnsureInitialized();
-
-        inputActions.Player.Enable();
-        inputActions.Dialogue.Disable();
-        inputActions.Menu.Disable();
-        inputActions.QuestJournal.Disable();
-        inputActions.PauseMenu.Disable();
-
-        MoveVector = Vector2.zero;
-        CurrentMode = InputMode.Player;
+        EnableOnly(playerActionMap, InputMode.Player);
     }
 
     public void SwitchToDialogueMode()
     {
-        EnsureInitialized();
-
-        inputActions.Player.Disable();
-        inputActions.Dialogue.Enable();
-        inputActions.Menu.Disable();
-        inputActions.QuestJournal.Disable();
-        inputActions.PauseMenu.Disable();
-
-        MoveVector = Vector2.zero;
-        CurrentMode = InputMode.Dialogue;
+        EnableOnly(dialogueActionMap, InputMode.Dialogue);
     }
 
     public void SwitchToMenuMode()
     {
-        EnsureInitialized();
-
-        inputActions.Player.Disable();
-        inputActions.Dialogue.Disable();
-        inputActions.Menu.Enable();
-        inputActions.QuestJournal.Disable();
-        inputActions.PauseMenu.Disable();
-
-        MoveVector = Vector2.zero;
-        CurrentMode = InputMode.Menu;
+        EnableOnly(menuActionMap, InputMode.Menu);
     }
 
     public void SwitchToQuestJournalMode()
     {
-        EnsureInitialized();
-
-        inputActions.Player.Disable();
-        inputActions.Dialogue.Disable();
-        inputActions.Menu.Disable();
-        inputActions.QuestJournal.Enable();
-        inputActions.PauseMenu.Disable();
-
-        MoveVector = Vector2.zero;
-        CurrentMode = InputMode.QuestJournal;
+        EnableOnly(questJournalActionMap, InputMode.QuestJournal);
     }
 
     public void SwitchToPauseMenuMode()
     {
+        EnableOnly(menuActionMap, InputMode.PauseMenu);
+    }
+
+    private void EnableOnly(InputActionMap mapToEnable, InputMode newMode)
+    {
         EnsureInitialized();
 
-        inputActions.Player.Disable();
-        inputActions.Dialogue.Disable();
-        inputActions.Menu.Disable();
-        inputActions.QuestJournal.Disable();
-        inputActions.PauseMenu.Enable();
+        playerActionMap?.Disable();
+        dialogueActionMap?.Disable();
+        menuActionMap?.Disable();
+        questJournalActionMap?.Disable();
+
+        mapToEnable?.Enable();
 
         MoveVector = Vector2.zero;
-        CurrentMode = InputMode.PauseMenu;
+        CurrentMode = newMode;
     }
 
     private void UpdateDeviceGroup(InputAction.CallbackContext context)
@@ -455,12 +510,11 @@ public class GameInput : MonoBehaviour
             return;
 
         InputDevice device = context.control.device;
-        DeviceGroupType newGroup;
 
-        if (device is Keyboard || device is Mouse)
-            newGroup = DeviceGroupType.KeyboardMouse;
-        else
-            newGroup = DeviceGroupType.Gamepad;
+        DeviceGroupType newGroup =
+            (device is Keyboard || device is Mouse)
+                ? DeviceGroupType.KeyboardMouse
+                : DeviceGroupType.Gamepad;
 
         bool groupChanged = newGroup != CurrentDeviceGroup;
         bool layoutChanged = CurrentDeviceLayoutName != device.layout;
@@ -469,367 +523,263 @@ public class GameInput : MonoBehaviour
         CurrentDeviceLayoutName = device.layout;
 
         if (groupChanged || layoutChanged)
+        {
             OnActiveDeviceGroupChanged?.Invoke();
+        }
     }
-
-    // -------------------- Player --------------------
 
     private void OnAttackStartedPerformed(InputAction.CallbackContext context)
     {
-        if (CurrentMode != InputMode.Player)
-            return;
-
+        if (CurrentMode != InputMode.Player) return;
         UpdateDeviceGroup(context);
         OnAttackStarted?.Invoke();
     }
 
     private void OnAttackPerformed(InputAction.CallbackContext context)
     {
-        if (CurrentMode != InputMode.Player)
-            return;
-
+        if (CurrentMode != InputMode.Player) return;
         UpdateDeviceGroup(context);
         OnAttack?.Invoke();
     }
 
     private void OnAttackCanceledPerformed(InputAction.CallbackContext context)
     {
-        if (CurrentMode != InputMode.Player)
-            return;
-
+        if (CurrentMode != InputMode.Player) return;
         UpdateDeviceGroup(context);
         OnAttackCanceled?.Invoke();
     }
 
     private void OnGuardStartedPerformed(InputAction.CallbackContext context)
     {
-        if (CurrentMode != InputMode.Player)
-            return;
-
+        if (CurrentMode != InputMode.Player) return;
         UpdateDeviceGroup(context);
         OnGuardStarted?.Invoke();
     }
 
     private void OnGuardCanceledPerformed(InputAction.CallbackContext context)
     {
-        if (CurrentMode != InputMode.Player)
-            return;
-
+        if (CurrentMode != InputMode.Player) return;
         UpdateDeviceGroup(context);
         OnGuardCanceled?.Invoke();
     }
 
     private void OnSpecialPerformedInternal(InputAction.CallbackContext context)
     {
-        if (CurrentMode != InputMode.Player)
-            return;
-
+        if (CurrentMode != InputMode.Player) return;
         UpdateDeviceGroup(context);
         OnSpecialPerformed?.Invoke();
     }
 
     private void OnToggleTargetingPerformedInternal(InputAction.CallbackContext context)
     {
-        if (CurrentMode != InputMode.Player)
-            return;
-
+        if (CurrentMode != InputMode.Player) return;
         UpdateDeviceGroup(context);
         OnToggleTargeting?.Invoke();
     }
 
     private void OnUsePerformed(InputAction.CallbackContext context)
     {
-        if (CurrentMode != InputMode.Player)
-            return;
-
+        if (CurrentMode != InputMode.Player) return;
         UpdateDeviceGroup(context);
         OnUse?.Invoke();
     }
 
     private void OnStatsPerformed(InputAction.CallbackContext context)
     {
-        if (CurrentMode != InputMode.Player)
-            return;
-
+        if (CurrentMode != InputMode.Player) return;
         UpdateDeviceGroup(context);
         OnStats?.Invoke();
     }
 
     private void OnQuestJournalPerformed(InputAction.CallbackContext context)
     {
-        if (CurrentMode != InputMode.Player)
-            return;
-
+        if (CurrentMode != InputMode.Player) return;
         UpdateDeviceGroup(context);
         OnQuestJournal?.Invoke();
     }
 
     private void OnPausePerformed(InputAction.CallbackContext context)
     {
-        if (CurrentMode != InputMode.Player)
-            return;
-
+        if (CurrentMode != InputMode.Player) return;
         UpdateDeviceGroup(context);
         OnPauseToggle?.Invoke();
     }
 
-    private void OnItem1Performed(InputAction.CallbackContext context)
+    private void OnQuickSlotPerformed(InputAction.CallbackContext context)
     {
-        if (CurrentMode != InputMode.Player)
-            return;
+        if (CurrentMode != InputMode.Player) return;
 
         UpdateDeviceGroup(context);
-        OnQuickSlotPressed?.Invoke(1);
+
+        int slotNumber = GetQuickSlotNumber(context.action);
+        if (slotNumber <= 0) return;
+
+        OnQuickSlotPressed?.Invoke(slotNumber);
     }
 
-    private void OnItem2Performed(InputAction.CallbackContext context)
+    private int GetQuickSlotNumber(InputAction action)
     {
-        if (CurrentMode != InputMode.Player)
-            return;
+        if (action == null)
+            return -1;
 
-        UpdateDeviceGroup(context);
-        OnQuickSlotPressed?.Invoke(2);
+        if (action == playerItem1Action) return 1;
+        if (action == playerItem2Action) return 2;
+        if (action == playerItem3Action) return 3;
+        if (action == playerItem4Action) return 4;
+        if (action == playerItem5Action) return 5;
+
+        return -1;
     }
-
-    private void OnItem3Performed(InputAction.CallbackContext context)
-    {
-        if (CurrentMode != InputMode.Player)
-            return;
-
-        UpdateDeviceGroup(context);
-        OnQuickSlotPressed?.Invoke(3);
-    }
-
-    private void OnItem4Performed(InputAction.CallbackContext context)
-    {
-        if (CurrentMode != InputMode.Player)
-            return;
-
-        UpdateDeviceGroup(context);
-        OnQuickSlotPressed?.Invoke(4);
-    }
-
-    private void OnItem5Performed(InputAction.CallbackContext context)
-    {
-        if (CurrentMode != InputMode.Player)
-            return;
-
-        UpdateDeviceGroup(context);
-        OnQuickSlotPressed?.Invoke(5);
-    }
-
-    // -------------------- Dialogue --------------------
 
     private void OnDialogueUpPerformed(InputAction.CallbackContext context)
     {
-        if (CurrentMode != InputMode.Dialogue)
-            return;
-
+        if (CurrentMode != InputMode.Dialogue) return;
         UpdateDeviceGroup(context);
         OnDialogueUp?.Invoke();
     }
 
     private void OnDialogueDownPerformed(InputAction.CallbackContext context)
     {
-        if (CurrentMode != InputMode.Dialogue)
-            return;
-
+        if (CurrentMode != InputMode.Dialogue) return;
         UpdateDeviceGroup(context);
         OnDialogueDown?.Invoke();
     }
 
     private void OnDialogueSelectPerformed(InputAction.CallbackContext context)
     {
-        if (CurrentMode != InputMode.Dialogue)
-            return;
-
+        if (CurrentMode != InputMode.Dialogue) return;
         UpdateDeviceGroup(context);
         OnDialogueSelect?.Invoke();
     }
 
-    // -------------------- Menu --------------------
-
     private void OnMenuUpPerformed(InputAction.CallbackContext context)
     {
-        if (CurrentMode != InputMode.Menu)
-            return;
-
+        if (!IsMenuLikeMode) return;
         UpdateDeviceGroup(context);
         OnMenuUp?.Invoke();
+
+        if (CurrentMode == InputMode.PauseMenu)
+            OnPauseMenuUp?.Invoke();
     }
 
     private void OnMenuDownPerformed(InputAction.CallbackContext context)
     {
-        if (CurrentMode != InputMode.Menu)
-            return;
-
+        if (!IsMenuLikeMode) return;
         UpdateDeviceGroup(context);
         OnMenuDown?.Invoke();
+
+        if (CurrentMode == InputMode.PauseMenu)
+            OnPauseMenuDown?.Invoke();
     }
 
     private void OnMenuLeftPerformed(InputAction.CallbackContext context)
     {
-        if (CurrentMode != InputMode.Menu)
-            return;
-
+        if (!IsMenuLikeMode) return;
         UpdateDeviceGroup(context);
         OnMenuLeft?.Invoke();
     }
 
     private void OnMenuRightPerformed(InputAction.CallbackContext context)
     {
-        if (CurrentMode != InputMode.Menu)
-            return;
-
+        if (!IsMenuLikeMode) return;
         UpdateDeviceGroup(context);
         OnMenuRight?.Invoke();
     }
 
     private void OnMenuSelectPerformed(InputAction.CallbackContext context)
     {
-        if (CurrentMode != InputMode.Menu)
-            return;
-
+        if (!IsMenuLikeMode) return;
         UpdateDeviceGroup(context);
         OnMenuSelect?.Invoke();
+
+        if (CurrentMode == InputMode.PauseMenu)
+            OnPauseMenuSelect?.Invoke();
     }
 
-    private void OnMenuUnequipPerformed(InputAction.CallbackContext context)
+    private void OnMenuSecondaryPerformed(InputAction.CallbackContext context)
     {
-        if (CurrentMode != InputMode.Menu)
-            return;
-
+        if (!IsMenuLikeMode) return;
         UpdateDeviceGroup(context);
-        OnMenuUnequip?.Invoke();
+        OnMenuUnequipOrDelete?.Invoke();
     }
 
     private void OnMenuDeletePerformed(InputAction.CallbackContext context)
     {
-        if (CurrentMode != InputMode.Menu)
-            return;
-
+        if (!IsMenuLikeMode) return;
         UpdateDeviceGroup(context);
         OnMenuDelete?.Invoke();
     }
 
     private void OnMenuClosePerformed(InputAction.CallbackContext context)
     {
-        if (CurrentMode != InputMode.Menu)
-            return;
-
+        if (!IsMenuLikeMode) return;
         UpdateDeviceGroup(context);
         OnMenuClose?.Invoke();
+
+        if (CurrentMode == InputMode.PauseMenu)
+            OnPauseToggle?.Invoke();
     }
 
-    // -------------------- QuestJournal --------------------
+    private void OnMenuCloseEquipmentPerformed(InputAction.CallbackContext context)
+    {
+        if (CurrentMode != InputMode.Menu) return;
+        UpdateDeviceGroup(context);
+        OnMenuCloseEquipment?.Invoke();
+    }
 
     private void OnQuestJournalUpPerformed(InputAction.CallbackContext context)
     {
-        if (CurrentMode != InputMode.QuestJournal)
-            return;
-
+        if (CurrentMode != InputMode.QuestJournal) return;
         UpdateDeviceGroup(context);
         OnQuestJournalUp?.Invoke();
     }
 
     private void OnQuestJournalDownPerformed(InputAction.CallbackContext context)
     {
-        if (CurrentMode != InputMode.QuestJournal)
-            return;
-
+        if (CurrentMode != InputMode.QuestJournal) return;
         UpdateDeviceGroup(context);
         OnQuestJournalDown?.Invoke();
     }
 
     private void OnQuestJournalSelectPerformed(InputAction.CallbackContext context)
     {
-        if (CurrentMode != InputMode.QuestJournal)
-            return;
-
+        if (CurrentMode != InputMode.QuestJournal) return;
         UpdateDeviceGroup(context);
         OnQuestJournalSelect?.Invoke();
     }
 
     private void OnQuestJournalBackPerformed(InputAction.CallbackContext context)
     {
-        if (CurrentMode != InputMode.QuestJournal)
-            return;
-
+        if (CurrentMode != InputMode.QuestJournal) return;
         UpdateDeviceGroup(context);
         OnQuestJournalBack?.Invoke();
     }
 
     private void OnQuestJournalMainTabPerformed(InputAction.CallbackContext context)
     {
-        if (CurrentMode != InputMode.QuestJournal)
-            return;
-
+        if (CurrentMode != InputMode.QuestJournal) return;
         UpdateDeviceGroup(context);
         OnQuestJournalMainTab?.Invoke();
     }
 
     private void OnQuestJournalSideTabPerformed(InputAction.CallbackContext context)
     {
-        if (CurrentMode != InputMode.QuestJournal)
-            return;
-
+        if (CurrentMode != InputMode.QuestJournal) return;
         UpdateDeviceGroup(context);
         OnQuestJournalSideTab?.Invoke();
     }
 
     private void OnQuestJournalPinQuestPerformed(InputAction.CallbackContext context)
     {
-        if (CurrentMode != InputMode.QuestJournal)
-            return;
-
+        if (CurrentMode != InputMode.QuestJournal) return;
         UpdateDeviceGroup(context);
         OnQuestJournalPinQuest?.Invoke();
     }
 
     private void OnQuestJournalClosePerformed(InputAction.CallbackContext context)
     {
-        if (CurrentMode != InputMode.QuestJournal)
-            return;
-
+        if (CurrentMode != InputMode.QuestJournal) return;
         UpdateDeviceGroup(context);
         OnQuestJournalClose?.Invoke();
-    }
-
-    // -------------------- PauseMenu --------------------
-
-    private void OnPauseMenuUpPerformed(InputAction.CallbackContext context)
-    {
-        if (CurrentMode != InputMode.PauseMenu)
-            return;
-
-        UpdateDeviceGroup(context);
-        OnPauseMenuUp?.Invoke();
-    }
-
-    private void OnPauseMenuDownPerformed(InputAction.CallbackContext context)
-    {
-        if (CurrentMode != InputMode.PauseMenu)
-            return;
-
-        UpdateDeviceGroup(context);
-        OnPauseMenuDown?.Invoke();
-    }
-
-    private void OnPauseMenuSelectPerformed(InputAction.CallbackContext context)
-    {
-        if (CurrentMode != InputMode.PauseMenu)
-            return;
-
-        UpdateDeviceGroup(context);
-        OnPauseMenuSelect?.Invoke();
-    }
-
-    private void OnPauseMenuTogglePerformed(InputAction.CallbackContext context)
-    {
-        if (CurrentMode != InputMode.PauseMenu)
-            return;
-
-        UpdateDeviceGroup(context);
-        OnPauseToggle?.Invoke();
     }
 }

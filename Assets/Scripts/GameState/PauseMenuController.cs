@@ -46,6 +46,7 @@ public class PauseMenuController : MonoBehaviour
     private void OnDisable()
     {
         SceneManager.sceneLoaded -= HandleSceneLoaded;
+
         UnbindInput();
 
         if (GameStateManager.Instance != null)
@@ -64,7 +65,9 @@ public class PauseMenuController : MonoBehaviour
 
     private void ResolveReferences()
     {
-        gameInput = GameInput.Instance != null ? GameInput.Instance : FindFirstObjectByType<GameInput>();
+        gameInput = GameInput.Instance != null
+            ? GameInput.Instance
+            : FindFirstObjectByType<GameInput>();
     }
 
     private void RebindInput()
@@ -76,6 +79,11 @@ public class PauseMenuController : MonoBehaviour
 
         gameInput.OnPauseToggle += HandlePauseToggle;
         gameInput.OnPauseMenuSelect += HandlePauseMenuSelect;
+
+        // Новый важный путь:
+        // CloseUI в паузе должен закрывать всю паузу, а не только состояние.
+        gameInput.OnMenuClose += HandleMenuClose;
+
         subscribedInput = gameInput;
     }
 
@@ -86,6 +94,8 @@ public class PauseMenuController : MonoBehaviour
 
         subscribedInput.OnPauseToggle -= HandlePauseToggle;
         subscribedInput.OnPauseMenuSelect -= HandlePauseMenuSelect;
+        subscribedInput.OnMenuClose -= HandleMenuClose;
+
         subscribedInput = null;
     }
 
@@ -99,8 +109,11 @@ public class PauseMenuController : MonoBehaviour
         if (pauseGrayScaleVolume != null)
             pauseGrayScaleVolume.weight = 0f;
 
-        if (GameStateManager.Instance != null && GameStateManager.Instance.CurrentState == GameState.Pause)
+        if (GameStateManager.Instance != null &&
+            GameStateManager.Instance.CurrentState == GameState.Pause)
+        {
             GameStateManager.Instance.SetState(GameState.Playing);
+        }
 
         if (gameInput != null)
             gameInput.SwitchToPlayerMode();
@@ -135,6 +148,19 @@ public class PauseMenuController : MonoBehaviour
         if (saveLoadMenuUI != null && saveLoadMenuUI.IsOpen)
             return;
 
+        ResumeGame();
+    }
+
+    private void HandleMenuClose()
+    {
+        if (GameStateManager.Instance == null)
+            return;
+
+        if (GameStateManager.Instance.CurrentState != GameState.Pause)
+            return;
+
+        // По твоему желаемому поведению CloseUI должен полностью закрывать паузу,
+        // даже если открыт save/load.
         ResumeGame();
     }
 
