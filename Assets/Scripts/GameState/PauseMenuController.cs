@@ -1,313 +1,205 @@
+using System.Collections;
 using UnityEngine;
-using UnityEngine.Rendering;
+using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
-using UnityEngine.UI;
 
-public class PauseMenuController : MonoBehaviour
+public sealed class PauseMenuController : MonoBehaviour
 {
-    [Header("References")]
-    [SerializeField] private GameInput gameInput;
+    [Header("Roots")]
     [SerializeField] private GameObject pauseMenuRoot;
-    [SerializeField] private Button resumeButton;
-    [SerializeField] private SaveLoadMenuUI saveLoadMenuUI;
+    [SerializeField] private GameObject saveLoadMenuRoot;
 
-    [Header("Pause Visual Effect")]
-    [SerializeField] private Volume pauseGrayScaleVolume;
-    [SerializeField, Range(0f, 1f)] private float pauseGrayScaleWeight = 1f;
+    [Header("Selection")]
+    [SerializeField] private GameObject pauseFirstSelected;
+    [SerializeField] private GameObject saveLoadFirstSelected;
 
-    [Header("Main Menu")]
+    [Header("Optional Visuals")]
+    [SerializeField] private Behaviour grayscaleEffect;
+    [SerializeField] private CanvasGroupFader fadeFader;
+    [SerializeField] private float fadeDuration = 0.2f;
+
+    [Header("Navigation")]
     [SerializeField] private string mainMenuSceneName = "MainMenu";
 
-    private GameInput subscribedInput;
-    private bool suppressPauseReturnFromSaveWindowClose;
+    private GameInput gameInput;
+    private bool isSubscribed;
+    private bool isTransitioning;
+
+    private bool IsPauseOpen => pauseMenuRoot != null && pauseMenuRoot.activeSelf;
+    private bool IsSaveLoadOpen => saveLoadMenuRoot != null && saveLoadMenuRoot.activeSelf;
 
     private void Awake()
     {
-        ResolveReferences();
-        ForceClosedVisual();
+        SetPauseVisible(false);
+        SetSaveLoadVisible(false);
+
+        if (grayscaleEffect != null)
+            grayscaleEffect.enabled = false;
     }
 
     private void OnEnable()
     {
-        SceneManager.sceneLoaded += HandleSceneLoaded;
+        CacheInput();
+        Subscribe();
+    }
 
-        ResolveReferences();
-        RebindInput();
-
-        if (GameStateManager.Instance != null)
-            GameStateManager.Instance.OnGameStateChanged += HandleGameStateChanged;
-
-        if (saveLoadMenuUI != null)
-            saveLoadMenuUI.OnWindowClosed += HandleSaveLoadWindowClosed;
-
-        ForceClosedVisual();
+    private void Start()
+    {
+        CacheInput();
     }
 
     private void OnDisable()
     {
-        SceneManager.sceneLoaded -= HandleSceneLoaded;
-
-        UnbindInput();
-
-        if (GameStateManager.Instance != null)
-            GameStateManager.Instance.OnGameStateChanged -= HandleGameStateChanged;
-
-        if (saveLoadMenuUI != null)
-            saveLoadMenuUI.OnWindowClosed -= HandleSaveLoadWindowClosed;
+        Unsubscribe();
     }
 
-    private void HandleSceneLoaded(Scene scene, LoadSceneMode mode)
+    private void CacheInput()
     {
-        ResolveReferences();
-        RebindInput();
-        ForceClosedVisual();
-    }
-
-    private void ResolveReferences()
-    {
-        gameInput = GameInput.Instance != null
-            ? GameInput.Instance
-            : FindFirstObjectByType<GameInput>();
-    }
-
-    private void RebindInput()
-    {
-        UnbindInput();
-
         if (gameInput == null)
-            return;
-
-        gameInput.OnPauseToggle += HandlePauseToggle;
-        gameInput.OnPauseMenuSelect += HandlePauseMenuSelect;
-
-        // Новый важный путь:
-        // CloseUI в паузе должен закрывать всю паузу, а не только состояние.
-        gameInput.OnMenuClose += HandleMenuClose;
-
-        subscribedInput = gameInput;
+            gameInput = GameInput.Instance;
     }
 
-    private void UnbindInput()
+    private void Subscribe()
     {
-        if (subscribedInput == null)
+        if (isSubscribed || gameInput == null)
             return;
 
-        subscribedInput.OnPauseToggle -= HandlePauseToggle;
-        subscribedInput.OnPauseMenuSelect -= HandlePauseMenuSelect;
-        subscribedInput.OnMenuClose -= HandleMenuClose;
-
-        subscribedInput = null;
+        gameInput.OnPausePressed += HandlePausePressed;
+        gameInput.OnMenuCancelPressed += HandleMenuCancelPressed;
+        isSubscribed = true;
     }
 
-    private void ForceClosedVisual()
+    private void Unsubscribe()
     {
-        if (pauseMenuRoot != null)
-            pauseMenuRoot.SetActive(false);
+        if (!isSubscribed || gameInput == null)
+            return;
 
-        CloseSaveLoadSilently();
+        gameInput.OnPausePressed -= HandlePausePressed;
+        gameInput.OnMenuCancelPressed -= HandleMenuCancelPressed;
+        isSubscribed = false;
+    }
 
-        if (pauseGrayScaleVolume != null)
-            pauseGrayScaleVolume.weight = 0f;
+    private void HandlePausePressed()
+    {
+        if (isTransitioning)
+            return;
 
-        if (GameStateManager.Instance != null &&
-            GameStateManager.Instance.CurrentState == GameState.Pause)
+        if (IsPauseOpen)
+            return;
+
+        OpenPause();
+    }
+
+    private void HandleMenuCancelPressed()
+    {
+        if (isTransitioning)
+            return;
+
+        if (!IsPauseOpen)
+            return;
+
+        if (IsSaveLoadOpen)
         {
-            GameStateManager.Instance.SetState(GameState.Playing);
+            CloseSaveLoad();
+            return;
         }
-
-        if (gameInput != null)
-            gameInput.SwitchToPlayerMode();
-    }
-
-    private void HandlePauseToggle()
-    {
-        if (GameStateManager.Instance == null || gameInput == null)
-            return;
-
-        if (GameStateManager.Instance.CurrentState == GameState.Playing)
-        {
-            OpenPauseMenu();
-        }
-        else if (GameStateManager.Instance.CurrentState == GameState.Pause)
-        {
-            if (saveLoadMenuUI != null && saveLoadMenuUI.IsOpen)
-                saveLoadMenuUI.Close();
-            else
-                ResumeGame();
-        }
-    }
-
-    private void HandlePauseMenuSelect()
-    {
-        if (GameStateManager.Instance == null)
-            return;
-
-        if (GameStateManager.Instance.CurrentState != GameState.Pause)
-            return;
-
-        if (saveLoadMenuUI != null && saveLoadMenuUI.IsOpen)
-            return;
 
         ResumeGame();
     }
 
-    private void HandleMenuClose()
+    public void OpenPause()
     {
-        if (GameStateManager.Instance == null)
-            return;
+        Time.timeScale = 0f;
+        SetPauseVisible(true);
+        SetSaveLoadVisible(false);
 
-        if (GameStateManager.Instance.CurrentState != GameState.Pause)
-            return;
+        if (grayscaleEffect != null)
+            grayscaleEffect.enabled = true;
 
-        // По твоему желаемому поведению CloseUI должен полностью закрывать паузу,
-        // даже если открыт save/load.
-        ResumeGame();
-    }
-
-    private void HandleGameStateChanged(GameState newState)
-    {
-        bool isPause = newState == GameState.Pause;
-
-        if (pauseMenuRoot != null)
-            pauseMenuRoot.SetActive(isPause);
-
-        if (pauseGrayScaleVolume != null)
-            pauseGrayScaleVolume.weight = isPause ? pauseGrayScaleWeight : 0f;
-
-        if (!isPause)
-            CloseSaveLoadSilently();
-
-        if (isPause && resumeButton != null)
-            resumeButton.Select();
-    }
-
-    private void HandleSaveLoadWindowClosed()
-    {
-        if (suppressPauseReturnFromSaveWindowClose)
-            return;
-
-        if (GameStateManager.Instance == null)
-            return;
-
-        if (GameStateManager.Instance.CurrentState != GameState.Pause)
-            return;
-
-        if (gameInput != null)
-            gameInput.SwitchToPauseMenuMode();
-
-        if (resumeButton != null)
-            resumeButton.Select();
-    }
-
-    private void CloseSaveLoadSilently()
-    {
-        if (saveLoadMenuUI == null || !saveLoadMenuUI.IsOpen)
-            return;
-
-        suppressPauseReturnFromSaveWindowClose = true;
-        saveLoadMenuUI.Close();
-        suppressPauseReturnFromSaveWindowClose = false;
+        gameInput?.SetMenuMode();
+        Select(pauseFirstSelected != null ? pauseFirstSelected : pauseMenuRoot);
     }
 
     public void ResumeGame()
     {
-        CloseSaveLoadSilently();
+        SetSaveLoadVisible(false);
+        SetPauseVisible(false);
 
-        if (GameStateManager.Instance != null)
-            GameStateManager.Instance.SetState(GameState.Playing);
+        if (grayscaleEffect != null)
+            grayscaleEffect.enabled = false;
 
-        if (pauseMenuRoot != null)
-            pauseMenuRoot.SetActive(false);
-
-        if (pauseGrayScaleVolume != null)
-            pauseGrayScaleVolume.weight = 0f;
-
-        if (gameInput != null)
-            gameInput.SwitchToPlayerMode();
+        Time.timeScale = 1f;
+        gameInput?.SetGameplayMode();
     }
 
-    public void OpenSaveMenu()
+    public void OpenSaveLoad()
     {
-        if (GameStateManager.Instance == null || GameStateManager.Instance.CurrentState != GameState.Pause)
+        if (!IsPauseOpen)
             return;
 
-        if (saveLoadMenuUI == null)
-        {
-            Debug.LogWarning("[PauseMenuController] SaveLoadMenuUI is not assigned.", this);
-            return;
-        }
-
-        saveLoadMenuUI.OpenSaveMode();
-
-        if (gameInput != null)
-            gameInput.SwitchToMenuMode();
+        SetSaveLoadVisible(true);
+        Select(saveLoadFirstSelected != null ? saveLoadFirstSelected : saveLoadMenuRoot);
     }
 
-    public void OpenLoadMenu()
+    public void CloseSaveLoad()
     {
-        if (GameStateManager.Instance == null || GameStateManager.Instance.CurrentState != GameState.Pause)
-            return;
-
-        if (saveLoadMenuUI == null)
-        {
-            Debug.LogWarning("[PauseMenuController] SaveLoadMenuUI is not assigned.", this);
-            return;
-        }
-
-        saveLoadMenuUI.OpenLoadMode();
-
-        if (gameInput != null)
-            gameInput.SwitchToMenuMode();
-    }
-
-    public void CloseSaveLoadWindow()
-    {
-        if (saveLoadMenuUI == null)
-            return;
-
-        saveLoadMenuUI.Close();
+        SetSaveLoadVisible(false);
+        Select(pauseFirstSelected != null ? pauseFirstSelected : pauseMenuRoot);
     }
 
     public void ReturnToMainMenu()
     {
-        CloseSaveLoadSilently();
-
-        if (pauseMenuRoot != null)
-            pauseMenuRoot.SetActive(false);
-
-        if (pauseGrayScaleVolume != null)
-            pauseGrayScaleVolume.weight = 0f;
-
-        if (GameStateManager.Instance != null)
-            GameStateManager.Instance.SetState(GameState.Menu);
-
-        if (gameInput != null)
-            gameInput.SwitchToMenuMode();
-
-        if (SceneTransitionManager.Instance != null)
-        {
-            SceneTransitionManager.Instance.LoadScene(mainMenuSceneName);
+        if (isTransitioning)
             return;
+
+        StartCoroutine(ReturnToMainMenuRoutine());
+    }
+
+    private IEnumerator ReturnToMainMenuRoutine()
+    {
+        isTransitioning = true;
+        Time.timeScale = 1f;
+
+        if (fadeFader != null)
+            yield return fadeFader.FadeTo(1f, fadeDuration, true);
+
+        if (string.IsNullOrWhiteSpace(mainMenuSceneName))
+        {
+            Debug.LogError("[PauseMenuController] Main menu scene name is empty.", this);
+            isTransitioning = false;
+            yield break;
         }
 
         SceneManager.LoadScene(mainMenuSceneName, LoadSceneMode.Single);
     }
 
-    private void OpenPauseMenu()
+    private void SetPauseVisible(bool visible)
     {
-        if (GameStateManager.Instance != null)
-            GameStateManager.Instance.SetState(GameState.Pause);
+        if (pauseMenuRoot == null)
+            return;
 
-        if (pauseMenuRoot != null)
-            pauseMenuRoot.SetActive(true);
+        pauseMenuRoot.SetActive(visible);
+    }
 
-        if (pauseGrayScaleVolume != null)
-            pauseGrayScaleVolume.weight = pauseGrayScaleWeight;
+    private void SetSaveLoadVisible(bool visible)
+    {
+        if (saveLoadMenuRoot == null)
+            return;
 
-        if (gameInput != null)
-            gameInput.SwitchToPauseMenuMode();
+        saveLoadMenuRoot.SetActive(visible);
 
-        if (resumeButton != null)
-            resumeButton.Select();
+        if (visible)
+            saveLoadMenuRoot.SendMessage("Open", SendMessageOptions.DontRequireReceiver);
+        else
+            saveLoadMenuRoot.SendMessage("Close", SendMessageOptions.DontRequireReceiver);
+    }
+
+    private static void Select(GameObject target)
+    {
+        if (target == null || EventSystem.current == null)
+            return;
+
+        EventSystem.current.SetSelectedGameObject(null);
+        EventSystem.current.SetSelectedGameObject(target);
     }
 }

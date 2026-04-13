@@ -1,151 +1,182 @@
 using UnityEngine;
-using UnityEngine.SceneManagement;
+using UnityEngine.EventSystems;
 
-public class StatsMenuController : MonoBehaviour
+public sealed class StatsMenuController : MonoBehaviour
 {
-    [SerializeField] private GameInput gameInput;
+    [Header("Roots")]
     [SerializeField] private GameObject menuRoot;
-    [SerializeField] private EquipmentMenuUI equipmentMenuUI;
-    [SerializeField] private StatsControlsHintUI statsControlsHintUI;
+    [SerializeField] private GameObject equipmentMenuRoot;
+    [SerializeField] private GameObject controlsHintRoot;
 
-    private bool isOpened;
-    private GameInput subscribedInput;
+    [Header("Selection")]
+    [SerializeField] private GameObject menuFirstSelected;
+    [SerializeField] private GameObject equipmentFirstSelected;
+
+    private GameInput gameInput;
+    private bool isSubscribed;
+
+    private bool IsMenuOpen => menuRoot != null && menuRoot.activeSelf;
+    private bool IsEquipmentOpen => equipmentMenuRoot != null && equipmentMenuRoot.activeSelf;
 
     private void Awake()
     {
-        ResolveReferences();
-        ForceClosedVisual();
+        SetMenuVisible(false);
+        SetEquipmentVisible(false);
+        SetHintsVisible(false);
     }
 
     private void OnEnable()
     {
-        SceneManager.sceneLoaded += HandleSceneLoaded;
-        ResolveReferences();
-        RebindInput();
-        ForceClosedVisual();
+        CacheInput();
+        Subscribe();
+    }
+
+    private void Start()
+    {
+        CacheInput();
     }
 
     private void OnDisable()
     {
-        SceneManager.sceneLoaded -= HandleSceneLoaded;
-        UnbindInput();
+        Unsubscribe();
     }
 
-    private void HandleSceneLoaded(Scene scene, LoadSceneMode mode)
+    private void CacheInput()
     {
-        ResolveReferences();
-        RebindInput();
-        ForceClosedVisual();
-    }
-
-    private void ResolveReferences()
-    {
-        gameInput = GameInput.Instance != null
-            ? GameInput.Instance
-            : FindFirstObjectByType<GameInput>();
-    }
-
-    private void RebindInput()
-    {
-        UnbindInput();
-
         if (gameInput == null)
+            gameInput = GameInput.Instance;
+    }
+
+    private void Subscribe()
+    {
+        if (isSubscribed || gameInput == null)
             return;
 
-        gameInput.OnStats += ToggleMenu;
-        gameInput.OnMenuClose += CloseMenu;
-        gameInput.OnMenuCloseEquipment += CloseMenu;
-
-        subscribedInput = gameInput;
+        gameInput.OnStatsPressed += HandleStatsPressed;
+        gameInput.OnMenuCancelPressed += HandleMenuCancelPressed;
+        gameInput.OnCloseEquipmentPressed += HandleCloseEquipmentPressed;
+        isSubscribed = true;
     }
 
-    private void UnbindInput()
+    private void Unsubscribe()
     {
-        if (subscribedInput == null)
+        if (!isSubscribed || gameInput == null)
             return;
 
-        subscribedInput.OnStats -= ToggleMenu;
-        subscribedInput.OnMenuClose -= CloseMenu;
-        subscribedInput.OnMenuCloseEquipment -= CloseMenu;
-
-        subscribedInput = null;
+        gameInput.OnStatsPressed -= HandleStatsPressed;
+        gameInput.OnMenuCancelPressed -= HandleMenuCancelPressed;
+        gameInput.OnCloseEquipmentPressed -= HandleCloseEquipmentPressed;
+        isSubscribed = false;
     }
 
-    private void ForceClosedVisual()
+    private void HandleStatsPressed()
     {
-        isOpened = false;
+        if (IsMenuOpen)
+            return;
 
-        if (menuRoot != null)
-            menuRoot.SetActive(false);
-
-        if (equipmentMenuUI != null)
-            equipmentMenuUI.CloseMenu();
-
-        if (GameStateManager.Instance != null &&
-            GameStateManager.Instance.CurrentState == GameState.Menu)
-        {
-            GameStateManager.Instance.SetState(GameState.Playing);
-        }
-
-        if (gameInput != null)
-            gameInput.SwitchToPlayerMode();
+        OpenMenu();
     }
 
-    private void ToggleMenu()
+    private void HandleMenuCancelPressed()
     {
-        if (GameStateManager.Instance != null)
-        {
-            if (GameStateManager.Instance.CurrentState == GameState.Dialogue ||
-                GameStateManager.Instance.CurrentState == GameState.Pause)
-            {
-                return;
-            }
-        }
+        if (!IsMenuOpen)
+            return;
 
-        if (isOpened)
-            CloseMenu();
-        else
-            OpenMenu();
+        if (CloseEquipmentIfOpen())
+            return;
+
+        CloseMenu();
+    }
+
+    private void HandleCloseEquipmentPressed()
+    {
+        if (!IsMenuOpen)
+            return;
+
+        CloseEquipmentIfOpen();
     }
 
     public void OpenMenu()
     {
-        ResolveReferences();
+        SetMenuVisible(true);
+        SetHintsVisible(true);
+        SetEquipmentVisible(false);
 
-        if (menuRoot == null || gameInput == null)
-            return;
-
-        isOpened = true;
-        menuRoot.SetActive(true);
-
-        if (GameStateManager.Instance != null)
-            GameStateManager.Instance.SetState(GameState.Menu);
-
-        gameInput.SwitchToMenuMode();
-
-        if (equipmentMenuUI != null)
-            equipmentMenuUI.OpenMenu();
-
-        if (statsControlsHintUI != null)
-            statsControlsHintUI.Refresh();
+        gameInput?.SetMenuMode();
+        Select(menuFirstSelected != null ? menuFirstSelected : menuRoot);
     }
 
     public void CloseMenu()
     {
-        ResolveReferences();
+        SetEquipmentVisible(false);
+        SetHintsVisible(false);
+        SetMenuVisible(false);
 
-        if (menuRoot == null || gameInput == null)
+        gameInput?.SetGameplayMode();
+    }
+
+    public void OpenEquipmentMenu()
+    {
+        if (!IsMenuOpen)
             return;
 
-        isOpened = false;
-        menuRoot.SetActive(false);
+        SetEquipmentVisible(true);
+        Select(equipmentFirstSelected != null ? equipmentFirstSelected : equipmentMenuRoot);
+    }
 
-        if (equipmentMenuUI != null)
-            equipmentMenuUI.CloseMenu();
+    public void CloseEquipmentMenu()
+    {
+        if (!IsMenuOpen)
+            return;
 
-        if (GameStateManager.Instance != null)
-            GameStateManager.Instance.SetState(GameState.Playing);
+        SetEquipmentVisible(false);
+        Select(menuFirstSelected != null ? menuFirstSelected : menuRoot);
+    }
 
-        gameInput.SwitchToPlayerMode();
+    private bool CloseEquipmentIfOpen()
+    {
+        if (!IsEquipmentOpen)
+            return false;
+
+        CloseEquipmentMenu();
+        return true;
+    }
+
+    private void SetMenuVisible(bool visible)
+    {
+        if (menuRoot == null)
+            return;
+
+        menuRoot.SetActive(visible);
+    }
+
+    private void SetEquipmentVisible(bool visible)
+    {
+        if (equipmentMenuRoot == null)
+            return;
+
+        equipmentMenuRoot.SetActive(visible);
+
+        if (visible)
+            equipmentMenuRoot.SendMessage("Open", SendMessageOptions.DontRequireReceiver);
+        else
+            equipmentMenuRoot.SendMessage("Close", SendMessageOptions.DontRequireReceiver);
+    }
+
+    private void SetHintsVisible(bool visible)
+    {
+        if (controlsHintRoot == null)
+            return;
+
+        controlsHintRoot.SetActive(visible);
+    }
+
+    private static void Select(GameObject target)
+    {
+        if (target == null || EventSystem.current == null)
+            return;
+
+        EventSystem.current.SetSelectedGameObject(null);
+        EventSystem.current.SetSelectedGameObject(target);
     }
 }

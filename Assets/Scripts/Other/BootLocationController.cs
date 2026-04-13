@@ -1,142 +1,89 @@
 using System.Collections;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
 
-public class BootLocationController : MonoBehaviour
+public sealed class BootLocationController : MonoBehaviour
 {
-    [Header("References")]
-    [SerializeField] private GameInput gameInput;
-    [SerializeField] private SaveLoadMenuUI saveLoadMenuUI;
-
     [Header("Start Game")]
     [SerializeField] private string firstGameplaySceneName = "SampleScene";
     [SerializeField] private string startEntryPointId;
 
-    [Header("Fade")]
-    [SerializeField] private CanvasGroup fadeCanvasGroup;
-    [SerializeField] private float fadeDuration = 0.5f;
+    [Header("Navigation")]
+    [SerializeField] private string mainMenuSceneName = "MainMenu";
 
-    private GameInput subscribedInput;
-    private BootActionTrigger currentAvailableTrigger;
+    [Header("Optional Save/Load Window")]
+    [SerializeField] private GameObject saveLoadMenuRoot;
+    [SerializeField] private GameObject saveLoadFirstSelected;
+
+    [Header("Fade")]
+    [SerializeField] private CanvasGroupFader fadeFader;
+    [SerializeField] private float fadeDuration = 0.2f;
+
+    private GameInput gameInput;
+    private bool isSubscribed;
     private bool isTransitioning;
-    private bool isLoadWindowOpen;
+
+    private bool IsSaveLoadOpen => saveLoadMenuRoot != null && saveLoadMenuRoot.activeSelf;
 
     private void Awake()
     {
-        ResolveReferences();
-        PrepareFadeCanvas();
+        SetSaveLoadVisible(false);
     }
 
     private void OnEnable()
     {
-        ResolveReferences();
-        RebindInput();
+        CacheInput();
+        Subscribe();
 
-        if (saveLoadMenuUI != null)
-            saveLoadMenuUI.OnWindowClosed += HandleLoadWindowClosed;
+        if (gameInput != null)
+            gameInput.SetBootExploreMode();
+    }
 
-        EnterBootLocationMode();
+    private void Start()
+    {
+        CacheInput();
+
+        if (gameInput != null)
+            gameInput.SetBootExploreMode();
     }
 
     private void OnDisable()
     {
-        if (saveLoadMenuUI != null)
-            saveLoadMenuUI.OnWindowClosed -= HandleLoadWindowClosed;
-
-        UnbindInput();
+        Unsubscribe();
     }
 
-    private void ResolveReferences()
+    private void CacheInput()
     {
         if (gameInput == null)
-        {
-            gameInput = GameInput.Instance != null
-                ? GameInput.Instance
-                : FindFirstObjectByType<GameInput>();
-        }
+            gameInput = GameInput.Instance;
     }
 
-    private void RebindInput()
+    private void Subscribe()
     {
-        UnbindInput();
-
-        if (gameInput == null)
+        if (isSubscribed || gameInput == null)
             return;
 
-        gameInput.OnMenuClose += HandleMenuClose;
-        subscribedInput = gameInput;
+        gameInput.OnMenuCancelPressed += HandleMenuCancelPressed;
+        isSubscribed = true;
     }
 
-    private void UnbindInput()
+    private void Unsubscribe()
     {
-        if (subscribedInput == null)
+        if (!isSubscribed || gameInput == null)
             return;
 
-        subscribedInput.OnMenuClose -= HandleMenuClose;
-        subscribedInput = null;
+        gameInput.OnMenuCancelPressed -= HandleMenuCancelPressed;
+        isSubscribed = false;
     }
 
-    private void PrepareFadeCanvas()
-    {
-        if (fadeCanvasGroup == null)
-            return;
-
-        fadeCanvasGroup.alpha = 0f;
-        fadeCanvasGroup.blocksRaycasts = false;
-        fadeCanvasGroup.interactable = false;
-    }
-
-    private void EnterBootLocationMode()
-    {
-        if (GameStateManager.Instance != null)
-            GameStateManager.Instance.SetState(GameState.Playing);
-        else
-            Time.timeScale = 1f;
-
-        if (gameInput != null)
-            gameInput.SwitchToPlayerMode();
-    }
-
-    public void RegisterAvailableTrigger(BootActionTrigger trigger)
-    {
-        if (trigger == null)
-            return;
-
-        if (isTransitioning || isLoadWindowOpen)
-            return;
-
-        if (currentAvailableTrigger == trigger)
-            return;
-
-        ClearCurrentTriggerFocus();
-        currentAvailableTrigger = trigger;
-        currentAvailableTrigger.SetFocused(true);
-    }
-
-    public void UnregisterAvailableTrigger(BootActionTrigger trigger)
-    {
-        if (trigger == null)
-            return;
-
-        if (currentAvailableTrigger != trigger)
-            return;
-
-        currentAvailableTrigger.SetFocused(false);
-        currentAvailableTrigger = null;
-    }
-
-    public void TryInteract()
+    private void HandleMenuCancelPressed()
     {
         if (isTransitioning)
             return;
 
-        if (isLoadWindowOpen)
-            return;
-
-        if (currentAvailableTrigger == null)
-            return;
-
-        currentAvailableTrigger.Execute(this);
+        if (IsSaveLoadOpen)
+            CloseLoadMenu();
     }
 
     public void StartNewGame()
@@ -144,7 +91,37 @@ public class BootLocationController : MonoBehaviour
         if (isTransitioning)
             return;
 
+        if (string.IsNullOrWhiteSpace(firstGameplaySceneName))
+        {
+            Debug.LogError("[BootLocationController] First gameplay scene name is empty.", this);
+            return;
+        }
+
         StartCoroutine(StartNewGameRoutine());
+    }
+
+    private IEnumerator StartNewGameRoutine()
+    {
+        isTransitioning = true;
+        Time.timeScale = 1f;
+
+        if (fadeFader != null)
+            yield return fadeFader.FadeTo(1f, fadeDuration, true);
+
+        if (SaveSystem.Instance != null)
+        {
+            SaveSystem.Instance.StartNewGame(firstGameplaySceneName, startEntryPointId);
+            yield break;
+        }
+
+        if (SceneTransitionManager.Instance != null)
+        {
+            SceneTransitionManager.Instance.LoadScene(firstGameplaySceneName, startEntryPointId);
+            yield break;
+        }
+
+        SceneTransitionState.SetNextEntryPoint(startEntryPointId);
+        SceneManager.LoadScene(firstGameplaySceneName, LoadSceneMode.Single);
     }
 
     public void OpenLoadMenu()
@@ -152,37 +129,45 @@ public class BootLocationController : MonoBehaviour
         if (isTransitioning)
             return;
 
-        if (saveLoadMenuUI == null)
-        {
-            Debug.LogWarning("[BootLocationController] SaveLoadMenuUI is not assigned.", this);
-            return;
-        }
+        SetSaveLoadVisible(true);
+        gameInput?.SetMenuMode();
 
-        ClearCurrentTriggerFocus();
-
-        saveLoadMenuUI.OpenLoadMode();
-        isLoadWindowOpen = true;
-
-        if (gameInput != null)
-            gameInput.SwitchToMenuMode();
+        Select(saveLoadFirstSelected != null ? saveLoadFirstSelected : saveLoadMenuRoot);
     }
 
     public void CloseLoadMenu()
     {
-        if (saveLoadMenuUI == null)
-            return;
-
-        if (!saveLoadMenuUI.IsOpen)
-            return;
-
-        saveLoadMenuUI.Close();
+        SetSaveLoadVisible(false);
+        gameInput?.SetBootExploreMode();
     }
 
-    public void ExitGame()
+    public void ReturnToMainMenu()
     {
         if (isTransitioning)
             return;
 
+        if (string.IsNullOrWhiteSpace(mainMenuSceneName))
+        {
+            Debug.LogError("[BootLocationController] Main menu scene name is empty.", this);
+            return;
+        }
+
+        StartCoroutine(ReturnToMainMenuRoutine());
+    }
+
+    private IEnumerator ReturnToMainMenuRoutine()
+    {
+        isTransitioning = true;
+        Time.timeScale = 1f;
+
+        if (fadeFader != null)
+            yield return fadeFader.FadeTo(1f, fadeDuration, true);
+
+        SceneManager.LoadScene(mainMenuSceneName, LoadSceneMode.Single);
+    }
+
+    public void ExitGame()
+    {
         Application.Quit();
 
 #if UNITY_EDITOR
@@ -190,86 +175,25 @@ public class BootLocationController : MonoBehaviour
 #endif
     }
 
-    private IEnumerator StartNewGameRoutine()
+    private void SetSaveLoadVisible(bool visible)
     {
-        isTransitioning = true;
-
-        CloseLoadMenu();
-        ClearCurrentTriggerFocus();
-
-        yield return FadeToBlack();
-        yield return new WaitForEndOfFrame();
-
-        LoadGameplayScene();
-    }
-
-    private IEnumerator FadeToBlack()
-    {
-        if (fadeCanvasGroup == null)
-            yield break;
-
-        fadeCanvasGroup.blocksRaycasts = true;
-        fadeCanvasGroup.interactable = true;
-
-        float time = 0f;
-        while (time < fadeDuration)
-        {
-            time += Time.unscaledDeltaTime;
-            fadeCanvasGroup.alpha = Mathf.Clamp01(time / fadeDuration);
-            yield return null;
-        }
-
-        fadeCanvasGroup.alpha = 1f;
-    }
-
-    private void LoadGameplayScene()
-    {
-        if (SaveSystem.Instance != null)
-        {
-            SaveSystem.Instance.StartNewGame(firstGameplaySceneName, startEntryPointId);
-            return;
-        }
-
-        if (SceneTransitionManager.Instance != null)
-        {
-            SceneTransitionManager.Instance.LoadScene(firstGameplaySceneName, startEntryPointId);
-            return;
-        }
-
-        SceneTransitionState.SetNextEntryPoint(startEntryPointId);
-        SceneManager.LoadScene(firstGameplaySceneName, LoadSceneMode.Single);
-    }
-
-    private void HandleLoadWindowClosed()
-    {
-        isLoadWindowOpen = false;
-
-        if (gameInput != null)
-            gameInput.SwitchToPlayerMode();
-
-        RestoreCurrentTriggerFocusIfPossible();
-    }
-
-    private void HandleMenuClose()
-    {
-        if (!isLoadWindowOpen)
+        if (saveLoadMenuRoot == null)
             return;
 
-        CloseLoadMenu();
+        saveLoadMenuRoot.SetActive(visible);
+
+        if (visible)
+            saveLoadMenuRoot.SendMessage("Open", SendMessageOptions.DontRequireReceiver);
+        else
+            saveLoadMenuRoot.SendMessage("Close", SendMessageOptions.DontRequireReceiver);
     }
 
-    private void ClearCurrentTriggerFocus()
+    private static void Select(GameObject target)
     {
-        if (currentAvailableTrigger != null)
-            currentAvailableTrigger.SetFocused(false);
-    }
-
-    private void RestoreCurrentTriggerFocusIfPossible()
-    {
-        if (isTransitioning)
+        if (target == null || EventSystem.current == null)
             return;
 
-        if (currentAvailableTrigger != null)
-            currentAvailableTrigger.SetFocused(true);
+        EventSystem.current.SetSelectedGameObject(null);
+        EventSystem.current.SetSelectedGameObject(target);
     }
 }
