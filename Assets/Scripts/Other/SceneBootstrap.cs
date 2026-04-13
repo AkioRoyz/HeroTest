@@ -3,63 +3,69 @@ using UnityEngine;
 public class SceneBootstrap : MonoBehaviour
 {
     [Header("Player Spawn")]
-    [SerializeField] private GameObject playerPrefab;
     [SerializeField] private Transform spawnPoint;
-    [SerializeField] private bool spawnOnlyIfMissing = true;
     [SerializeField] private bool moveExistingPlayerToSpawn = true;
     [SerializeField] private bool resetPlayerVelocityOnTeleport = true;
 
     [Header("Debug")]
     [SerializeField] private bool showLogs = true;
 
-    private void Start()
+    private void Awake()
     {
-        EnsurePlayerExistsAndPlaced();
+        EnsurePlayerPlaced();
     }
 
-    private void EnsurePlayerExistsAndPlaced()
+    private void EnsurePlayerPlaced()
     {
         GameObject[] players = GameObject.FindGameObjectsWithTag("Player");
-        GameObject existingPlayer = players.Length > 0 ? players[0] : null;
+
+        if (players.Length == 0)
+        {
+            Debug.LogError("[SceneBootstrap] Player with tag 'Player' was not found. Make sure the player is created before loading this scene.", this);
+            return;
+        }
 
         if (players.Length > 1)
         {
             Debug.LogError($"[SceneBootstrap] Found {players.Length} objects with Player tag. There must be exactly one player.", this);
         }
 
+        GameObject player = players[0];
+
+        if (!moveExistingPlayerToSpawn)
+        {
+            if (showLogs)
+                Debug.Log($"[SceneBootstrap] Player found: {player.name}, but moving is disabled.", this);
+
+            return;
+        }
+
         Transform resolvedSpawn = ResolveSpawnPoint();
-
-        if (spawnOnlyIfMissing && existingPlayer != null)
+        if (resolvedSpawn == null)
         {
-            if (moveExistingPlayerToSpawn && resolvedSpawn != null)
-            {
-                existingPlayer.transform.SetPositionAndRotation(resolvedSpawn.position, resolvedSpawn.rotation);
-                ResetPlayerPhysics(existingPlayer);
-
-                if (showLogs)
-                    Debug.Log($"[SceneBootstrap] Existing player moved to spawn: {resolvedSpawn.name}", this);
-            }
-            else if (showLogs)
-            {
-                Debug.Log($"[SceneBootstrap] Player already exists: {existingPlayer.name}", this);
-            }
-
+            Debug.LogWarning("[SceneBootstrap] Spawn point was not resolved.", this);
             return;
         }
 
-        if (playerPrefab == null)
+        Rigidbody2D rb = player.GetComponent<Rigidbody2D>();
+        if (rb != null)
         {
-            Debug.LogWarning("[SceneBootstrap] playerPrefab is not assigned.", this);
-            return;
+            if (resetPlayerVelocityOnTeleport)
+            {
+                rb.linearVelocity = Vector2.zero;
+                rb.angularVelocity = 0f;
+            }
+
+            rb.position = resolvedSpawn.position;
+            rb.rotation = resolvedSpawn.eulerAngles.z;
         }
-
-        Vector3 spawnPos = resolvedSpawn != null ? resolvedSpawn.position : Vector3.zero;
-        Quaternion spawnRot = resolvedSpawn != null ? resolvedSpawn.rotation : Quaternion.identity;
-
-        GameObject player = Instantiate(playerPrefab, spawnPos, spawnRot);
+        else
+        {
+            player.transform.SetPositionAndRotation(resolvedSpawn.position, resolvedSpawn.rotation);
+        }
 
         if (showLogs)
-            Debug.Log($"[SceneBootstrap] Spawned player: {player.name}", this);
+            Debug.Log($"[SceneBootstrap] Existing player moved to spawn: {resolvedSpawn.name}", this);
     }
 
     private Transform ResolveSpawnPoint()
@@ -86,18 +92,5 @@ public class SceneBootstrap : MonoBehaviour
         }
 
         return spawnPoint;
-    }
-
-    private void ResetPlayerPhysics(GameObject player)
-    {
-        if (!resetPlayerVelocityOnTeleport || player == null)
-            return;
-
-        Rigidbody2D rb = player.GetComponent<Rigidbody2D>();
-        if (rb == null)
-            return;
-
-        rb.linearVelocity = Vector2.zero;
-        rb.angularVelocity = 0f;
     }
 }
